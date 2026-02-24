@@ -1,1 +1,26 @@
+# NetBeans build files
+build/
+dist/
+nbbuild/
 
+# NetBeans private config
+nbproject/private/
+
+# Compiled class files
+*.class
+*.jar
+*.war
+*.ear
+
+# Database files
+nosanctuary_db/
+derby.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+*.swp
+*.swo
+*~
