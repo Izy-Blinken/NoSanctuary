@@ -1,0 +1,5 @@
+com\mycompany\edpgame\KeyHandler.class
+entity\Entity.class
+com\mycompany\edpgame\panel.class
+entity\Player.class
+com\mycompany\edpgame\EdpGame.class
