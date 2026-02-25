@@ -2,22 +2,20 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package game;
+package models;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
 /**
  *
  * @author ADMIN
  */
-public class Tiles {
-    
+public class GameObject {
     public BufferedImage image;
-    public boolean collision;
+    public int worldX, worldY;
+    public boolean collision = false;
+    public Rectangle solidArea;
     
-    public Tiles(BufferedImage image, boolean collision){
-        this.image = image;
-        this.collision = collision;
-    }
     
 }
