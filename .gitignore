@@ -8,7 +8,6 @@ nbproject/private/
 
 # Compiled class files
 *.class
-*.jar
 *.war
 *.ear
 
