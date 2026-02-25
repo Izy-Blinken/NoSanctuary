@@ -30,10 +30,11 @@ public class DatabaseConnection {
             //paggawa lang naman ng table reh, pag nakagawa kana pwede munang tanggalin, hindi kasi supported ng apache derby ung may "IF NOT EXISTS" na keyword
             //irerestart mo pa ung netbeans para lang malagay na sa table folder ung table na gawa mo
             
-            /*st.executeUpdate("CREATE TABLE UserProgress(id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,\n"
-                    + "    player_name VARCHAR(50),\n"
-                    + "    final_score INT, \n"
-                    + "    completion_time BIGINT)");*/
+            try {
+                st.executeUpdate("CREATE TABLE UserProgress(id INT PRIMARY KEY GENERATED ALWAYS AS IDENTITY, player_name VARCHAR(50), final_score INT, completion_time BIGINT)");
+            } catch (SQLException e) {
+                // table already exists, ignore
+            }
             
             //PWEDE MONG I-UNCOMMENT UNG executeUpdate kung ayaw mong mano-mano ung paggawa ng table, pero ung sa part ng database, dapat ata mano-mano mo syang gawin
             //di kasi nagana sakin ung katulad nung ginawa ko sa executeUpdate
