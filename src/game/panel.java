@@ -30,6 +30,7 @@ public class panel extends JPanel implements Runnable {
     public CollisionChecker cChecker = new CollisionChecker(this);
     Player player = new Player(this, keyH);
     public ObjectManager objectM = new ObjectManager(this);
+    public dayCounter dC = new dayCounter(this);
     Thread GameThread;
     
     
@@ -64,7 +65,7 @@ public class panel extends JPanel implements Runnable {
 
         while (GameThread != null) {
 
-            System.out.print("runnig");
+            //System.out.print("runnig");
             long CurrentTime = System.nanoTime();
 
             update();
@@ -90,7 +91,7 @@ public class panel extends JPanel implements Runnable {
     public void update() {
 
         player.update();
-
+        dC.update();
     }
 
     public void paintComponent(Graphics g) {
@@ -102,6 +103,8 @@ public class panel extends JPanel implements Runnable {
         tileM.draw(g2);
         objectM.draw(g2);
         player.draw(g2);
+        dC.draw(g2);
+        dC.drawOverlay(g2);
 
         g2.dispose();
     }
