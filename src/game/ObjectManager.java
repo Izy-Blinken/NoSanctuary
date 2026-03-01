@@ -5,12 +5,16 @@
 package game;
 
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import models.FireCamp;
 import models.GameObject;
 import models.ObjAppleTree;
 import models.ObjHouse;
+import models.ObjInterior;
 import models.ObjPineTree;
 import models.ObjTree;
+import models.ObjTreeTop;
+import models.ObjTreeTopBR;
 import models.ObjVehicle;
 import models.ObjWoods;
 
@@ -27,6 +31,10 @@ public class ObjectManager {
     public GameObject[] ObjWoods;
     public GameObject[] FireCamp;
     public GameObject[] ObjPineTree;
+    public GameObject[] ObjTreeTop;
+    public GameObject[] ObjTreeTopBR;
+    
+    public ObjInterior interior;
     
     public ObjectManager(panel gp) {
         this.gp = gp;
@@ -37,6 +45,10 @@ public class ObjectManager {
         ObjWoods = new GameObject[100];
         FireCamp = new GameObject[100];
         ObjPineTree = new GameObject[100];
+        ObjTreeTop = new GameObject[100];
+        ObjTreeTopBR = new GameObject[100];
+        
+        interior = new models.ObjInterior(gp);
         
         setObjects();
     }
@@ -175,7 +187,43 @@ public class ObjectManager {
             objects[index2].worldY = coords[i][1];
             index2++;
         }
-         
+        
+        //Tree Top Bottom Left
+        
+        int index3 = 0;
+        int[][] coordsTop = {
+            {-10,1935},{77,1909},{180,1914},{289,1907},{372,1910},
+            {-10,1979},{71,1956},{183,1982},{276,1962},{359,1964},
+            {-10,2018},{82,2004},{165,2008},{275,2018},{372,2016},
+            {-10,2071},{72,2066},{170,2068},{279,2057},{364,2064},
+            {-19,2112},{94,2098},{187,2112},{289,2112},{367,2112}
+        };
+        
+        for(int i = 0; i < coordsTop.length; i++) {
+            ObjTreeTop[index3] = new ObjTreeTop(gp, 1.6);
+            ObjTreeTop[index3].worldX = coordsTop[i][0] - 30;
+            ObjTreeTop[index3].worldY = coordsTop[i][1] - 10;
+            index3++;
+        }
+        
+        //Tree Top Bottom Right
+        
+        int index4 = 0;
+        int[][] coordsTopRight = {
+            {2415,1928},{2594,1911},{2594,1929},{2689,1918},{2784,1914},
+            {2399,1955},{2600,1966},{2612,1967},{2698,1968},{2781,1968},
+            {2400,2018},{2497,2022},{2609,2012},{2697,2019},{2799,2016},
+            {2405,2051},{2492,2075},{2611,2053},{2696,2053},{2779,2051},
+            {2502,2112},{2512,2112},{2607,2105},{2700,2112},{2781,2109}
+        };
+        
+        for(int i = 0; i < coordsTopRight.length; i++) {
+            ObjTreeTopBR[index4] = new ObjTreeTopBR(gp, 1.6);
+            ObjTreeTopBR[index4].worldX = coordsTopRight[i][0] - 30;
+            ObjTreeTopBR[index4].worldY = coordsTopRight[i][1] - 10;
+            index4++;
+        }
+       
 
         //Apple Tree
         objAppleTree[0] = new ObjAppleTree(gp,1.5); objAppleTree[0].worldX = 700; objAppleTree[0].worldY = 300;
@@ -189,14 +237,14 @@ public class ObjectManager {
         objAppleTree[8] = new ObjAppleTree(gp, 1.5); objAppleTree[8].worldX = 1800; objAppleTree[8].worldY = 400;
         
         //Vehicle
-        ObjVehicle[0] = new ObjVehicle(gp, 1); ObjVehicle[0].worldX = 490; ObjVehicle[0].worldY = 250;
-        ObjVehicle[1] = new ObjVehicle(gp, 2); ObjVehicle[1].worldX = 1000; ObjVehicle[1].worldY = 1000;
-        ObjVehicle[2] = new ObjVehicle(gp, 1); ObjVehicle[2].worldX = 1800; ObjVehicle[2].worldY = 750;
-        ObjVehicle[3] = new ObjVehicle(gp, 2); ObjVehicle[3].worldX = 905; ObjVehicle[3].worldY = 900;
+        ObjVehicle[0] = new ObjVehicle(gp, 1, 1.5); ObjVehicle[0].worldX = 490; ObjVehicle[0].worldY = 250;
+        ObjVehicle[1] = new ObjVehicle(gp, 2, 1.5); ObjVehicle[1].worldX = 1000; ObjVehicle[1].worldY = 1000;
+        ObjVehicle[2] = new ObjVehicle(gp, 1, 1.5); ObjVehicle[2].worldX = 1800; ObjVehicle[2].worldY = 750;
+        ObjVehicle[3] = new ObjVehicle(gp, 2, 1.5); ObjVehicle[3].worldX = 905; ObjVehicle[3].worldY = 900;
         
         //Logs
         ObjWoods[0] = new ObjWoods(gp, 1.5); ObjWoods[0].worldX = 2000; ObjWoods[0].worldY = 250;
-        ObjWoods[1] = new ObjWoods(gp, 1.5); ObjWoods[1].worldX = 1500; ObjWoods[1].worldY = 1300;
+        ObjWoods[1] = new ObjWoods(gp, 1.5); ObjWoods[1].worldX = 1500; ObjWoods[1].worldY = 1900;
         ObjWoods[2] = new ObjWoods(gp, 1.5); ObjWoods[2].worldX = 600; ObjWoods[2].worldY = 1100;
         ObjWoods[3] = new ObjWoods(gp, 1.5); ObjWoods[3].worldX = 1000; ObjWoods[3].worldY = 900;
         
@@ -212,58 +260,98 @@ public class ObjectManager {
         
         
         //House
-        ObjHouse[0] = new ObjHouse(gp, 2); ObjHouse[0].worldX = 1300; ObjHouse[0].worldY = 250;
-        
+        ObjHouse[0] = new ObjHouse(gp, 2.5);
+        ObjHouse[0].worldX = 1300;
+        ObjHouse[0].worldY = 1253;
     }
+    
+    
 
     public void draw(Graphics2D g2) {
-        for (int i = 0; i < objects.length; i++) {
-            if (objects[i] == null) continue;
-            int screenX = objects[i].worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = objects[i].worldY - gp.player.worldY + gp.player.screenY;
-            g2.drawImage(objects[i].image, screenX, screenY, null);
+        
+        if (gp.tileM.currentMap == 1){
+            for (int i = 0; i < objects.length; i++) {
+                if (objects[i] == null) continue;
+                int screenX = objects[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = objects[i].worldY - gp.player.worldY + gp.player.screenY;
+                g2.drawImage(objects[i].image, screenX, screenY, null);
+            }
         }
         
-        for (int i = 0; i < objAppleTree.length; i++) {
-            if (objAppleTree[i] == null) continue;
-            int screenX = objAppleTree[i].worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = objAppleTree[i].worldY - gp.player.worldY + gp.player.screenY;
-            g2.drawImage(objAppleTree[i].image, screenX, screenY, null);
+        if (gp.tileM.currentMap == 1){
+            for (int i = 0; i < objAppleTree.length; i++) {
+                if (objAppleTree[i] == null) continue;
+                int screenX = objAppleTree[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = objAppleTree[i].worldY - gp.player.worldY + gp.player.screenY;
+                g2.drawImage(objAppleTree[i].image, screenX, screenY, null);
+            }
         }
         
-        for (int i = 0; i < ObjVehicle.length; i++) {
-            if (ObjVehicle[i] == null) continue;
-            int screenX = ObjVehicle[i].worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = ObjVehicle[i].worldY - gp.player.worldY + gp.player.screenY;
-            g2.drawImage(ObjVehicle[i].image, screenX, screenY, null);
+        if (gp.tileM.currentMap == 1){
+            for (int i = 0; i < ObjVehicle.length; i++) {
+                if (ObjVehicle[i] == null) continue;
+                int screenX = ObjVehicle[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = ObjVehicle[i].worldY - gp.player.worldY + gp.player.screenY;
+                g2.drawImage(ObjVehicle[i].image, screenX, screenY, null);
+            }
         }
         
-        for (int i = 0; i < ObjHouse.length; i++) {
-            if (ObjHouse[i] == null) continue;
-            int screenX = ObjHouse[i].worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = ObjHouse[i].worldY - gp.player.worldY + gp.player.screenY;
-            g2.drawImage(ObjHouse[i].image, screenX, screenY, null);
-        }
-         
-        for (int i = 0; i < ObjWoods.length; i++) {
-            if (ObjWoods[i] == null) continue;
-            int screenX = ObjWoods[i].worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = ObjWoods[i].worldY - gp.player.worldY + gp.player.screenY;
-            g2.drawImage(ObjWoods[i].image, screenX, screenY, null);
+        if (gp.tileM.currentMap == 1) {
+            for (int i = 0; i < ObjHouse.length; i++) {
+                if (ObjHouse[i] == null) continue;
+                int screenX = ObjHouse[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = ObjHouse[i].worldY - gp.player.worldY + gp.player.screenY;
+                ObjHouse[i].draw(g2, screenX, screenY);
+            }
         }
         
-        for (int i = 0; i < FireCamp.length; i++) {
-            if (FireCamp[i] == null) continue;
-            int screenX = FireCamp[i].worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = FireCamp[i].worldY - gp.player.worldY + gp.player.screenY;
-            g2.drawImage(FireCamp[i].image, screenX, screenY, null);
+        if (gp.tileM.currentMap == 1){
+            for (int i = 0; i < ObjWoods.length; i++) {
+                if (ObjWoods[i] == null) continue;
+                int screenX = ObjWoods[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = ObjWoods[i].worldY - gp.player.worldY + gp.player.screenY;
+                g2.drawImage(ObjWoods[i].image, screenX, screenY, null);
+            }
         }
         
-        for (int i = 0; i < ObjPineTree.length; i++) {
-            if (ObjPineTree[i] == null) continue;
-            int screenX = ObjPineTree[i].worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = ObjPineTree[i].worldY - gp.player.worldY + gp.player.screenY;
-            g2.drawImage(ObjPineTree[i].image, screenX, screenY, null);
+        if (gp.tileM.currentMap == 1){
+            for (int i = 0; i < FireCamp.length; i++) {
+                if (FireCamp[i] == null) continue;
+                int screenX = FireCamp[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = FireCamp[i].worldY - gp.player.worldY + gp.player.screenY;
+                g2.drawImage(FireCamp[i].image, screenX, screenY, null);
+            }
+        }
+        
+        if (gp.tileM.currentMap == 1){
+            for (int i = 0; i < ObjPineTree.length; i++) {
+                if (ObjPineTree[i] == null) continue;
+                int screenX = ObjPineTree[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = ObjPineTree[i].worldY - gp.player.worldY + gp.player.screenY;
+                g2.drawImage(ObjPineTree[i].image, screenX, screenY, null);
+            }
+        }
+        
+        if (gp.tileM.currentMap == 1){
+            for (int i = 0; i < ObjTreeTop.length; i++) {
+                if (ObjTreeTop[i] == null) continue;
+                int screenX = ObjTreeTop[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = ObjTreeTop[i].worldY - gp.player.worldY + gp.player.screenY ;
+                g2.drawImage(ObjTreeTop[i].image, screenX, screenY, null);
+            }
+        }
+        
+        if (gp.tileM.currentMap == 1){
+            for (int i = 0; i < ObjTreeTopBR.length; i++) {
+                if (ObjTreeTopBR[i] == null) continue;
+                int screenX = ObjTreeTopBR[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = ObjTreeTopBR[i].worldY - gp.player.worldY + gp.player.screenY ;
+                g2.drawImage(ObjTreeTopBR[i].image, screenX, screenY, null);
+            }
+        }   
+        
+        if (gp.tileM.currentMap == 2) {
+            interior.draw(g2, 0, 0, (models.ObjHouse) ObjHouse[0]);
         }
     }
 }

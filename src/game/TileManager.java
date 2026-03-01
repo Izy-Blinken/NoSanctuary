@@ -17,19 +17,20 @@ import javax.imageio.ImageIO;
  * @author ADMIN
  */
 public class TileManager {
+
     panel gp;
     Tiles[] tile;
-    int mapTileNum[][];
-    
-    public TileManager(panel gp){
+    public int mapTileNum[][];
+
+    public TileManager(panel gp) {
         this.gp = gp;
-        tile = new Tiles[15];
+        tile = new Tiles[30];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
         getTileImage();
         loadMap();
-        
+
     }
-    
+
     public BufferedImage getRotatedImage(BufferedImage original, int degrees) {
         int w = original.getWidth();
         int h = original.getHeight();
@@ -40,35 +41,98 @@ public class TileManager {
         g2d.dispose();
         return rotated;
     }
-    
-    public void getTileImage(){
-        try{
+
+
+    public void getTileImage() {
+        try {
             BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
+            BufferedImage wallSheet = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/walls_floor_1.png"));
+            BufferedImage wallSheet2 = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/walls_floor_2.png"));
+
+            BufferedImage lowerBorder = getRotatedImage(wallSheet.getSubimage(32, 16, 16, 18), 90);
+
+            // Exterior tiles
             tile[0] = new Tiles(sheet.getSubimage(732, 87, 64, 63), false); // solid grass
             tile[1] = new Tiles(sheet.getSubimage(735, 157, 58, 51), false); // grass w/ flowers
-           /* tile[2] = new Tiles(sheet.getSubimage(619, 11, 59, 60), false); // straight road w/ grass - right side
-            tile[3] = new Tiles(getRotatedImage(sheet.getSubimage(619, 11, 59, 60), 180), false); // straight road w/ grass - left side (naka-rotate lang gamit yung method sa taas)
-            tile[4] = new Tiles(getRotatedImage(sheet.getSubimage(619, 11, 59, 60), 90), false); // straight road w/ grass - up side (naka-rotate lang gamit yung method sa taas)
-            tile[5] = new Tiles(getRotatedImage(sheet.getSubimage(619, 11, 59, 60), 270), false); // straight road w/ grass - down side (naka-rotate lang gamit yung method sa taas)
-            comment muna kasi parang mas okay na walang road hehe */ 
-           
+
+            // Interior tiles
+            tile[2] = new Tiles(wallSheet.getSubimage(64, 144, 16, 16), false); // floor
+            tile[3] = new Tiles(wallSheet.getSubimage(16, 32, 16, 16), true); // wall upper center
+            tile[4] = new Tiles(wallSheet.getSubimage(16, 48, 16, 16), true); // wall middle center
+            tile[5] = new Tiles(wallSheet.getSubimage(16, 64, 16, 16), true); // wall lower center
+            tile[6] = new Tiles(wallSheet.getSubimage(48, 16, 16, 16), true); // wall upper left corner
+            tile[7] = new Tiles(wallSheet.getSubimage(64, 16, 18, 16), true); // wall upper right corner
+            tile[8] = new Tiles(wallSheet.getSubimage(48, 48, 16, 16), true); // wall bottom left corner
+            tile[9] = new Tiles(wallSheet.getSubimage(64, 48, 16, 16), true); // wall bottom right corner
+            tile[10] = new Tiles(wallSheet.getSubimage(48, 64, 18, 16), true); // bottom left border
+            tile[11] = new Tiles(wallSheet.getSubimage(64, 64, 18, 16), true); // bottom right border
+
+            tile[12] = new Tiles((lowerBorder), true); // lower center border
+
+            tile[13] = new Tiles(wallSheet.getSubimage(48, 32, 16, 16), true); // upper left wall
+            tile[14] = new Tiles(createBlackTile(), true); // void/black
             
+            //papalitan nadoble
+            tile[15] = new Tiles(wallSheet2.getSubimage(64, 144, 16, 16), true); // left wall floor
             
-        }catch(IOException e){
+            tile[16] = new Tiles(wallSheet.getSubimage(78, 16, 16, 18), true); // right border
+            
+            tile[17] = new Tiles(wallSheet.getSubimage(0, 16, 16, 16), true); // left border
+            tile[18] = new Tiles(wallSheet.getSubimage(48, 16, 16, 16), true); // room upper left wall corner
+            tile[19] = new Tiles(wallSheet.getSubimage(48, 32, 16, 16), true); // room mid wall
+            tile[20] = new Tiles(wallSheet.getSubimage(48, 48, 16, 16), true); // room left wall corner
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    
+
+    // Helper method for black tile
+    private BufferedImage createBlackTile() {
+        BufferedImage black = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2 = black.createGraphics();
+        g2.setColor(java.awt.Color.BLACK);
+        g2.fillRect(0, 0, 16, 16);
+        g2.dispose();
+        return black;
+    }
+
+    public int currentMap = 1;
+
     public void loadMap() {
+
+        
+        for (int c = 0; c < gp.maxWorldCol; c++) {
+            for (int r = 0; r < gp.maxWorldRow; r++) {
+                mapTileNum[c][r] = 14;
+            }
+        }
+
         try {
-            InputStream is = getClass().getResourceAsStream("/assets/no_sanctuary_map/map01.txt");
+            String mapFile = currentMap == 1
+                    ? "/assets/no_sanctuary_map/lvl_1_ext.txt"
+                    : "/assets/no_sanctuary_map/lvl_1_int.txt";
+            InputStream is = getClass().getResourceAsStream(mapFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             for (int row = 0; row < gp.maxWorldRow; row++) {
                 String line = br.readLine();
-                String[] numbers = line.split(" ");
+                if (line == null) {
+                    break;
+                }
+                line = line.trim();
+                if (line.isEmpty()) {
+                    row--;
+                    continue;
+                }
+
+                String[] numbers = line.split("\\s+");
                 for (int col = 0; col < gp.maxWorldCol; col++) {
-                    mapTileNum[col][row] = Integer.parseInt(numbers[col]);
+                    if (col < numbers.length && !numbers[col].isEmpty()) {
+                        mapTileNum[col][row] = Integer.parseInt(numbers[col]);
+                    } else {
+                        mapTileNum[col][row] = 14;
+                    }
                 }
             }
             br.close();
@@ -76,7 +140,13 @@ public class TileManager {
             e.printStackTrace();
         }
     }
-    
+
+    public void switchMap(int mapNum) {
+
+        currentMap = mapNum;
+        loadMap();
+    }
+
     public void draw(Graphics2D g2) {
         int worldCol = 0;
         int worldRow = 0;
@@ -87,9 +157,8 @@ public class TileManager {
             int worldY = worldRow * gp.tileSize;
             int screenX = worldX - gp.player.worldX + gp.player.screenX;
             int screenY = worldY - gp.player.worldY + gp.player.screenY;
-            
 
-            g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize + 4, gp.tileSize + 4 , null);
+            g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize + 4, gp.tileSize + 4, null);
 
             worldCol++;
             if (worldCol == gp.maxWorldCol) {
@@ -98,5 +167,5 @@ public class TileManager {
             }
         }
     }
-    
+
 }

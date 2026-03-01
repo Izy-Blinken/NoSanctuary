@@ -6,6 +6,7 @@ import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+
 public class Player extends Entity {
     panel gp;
     KeyHandler keyH;
@@ -52,14 +53,31 @@ public class Player extends Entity {
                 direction = "left";
             }
             boolean collisionOn = gp.cChecker.checkTile(this);
-            if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.objects);
-            if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.objAppleTree);
-            if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjVehicle);
-            if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjHouse);
-            if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjWoods);
-            if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.FireCamp);
-            if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjPineTree);
+            
+            if (gp.tileM.currentMap == 1) {
+                if (!collisionOn){
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.objects);
+                }
+                if (!collisionOn) {
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.objAppleTree);
+                }
+                if (!collisionOn) {
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjVehicle);
+                }
+                if (!collisionOn) {
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjHouse);
+                }
+                if (!collisionOn) {
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjWoods);
+                }
+                if (!collisionOn) {
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.FireCamp);
+                }
+                if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjPineTree);
+            }
+            
             if (!collisionOn) {
+                
                 if (keyH.upPressed) {
                     worldY -= speed;
                 } else if (keyH.downPressed) {
@@ -79,6 +97,7 @@ public class Player extends Entity {
     }
     public void draw(Graphics2D g2) {
         BufferedImage image = null;
+        
         switch (direction) {
             case "up":
                 image = (spriteNum == 1) ? top1 : top2;

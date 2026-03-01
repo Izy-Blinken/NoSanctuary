@@ -4,6 +4,7 @@
  */
 package models;
 
+import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
@@ -16,6 +17,12 @@ public class GameObject {
     public int worldX, worldY;
     public boolean collision = false;
     public Rectangle solidArea;
-    
+
+    public void draw(Graphics2D g2, int screenX, int screenY) {
+    }
+
+    public void toggleDoor() {
+    }
+
     
 }
