@@ -31,9 +31,8 @@ public class panel extends JPanel implements Runnable {
     Player player = new Player(this, keyH);
     public ObjectManager objectM = new ObjectManager(this);
     public dayCounter dC = new dayCounter(this);
+    public Inventory inventory = new Inventory(this); // tracks wood and apple count
     Thread GameThread;
-    
-    
 
     int playerY = 100;
     int playerX = 100;
@@ -92,6 +91,7 @@ public class panel extends JPanel implements Runnable {
 
         player.update();
         dC.update();
+
     }
 
     public void paintComponent(Graphics g) {
@@ -105,6 +105,7 @@ public class panel extends JPanel implements Runnable {
         player.draw(g2);
         dC.draw(g2);
         dC.drawOverlay(g2);
+        inventory.draw(g2); // draw inventory hud sa taas ng lahat
 
         g2.dispose();
     }
