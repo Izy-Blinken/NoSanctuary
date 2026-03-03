@@ -14,14 +14,17 @@ import javax.imageio.ImageIO;
  *
  * @author ADMIN
  */
-public class FireCamp extends GameObject{
-   public FireCamp(panel gp, double scale) {
+public class FireCamp extends GameObject {
+
+    private static BufferedImage sheet;
+
+    public FireCamp(panel gp, double scale) {
         try {
-            BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
+            if (sheet == null)
+                sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
 
-            BufferedImage rawImage = sheet.getSubimage(853, 152, 93, 77); // fiecamp
-
-            int newWidth = (int)(rawImage.getWidth() * scale);
+            BufferedImage rawImage = sheet.getSubimage(853, 152, 93, 77); // firecamp
+            int newWidth  = (int)(rawImage.getWidth()  * scale);
             int newHeight = (int)(rawImage.getHeight() * scale);
 
             image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
@@ -29,12 +32,11 @@ public class FireCamp extends GameObject{
             g2.drawImage(rawImage, 0, 0, newWidth, newHeight, null);
             g2.dispose();
 
-            
+            nightImage = image;
             collision = true;
 
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 }
