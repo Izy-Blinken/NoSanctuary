@@ -9,13 +9,15 @@ import javax.imageio.ImageIO;
 
 public class ObjHouse extends GameObject {
 
+    private static BufferedImage sheet;
+
     public ObjHouse(panel gp, double scale) {
         try {
-            BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
+            if (sheet == null)
+                sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
 
             BufferedImage rawImage = sheet.getSubimage(531, 155, 116, 102); // house
-
-            int newWidth = (int)(rawImage.getWidth() * scale);
+            int newWidth  = (int)(rawImage.getWidth()  * scale);
             int newHeight = (int)(rawImage.getHeight() * scale);
 
             image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);
@@ -24,8 +26,8 @@ public class ObjHouse extends GameObject {
             g2.dispose();
 
             collision = true;
-            solidArea = new Rectangle((int)(5*scale), (int)(40*scale), (int)(106*scale), (int)(60*scale)); // full house base
-
+            solidArea = new Rectangle((int)(5*scale), (int)(40*scale), (int)(106*scale), (int)(60*scale));
+            generateNightImage(); 
         } catch (IOException e) {
             e.printStackTrace();
         }
