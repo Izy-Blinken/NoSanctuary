@@ -31,6 +31,7 @@ public class ObjHouse extends GameObject {
     public int win1OffsetX, win1OffsetY;
     public int win2OffsetX, win2OffsetY;
     public int win3OffsetX, win3OffsetY;
+    
 
     public void toggleDoor() {
         isDoorOpen = !isDoorOpen;
@@ -73,7 +74,7 @@ public class ObjHouse extends GameObject {
             win2OffsetX = (int)(41 * scale);
             win2OffsetY = (int)(52 * scale);
 
-            win3OffsetX = (int)(69 * scale);
+            win3OffsetX = (int)(67 * scale);
             win3OffsetY = (int)(52 * scale);
 
             // Collision (wall lang)

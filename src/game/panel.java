@@ -64,7 +64,6 @@ public class panel extends JPanel implements Runnable {
 
         while (GameThread != null) {
 
-            //System.out.print("runnig");
             long CurrentTime = System.nanoTime();
 
             update();
@@ -113,19 +112,21 @@ public class panel extends JPanel implements Runnable {
 
         if (tileM.currentMap == 1) {
             if (interactionChecker.showDoorPrompt) {
+                
                 models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
-
                 String prompt = house.isDoorOpen ? "E - Enter | F - Close Door" : "E - Open Door";
                 g2.drawString(prompt, screenWidth / 2 - 120, screenheight - 60);
             }
         } else {
             if (interactionChecker.showExitPrompt) {
                 if (interactionChecker.showExitPrompt) {
+                    
                     models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
                     String prompt = house.isDoorOpen ? "E - Exit | F - Close Door" : "F - Open Door";
                     g2.drawString(prompt, screenWidth / 2 - 120, screenheight - 60);
                 }
             }
+            
             if (interactionChecker.showWindowPrompt) {
                 g2.drawString("E - Open/Close Window", screenWidth / 2 - 120, screenheight - 60);
             }
@@ -146,5 +147,16 @@ public class panel extends JPanel implements Runnable {
 
         player.worldX = 1300 + (int) (86 * 2.5) + 10;
         player.worldY = 1350 + (int) (50 * 2.5) + 40;
+    }
+    
+    public boolean isPlayerSafe() {
+        
+        if (tileM.currentMap != 2){
+            
+            return false;
+        }
+        
+        models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
+        return !house.isDoorOpen && !house.isWindow1Open && !house.isWindow2Open && !house.isWindow3Open;
     }
 }

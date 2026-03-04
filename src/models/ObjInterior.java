@@ -16,11 +16,12 @@ public class ObjInterior extends GameObject {
         try {
 
             BufferedImage doorsWin = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/Doors_windows_animation.png"));
+
             double scale = 2.5;
-            doorClosed = scale(doorsWin.getSubimage(32, 0, 30, 31), scale);
-            doorOpened = scale(doorsWin.getSubimage(32, 96, 30, 31), scale);
-            winClosed = scale(doorsWin.getSubimage(105, 3, 18, 19), scale);
-            winOpened = scale(doorsWin.getSubimage(103, 98, 20, 20), scale);
+            doorClosed = scale(doorsWin.getSubimage(33, 0, 31, 32), scale);
+            doorOpened = scale(doorsWin.getSubimage(33, 96, 31, 32), scale);
+            winClosed = scale(doorsWin.getSubimage(105, 3, 20, 20), scale);
+            winOpened = scale(doorsWin.getSubimage(105, 98, 20, 20), scale);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,21 +44,24 @@ public class ObjInterior extends GameObject {
 
         // Door: col 3, row 1
         int doorSX = (3 * ts) - gp.player.worldX + gp.player.screenX;
-        int doorSY = (1 * ts) - gp.player.worldY + gp.player.screenY + 16;
+        int doorSY = (1 * ts) - gp.player.worldY + gp.player.screenY + 15;
         BufferedImage d = house.isDoorOpen ? doorOpened : doorClosed;
         g2.drawImage(d, doorSX, doorSY, null);
 
         // Windows: 
-        int[] winCols = {5, 6, 7};
+        int[] winCols = {7, 6, 5};
         boolean[] winStates = {house.isWindow1Open, house.isWindow2Open, house.isWindow3Open};
         int[] winX = {292, 410, 528};
-        int[] winY = {193, 193, 193};
-        
+        int[] winY = {60, 60, 60};
+
         for (int i = 0; i < 3; i++) {
-            
+
             int winSX = winX[i] - gp.player.worldX + gp.player.screenX;
+            int winSY = winY[i] - gp.player.worldY + gp.player.screenY;
             BufferedImage w = winStates[i] ? winOpened : winClosed;
-            g2.drawImage(w, winSX, winY[i], null);
+            g2.drawImage(w, winSX, winSY, null);
         }
+        
+        
     }
 }
