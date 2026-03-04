@@ -10,6 +10,11 @@ public class KeyHandler implements KeyListener {
     public boolean closePressed;
     
     public boolean ePressed;
+    
+    public boolean depositPressed = false;
+    public boolean withdrawPressed = false; 
+    public boolean appleDepositPressed = false; 
+    public boolean appleWithdrawPressed = false; 
 
     public void keyTyped(KeyEvent e) {
 
@@ -44,6 +49,24 @@ public class KeyHandler implements KeyListener {
         if(code == KeyEvent.VK_F) {
             closePressed = true;
         }
+        
+        if(code == KeyEvent.VK_P) {
+            
+            depositPressed = true;
+        }
+        
+        if(code == KeyEvent.VK_R) {
+            withdrawPressed = true;
+        }
+        
+        if(code == KeyEvent.VK_B) {
+            appleDepositPressed = true;
+        }
+        
+        if(code == KeyEvent.VK_C) {
+            appleWithdrawPressed = true;
+        }
+        
        
     }
 
@@ -75,6 +98,23 @@ public class KeyHandler implements KeyListener {
 
         if(code == KeyEvent.VK_F) {
             closePressed = false;
+        }
+        
+        if(code == KeyEvent.VK_P) {
+            
+            depositPressed = false;
+        }
+        
+        if(code == KeyEvent.VK_R) {
+            withdrawPressed = false;
+        }
+        
+        if(code == KeyEvent.VK_B) {
+            appleDepositPressed = false;
+        }
+        
+        if(code == KeyEvent.VK_C) {
+            appleWithdrawPressed = false;
         }
         
     }

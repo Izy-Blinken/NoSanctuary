@@ -168,5 +168,10 @@ public class Player extends Entity {
                 break;
         }
         g2.drawImage(image, screenX + (gp.tileSize - 32) / 2, screenY + (gp.tileSize - 48) / 2, 32, 48, null);
+        // Debug: show player world position
+        g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 13));
+        g2.setColor(java.awt.Color.WHITE);
+        g2.drawString("X: " + worldX + "  Y: " + worldY, 10, 20);
+        g2.drawString("Map: " + gp.tileM.currentMap, 10, 38);
     }
 }

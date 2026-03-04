@@ -49,6 +49,10 @@ public class ObjectManager {
         spawnCollectibles();
     }
 
+    public void update() {
+        if (gp.tileM.currentMap == 2) interior.update();
+    }
+    
     public void setObjects() {
 
         int index = 0;
@@ -82,9 +86,13 @@ public class ObjectManager {
         int cols = 10;
         int spacingX = 45;
         int spacingY = 60;
+        
         java.util.Random rand = new java.util.Random();
+        
         for(int row = 0; row < rows; row++) {
+            
             for(int col = 0; col < cols; col++) {
+                
                 int randomOffsetX = rand.nextInt(40) - 15;
                 int randomOffsetY = rand.nextInt(30) - 18;
                 objects[indexLeft] = new ObjTree(gp, 1);
@@ -97,8 +105,11 @@ public class ObjectManager {
         int indexRight = indexLeft;
         int rightStartX = 2800;
         int rightStartY = 119;
+        
         for(int row = 0; row < rows; row++) {
+            
             for(int col = 0; col < cols; col++) {
+                
                 int randomOffsetX = rand.nextInt(40) - 15;
                 int randomOffsetY = rand.nextInt(30) - 18;
                 objects[indexRight] = new ObjTree(gp, 1);
