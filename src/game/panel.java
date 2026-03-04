@@ -30,6 +30,7 @@ public class panel extends JPanel implements Runnable {
     public CollisionChecker cChecker = new CollisionChecker(this);
     public Player player = new Player(this, keyH);
     public ObjectManager objectM = new ObjectManager(this);
+    public dayCounter dC = new dayCounter(this);
     Thread GameThread;
     public InteractionChecker interactionChecker = new InteractionChecker(this);
 
@@ -63,6 +64,7 @@ public class panel extends JPanel implements Runnable {
 
         while (GameThread != null) {
 
+            //System.out.print("runnig");
             long CurrentTime = System.nanoTime();
 
             update();
@@ -92,15 +94,19 @@ public class panel extends JPanel implements Runnable {
         } else {
             interactionChecker.checkInteriorInteraction();
         }
+
+        dC.update();
     }
 
     public void paintComponent(Graphics g) {
-        
+
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
         tileM.draw(g2);
         objectM.draw(g2);
         player.draw(g2);
+        dC.draw(g2);
+        dC.drawOverlay(g2);
 
         g2.setColor(java.awt.Color.WHITE);
         g2.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 18));
@@ -108,15 +114,17 @@ public class panel extends JPanel implements Runnable {
         if (tileM.currentMap == 1) {
             if (interactionChecker.showDoorPrompt) {
                 models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
-                
-                String prompt = house.isDoorOpen ? "E - Open | F - Close Door" : "E - Open Door";
+
+                String prompt = house.isDoorOpen ? "E - Enter | F - Close Door" : "E - Open Door";
                 g2.drawString(prompt, screenWidth / 2 - 120, screenheight - 60);
             }
         } else {
             if (interactionChecker.showExitPrompt) {
-                models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
-                String prompt = house.isDoorOpen ? "E - Exit | F - Close Door" : "E - Open Door";
-                g2.drawString(prompt, screenWidth / 2 - 120, screenheight - 60);
+                if (interactionChecker.showExitPrompt) {
+                    models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
+                    String prompt = house.isDoorOpen ? "E - Exit | F - Close Door" : "F - Open Door";
+                    g2.drawString(prompt, screenWidth / 2 - 120, screenheight - 60);
+                }
             }
             if (interactionChecker.showWindowPrompt) {
                 g2.drawString("E - Open/Close Window", screenWidth / 2 - 120, screenheight - 60);
@@ -136,7 +144,7 @@ public class panel extends JPanel implements Runnable {
     public void switchToExterior() {
         tileM.switchMap(1);
 
-        player.worldX = 1300;
-        player.worldY = 1350;
+        player.worldX = 1300 + (int) (86 * 2.5) + 10;
+        player.worldY = 1350 + (int) (50 * 2.5) + 40;
     }
 }
