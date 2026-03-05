@@ -56,6 +56,8 @@ public class Monster extends Entity {
     private static final int ACTION_DISPLAY = 60;
     private int knockTimer  = 0;
     public  int actionTimer = 0;
+    
+    private int damageCooldown = 0;
 
     // ── Ranges ────────────────────────────────────────────────────────────────
     private static final double ATTACK_RANGE = 40;
@@ -117,6 +119,13 @@ public class Monster extends Entity {
 
     // ── Per-frame update ──────────────────────────────────────────────────────
     public void update() {
+        
+        if (damageCooldown > 0) {
+        damageCooldown--;
+    }
+
+    if (actionTimer > 0) actionTimer--;
+        
         if (actionTimer > 0) actionTimer--;
 
         boolean isNight = (gp.dC.currentState == game.dayCounter.dayNightState.Night
@@ -185,16 +194,14 @@ public class Monster extends Entity {
                 animFrame   = (animFrame + 1) % WALK_FRAMES;
             }
         } else if (state == State.ATTACKING) {
-            // Slash: play once, then hold last frame until state changes
-            if (animFrame < SLASH_FRAMES - 1) {
-                animCounter++;
-                if (animCounter >= SLASH_SPEED) {
-                    animCounter = 0;
-                    animFrame++;
-                }
+
+    if (damageCooldown == 0) {
+        gp.player.takeDamage(30);
+        damageCooldown = 60; // 60 frames = 1 second
+    }
             }
             // When player moves away, state becomes CHASING and animFrame resets
-        } else {
+         else {
             // KNOCKING / IDLE – stand still
             animFrame   = 0;
             animCounter = 0;
