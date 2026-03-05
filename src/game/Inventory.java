@@ -89,5 +89,6 @@ public class Inventory {
         g2.setFont(new Font("Arial", Font.PLAIN, 12));
         g2.setColor(Color.LIGHT_GRAY);
         g2.drawString("Press E near wood/apple tree to collect", 10, 122);
+        g2.drawString("Press E to eat an apple to heal", 10, 140);
     }
 }
