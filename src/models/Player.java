@@ -11,11 +11,6 @@ public class Player extends Entity {
     panel gp;
     KeyHandler keyH;
     
-    public int maxHP = 100;
-    public int hp = 100;
-    public int damageFlash = 0;
-    private static final int DAMAGE_FLASH_DURATION = 20;
-    
     // gaano kalapit bago pwedeng mag collect
     private final int collectRange = 50;
 
@@ -108,25 +103,12 @@ public class Player extends Entity {
         // collect pag E pressed - daytime lang
         if (keyH.ePressed) {
             boolean isDay = gp.dC.currentState == game.dayCounter.dayNightState.Day;
-            if (!useApple()) {
-            collectNearbyItems();
+            if (isDay) {
+                collectNearbyItems();
             }
             keyH.ePressed = false; // reset para hindi paulit ulit
         }
     }
-    
-    private boolean useApple() {
-    if (gp.inventory.apple > 0 && hp < maxHP) {
-        hp += 20; // heal amount, adjust as needed
-        if (hp > maxHP) hp = maxHP;
-        gp.inventory.apple--; // reduce apple count in inventory
-        System.out.println("Used an apple! HP is now " + hp + ", Apples: " + gp.inventory.apple);
-        
-        gp.playerHealedThisNight = true; // <-- mark that player healed
-        return true;
-    }
-    return false;
-}
 
     // check kung malapit sa apple item o wood item tapos kuha
     private void collectNearbyItems() {
@@ -167,20 +149,6 @@ public class Player extends Entity {
             }
         }
     }
-    
-    public void triggerDamage() {
-        damageFlash = DAMAGE_FLASH_DURATION;
-    }
-    
-
-public void takeDamage(int amount) {
-    hp -= amount;
-
-    if (hp < 0) {
-        hp = 0;
-    }
-    triggerDamage();
-}
 
     public void draw(Graphics2D g2) {
         BufferedImage image = null;
