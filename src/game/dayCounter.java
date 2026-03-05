@@ -10,7 +10,7 @@ public class dayCounter {
     Graphics2D g2;
     Font arial_40;
 
-    private int dayCount = 1;
+    public int dayCount = 1;
 
     public enum dayNightState {
         Day,
