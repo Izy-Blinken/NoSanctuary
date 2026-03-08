@@ -61,15 +61,18 @@ public class panel extends JPanel implements Runnable {
     private boolean showMenuPanel = false;
     public boolean isMuted = false;
 
-    // Menu text button — right side
     private static final int MENU_BTN_X = 900;
     private static final int MENU_BTN_Y = 10;
     private static final int MENU_BTN_W = 50;
     private static final int MENU_BTN_H = 22;
 
-    // Menu center panel dimensions
     private static final int MENU_PANEL_W = 480;
     private static final int MENU_PANEL_H = 260;
+    
+    public boolean showNarration = true;
+    public String narrationText = "";
+    private static final int NARRATION_W = 600;
+    private static final int NARRATION_H = 220;
 
     private JFrame parentFrame;
 
@@ -107,8 +110,23 @@ public class panel extends JPanel implements Runnable {
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {
 
+                
                 int mx = e.getX();
                 int my = e.getY();
+                
+                if (showNarration) {
+                    
+                    int px = screenWidth  / 2 - NARRATION_W / 2;
+                    int py = screenheight / 2 - NARRATION_H / 2;
+                    int btnW = 120, btnH = 28;
+                    int btnX = px + NARRATION_W / 2 - btnW / 2;
+                    int btnY = py + NARRATION_H - 38;
+                    if (mx >= btnX && mx <= btnX + btnW && my >= btnY && my <= btnY + btnH) {
+                        showNarration = false;
+                    }
+                    
+                    return;
+                }
 
                 handleDialogueClick(mx, my);
 
@@ -263,6 +281,9 @@ public class panel extends JPanel implements Runnable {
     private boolean wasNight = false;
 
     public void update() {
+        if (showNarration) {
+            return;
+        }
 
         if (isGameOver) {
 
@@ -378,6 +399,7 @@ public class panel extends JPanel implements Runnable {
             else if (gameState == GameState.LOSE) loseScreen.draw(g2);
         }
 
+        drawNarrationPanel(g2);
         g2.dispose();
     }
 
@@ -571,6 +593,81 @@ public class panel extends JPanel implements Runnable {
                 onNoAction.run();
             }
         }
+    }
+
+    private void drawNarrationPanel(Graphics2D g2) {
+        if (!showNarration) return;
+
+        g2.setColor(new Color(0, 0, 0, 160));
+        g2.fillRect(0, 0, screenWidth, screenheight);
+
+        int px = screenWidth  / 2 - NARRATION_W / 2;
+        int py = screenheight / 2 - NARRATION_H / 2;
+
+        //bg
+        g2.setColor(new Color(30, 28, 25, 235));
+        g2.fillRect(px, py, NARRATION_W, NARRATION_H);
+
+        //border
+        g2.setColor(new Color(90, 85, 78));
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.drawRect(px, py, NARRATION_W, NARRATION_H);
+
+        //accent line sa top 
+        g2.setColor(new Color(65, 60, 55));
+        g2.setStroke(new BasicStroke(1f));
+        g2.drawLine(px + 20, py + 36, px + NARRATION_W - 20, py + 36);
+
+        //title 
+        g2.setFont(getImFell(15f));
+        g2.setColor(new Color(210, 205, 195));
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2.drawString("No Sanctuary", px + 20, py + 26);
+
+        // narration text
+        g2.setFont(getImFell(13f));
+        g2.setColor(new Color(160, 155, 145));
+        drawWrappedText(g2, narrationText, px + 20, py + 58, NARRATION_W - 40, 20);
+
+        // accent line bottom 
+        g2.setColor(new Color(65, 60, 55));
+        g2.drawLine(px + 20, py + NARRATION_H - 46, px + NARRATION_W - 20, py + NARRATION_H - 46);
+
+        //Continue button
+        int btnW = 120;
+        int btnH = 28;
+        int btnX = px + NARRATION_W / 2 - btnW / 2;
+        int btnY = py + NARRATION_H - 38;
+
+       
+        g2.setColor(new Color(90, 85, 78));
+        g2.setStroke(new BasicStroke(1f));
+        g2.drawRect(btnX, btnY, btnW, btnH);
+
+        g2.setFont(getImFell(13f));
+        g2.setColor(new Color(190, 185, 175));
+        String btnLabel = "Continue";
+        int lw = g2.getFontMetrics().stringWidth(btnLabel);
+        g2.drawString(btnLabel, btnX + btnW / 2 - lw / 2, btnY + 19);
+
+        g2.setStroke(new BasicStroke(1f));
+    }
+
+    private void drawWrappedText(Graphics2D g2, String text, int x, int y, int maxWidth, int lineHeight) {
+        if (text == null || text.isEmpty()) return;
+        String[] words = text.split(" ");
+        StringBuilder line = new StringBuilder();
+        for (String word : words) {
+            String test = line.length() == 0 ? word : line + " " + word;
+            if (g2.getFontMetrics().stringWidth(test) > maxWidth) {
+                g2.drawString(line.toString(), x, y);
+                y += lineHeight;
+                line = new StringBuilder(word);
+            } else {
+                line = new StringBuilder(test);
+            }
+        }
+        if (line.length() > 0) g2.drawString(line.toString(), x, y);
     }
 
     private void drawPlayerHP(Graphics2D g2) {
@@ -804,8 +901,7 @@ public class panel extends JPanel implements Runnable {
             int btnAlpha = typingDone ? 220 : 80;
 
             // YES button
-            g2.setColor(new Color(20, 35, 20, btnAlpha));
-            g2.fillRect(x + 60, y + 105, 110, 32);
+            
             g2.setColor(new Color(55, 80, 45, btnAlpha));
             g2.setStroke(new BasicStroke(1f));
             g2.drawRect(x + 60, y + 105, 110, 32);
@@ -814,8 +910,7 @@ public class panel extends JPanel implements Runnable {
             g2.drawString("Yes", x + 103, y + 126);
 
             // NO button
-            g2.setColor(new Color(35, 15, 15, btnAlpha));
-            g2.fillRect(x + 290, y + 105, 110, 32);
+           
             g2.setColor(new Color(90, 40, 40, btnAlpha));
             g2.setStroke(new BasicStroke(1f));
             g2.drawRect(x + 290, y + 105, 110, 32);
