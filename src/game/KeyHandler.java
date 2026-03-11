@@ -10,7 +10,10 @@ public class KeyHandler implements KeyListener {
     public boolean closePressed;
     
     public boolean ePressed;
-    
+
+    /** Space or Enter – used to advance / skip the opening narration. */
+    public boolean skipPressed = false;
+
     public boolean depositPressed = false;
     public boolean withdrawPressed = false; 
     public boolean appleDepositPressed = false; 
@@ -45,7 +48,11 @@ public class KeyHandler implements KeyListener {
             interactPressed = true;
             ePressed = true;
         }
-        
+
+        if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_ENTER) {
+            skipPressed = true;
+        }
+
         if(code == KeyEvent.VK_F) {
             closePressed = true;
         }
@@ -94,6 +101,10 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_E ) {
             interactPressed = false;
             ePressed = false;
+        }
+
+        if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_ENTER) {
+            skipPressed = false;
         }
 
         if(code == KeyEvent.VK_F) {
