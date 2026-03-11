@@ -9,6 +9,7 @@ import models.ObjAppleTree;
 import models.ObjHouse;
 import models.ObjInterior;
 import models.ObjPineTree;
+import models.ObjPortal;
 import models.ObjRiddle;
 import models.ObjTree;
 import models.ObjTreeTop;
@@ -36,6 +37,10 @@ public class ObjectManager {
     // --- Riddle tablets ---
     public GameObject[] riddleObjects;
 
+    // --- Portal ---
+    public ObjPortal portal;
+    public boolean   portalVisible = false;
+
     public ObjectManager(panel gp) {
         this.gp = gp;
         objects      = new GameObject[5900];
@@ -51,12 +56,16 @@ public class ObjectManager {
         appleItems   = new GameObject[50];
         woodItems    = new GameObject[50];
         riddleObjects = new GameObject[3];
+        portal = new ObjPortal(0, 0); // position set randomly in setObjects()
         setObjects();
         spawnCollectibles();
     }
 
+    public void revealPortal() { portalVisible = true; }
+
     public void update() {
         if (gp.tileM.currentMap == 2) interior.update();
+        if (gp.tileM.currentMap == 1 && portalVisible) portal.update();
     }
 
     public void setObjects() {
@@ -221,18 +230,43 @@ public class ObjectManager {
         ObjHouse[0].worldX = 1300;
         ObjHouse[0].worldY = 850;
 
-        // --- Riddle tablets ---
-        riddleObjects[0] = new ObjRiddle(gp, 0);
-        riddleObjects[0].worldX = 620;
-        riddleObjects[0].worldY = 420;
+        // --- Riddle tablets — randomized each session ---
+        // Map is ~2880x2160. Keep away from: house (1300,850), edges (<200), tree wall (y>1850).
+        // Divide map into 3 zones so riddles spread out and don't overlap each other.
+        int[][] riddleZones = {
+            { 250,  800,  250,  750},   // Zone 0: top-left quadrant
+            {1500, 2600,  250,  800},   // Zone 1: top-right quadrant
+            { 400, 2400, 1000, 1750},   // Zone 2: middle/bottom (avoids house ~1300,850)
+        };
+        for (int i = 0; i < 3; i++) {
+            int minX = riddleZones[i][0], maxX = riddleZones[i][1];
+            int minY = riddleZones[i][2], maxY = riddleZones[i][3];
+            int rx, ry;
+            // Retry up to 10 times to avoid spawning inside the house area
+            int attempts = 0;
+            do {
+                rx = minX + rand.nextInt(maxX - minX);
+                ry = minY + rand.nextInt(maxY - minY);
+                attempts++;
+            } while (attempts < 10
+                  && Math.abs(rx - 1300) < 300
+                  && Math.abs(ry - 850)  < 250);
+            riddleObjects[i] = new ObjRiddle(gp, i);
+            riddleObjects[i].worldX = rx;
+            riddleObjects[i].worldY = ry;
+        }
 
-        riddleObjects[1] = new ObjRiddle(gp, 1);
-        riddleObjects[1].worldX = 1820;
-        riddleObjects[1].worldY = 580;
-
-        riddleObjects[2] = new ObjRiddle(gp, 2);
-        riddleObjects[2].worldX = 1080;
-        riddleObjects[2].worldY = 1650;
+        // --- Portal — randomized, placed far from house and riddles ---
+        int px, py;
+        int portalAttempts = 0;
+        do {
+            px = 1600 + rand.nextInt(1000);   // x: 1600–2600
+            py =  200 + rand.nextInt(600);    // y:  200–800
+            portalAttempts++;
+        } while (portalAttempts < 20
+              && Math.abs(px - 1300) < 300
+              && Math.abs(py - 850)  < 250);
+        portal = new ObjPortal(px, py);
     }
 
     public void spawnCollectibles() {
@@ -379,6 +413,13 @@ public class ObjectManager {
                     g2.setColor(new java.awt.Color(80, 200, 90, 160));
                     g2.fillOval(screenX + 14, screenY - 6, 12, 12);
                 }
+            }
+
+            // --- Portal (visible only after all riddles solved) ---
+            if (portalVisible) {
+                int screenX = portal.worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = portal.worldY - gp.player.worldY + gp.player.screenY;
+                portal.draw(g2, screenX, screenY);
             }
         }
 
