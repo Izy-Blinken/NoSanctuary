@@ -1,0 +1,25 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package models;
+
+/**
+ * Data class for a single riddle.
+ * Holds the question, expected answer, a scroll clue, and solved state.
+ */
+public class Riddle {
+
+    public int     id;
+    public String  question;
+    public String  answer;   // stored lowercase + trimmed for easy compare
+    public String  clue;     // short hint written into the inventory scroll
+    public boolean solved = false;
+
+    public Riddle(int id, String question, String answer, String clue) {
+        this.id       = id;
+        this.question = question;
+        this.answer   = answer.toLowerCase().trim();
+        this.clue     = clue;
+    }
+}
