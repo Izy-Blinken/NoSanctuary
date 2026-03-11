@@ -7,6 +7,7 @@ public class InteractionChecker {
     public boolean showDoorPrompt       = false;
     public boolean showExitPrompt       = false;
     public boolean showWindowPrompt     = false;
+    public boolean showPortalPrompt     = false;
     public int     nearWindowNum        = 0;
     public boolean showTorchPrompt      = false;
     public boolean showCabinetPrompt    = false;
@@ -98,6 +99,30 @@ public class InteractionChecker {
                     break;
                 }
             }
+        }
+
+        // ── Portal ───────────────────────────────────────────────────────────
+        if (gp.objectM.portalVisible) {
+            models.ObjPortal portal = gp.objectM.portal;
+            int pdx = gp.player.worldX - portal.worldX;
+            int pdy = gp.player.worldY - portal.worldY;
+            double portalDist = Math.sqrt(pdx * pdx + pdy * pdy);
+
+            if (portalDist < models.ObjPortal.INTERACT_RANGE) {
+                showPortalPrompt = true;
+                if (gp.keyH.interactPressed) {
+                    gp.keyH.interactPressed = false;
+                    long elapsed = (System.currentTimeMillis() - gp.getGameStartTime()) / 1000;
+                    gp.winScreen.completionSeconds = (int) elapsed;
+                    gp.winScreen.reset();
+                    gp.isGameOver = true;
+                    gp.gameState  = panel.GameState.WIN;
+                }
+            } else {
+                showPortalPrompt = false;
+            }
+        } else {
+            showPortalPrompt = false;
         }
     }
 
