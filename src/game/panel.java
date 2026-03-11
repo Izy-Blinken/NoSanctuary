@@ -1,5 +1,6 @@
 package game;
 
+import database.DatabaseConn;
 import java.awt.BasicStroke;
 import models.Monster;
 import models.Player;
@@ -8,7 +9,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class panel extends JPanel implements Runnable {
+public class panel extends JPanel implements Runnable, LandingPage.LandingPageListener {
 
     final int origtileSize = 16;
     public final int charHeight = origtileSize * 2;
@@ -31,8 +32,11 @@ public class panel extends JPanel implements Runnable {
     public Monster monster = new Monster(this);
     public dayCounter dC = new dayCounter(this);
     public Inventory inventory = new Inventory(this);
-    public RiddleManager riddleM  = new RiddleManager(this);
-    public RiddleUI      riddleUI = new RiddleUI(this);
+    public playerDataHolder holder;
+    public DatabaseConn dbConn;
+    public LandingPage LPage;
+    public RiddleManager riddleM = new RiddleManager(this);
+    public RiddleUI riddleUI = new RiddleUI(this);
     public boolean isGameOver = false;
     private boolean showMonsterDialogue = false;
     private String dialogueText = "";
@@ -44,7 +48,7 @@ public class panel extends JPanel implements Runnable {
     private int dialogueCharIndex = 0;
     private int dialogueTickCounter = 0;
     private static final int TYPEWRITER_DELAY = 3;
-
+    
     // Win / Lose
     public enum GameState {
         PLAYING, WIN, LOSE
@@ -74,6 +78,10 @@ public class panel extends JPanel implements Runnable {
     public float narrationAlpha = 0f;
     public boolean narrationComplete = false;
     public boolean narrationFadeOut = false;
+    
+    public String username;
+    public int playerID;
+    public String returnUsername;
 
     // ── Multi-page typewriter narration ───────────────────────────────────────
     private static final String[] NARRATION_PAGES = {
@@ -86,12 +94,17 @@ public class panel extends JPanel implements Runnable {
         "Find the portal before the third night ends. Gather what you can. Keep the torches burning. Keep the doors sealed. And if you hear knocking — do not mistake it for rescue. Nothing out there is coming to save you. It is only checking whether you are still afraid.",
         "Whatever you do — do not open the door. Not for any sound. Not for any voice. Not even if it learns to say your name. Especially then. It has had a long time to practice, and by now, it is very, very good at sounding like someone you used to love."
     };
-    private int   narPageIndex    = 0;
-    private int   narCharIndex    = 0;
-    private int   narTickCounter  = 0;
+    private int narPageIndex = 0;
+    private int narCharIndex = 0;
+    private int narTickCounter = 0;
     private static final int NAR_TYPEWRITER_DELAY = 2; // ticks per character
+    
+    
+    
 
-    public long getGameStartTime() { return gameStartTime; }
+    public long getGameStartTime() {
+        return gameStartTime;
+    }
 
     private JFrame parentFrame;
 
@@ -124,9 +137,13 @@ public class panel extends JPanel implements Runnable {
     public panel(JFrame frame) {
 
         this.parentFrame = frame;
+        dbConn = new DatabaseConn(this);
+        dC = new dayCounter(this);
+        holder = new playerDataHolder();
+        LPage = new LandingPage(this,this);
 
         this.addMouseListener(new java.awt.event.MouseAdapter() {
-            
+
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {
 
@@ -145,13 +162,13 @@ public class panel extends JPanel implements Runnable {
                     int btnW = 100, btnH = 32;
                     int btnX = px + NARRATION_W - btnW - 16;
                     int btnY = py + NARRATION_H - 48;
-                    
+
                     if (mx >= btnX && mx <= btnX + btnW && my >= btnY && my <= btnY + btnH
                             && narPageIndex < NARRATION_PAGES.length) {
                         String fullPage = NARRATION_PAGES[narPageIndex];
                         if (narCharIndex < fullPage.length()) {
                             // First click reveals remaining text
-                            narCharIndex  = fullPage.length();
+                            narCharIndex = fullPage.length();
                             narrationText = fullPage;
                         } else {
                             advanceNarration();
@@ -259,11 +276,10 @@ public class panel extends JPanel implements Runnable {
     }
 
     private void returnToMenu() {
-        
-        
+
         GameThread = null;
         parentFrame.getContentPane().removeAll();
-        LandingPage landingPage = new LandingPage(() -> {
+        LandingPage landingPage = new LandingPage(this,() -> {
             parentFrame.getContentPane().removeAll();
             panel gamePanel = new panel(parentFrame);
             parentFrame.add(gamePanel);
@@ -271,7 +287,7 @@ public class panel extends JPanel implements Runnable {
             parentFrame.revalidate();
             parentFrame.repaint();
             parentFrame.setLocationRelativeTo(null);
-            
+
             gamePanel.showNarration = true;
             gamePanel.narrationAlpha = 0f;
             gamePanel.narrationComplete = true;
@@ -331,25 +347,25 @@ public class panel extends JPanel implements Runnable {
                 narrationAlpha = 1f;
                 narrationComplete = false;
                 // Start typewriter from first page
-                narPageIndex   = 0;
-                narCharIndex   = 0;
+                narPageIndex = 0;
+                narCharIndex = 0;
                 narTickCounter = 0;
-                narrationText  = "";
+                narrationText = "";
             }
             return;
         }
-        
+
         if (narrationFadeOut) {
-            
+
             narrationAlpha -= 0.02f;
-            
+
             if (narrationAlpha <= 0f) {
-                
+
                 narrationAlpha = 0f;
                 narrationFadeOut = false;
                 showNarration = false;
             }
-            
+
             return;
         }
 
@@ -371,7 +387,7 @@ public class panel extends JPanel implements Runnable {
                 keyH.skipPressed = false;
                 if (narCharIndex < fullPage.length()) {
                     // Reveal full current page immediately
-                    narCharIndex  = fullPage.length();
+                    narCharIndex = fullPage.length();
                     narrationText = fullPage;
                 } else {
                     // Advance to next page or close
@@ -494,7 +510,7 @@ public class panel extends JPanel implements Runnable {
             dC.draw(g2);
             dC.drawOverlay(g2);
             monster.drawAlert(g2);
-        
+
             drawHUD(g2);
             drawHPBar(g2);
             drawMenuButton(g2);
@@ -503,18 +519,20 @@ public class panel extends JPanel implements Runnable {
             inventory.drawScrollPanel(g2);
             drawMenuPanel(g2);
         }
-            if (isGameOver) {
-                if (gameState == GameState.WIN) {
-                    winScreen.draw(g2);
-                } else if (gameState == GameState.LOSE) {
-                    loseScreen.draw(g2);
-                }
+        if (isGameOver) {
+            if (gameState == GameState.WIN) {
+                winScreen.draw(g2);
+            } else if (gameState == GameState.LOSE) {
+                loseScreen.draw(g2);
             }
+        }
 
-            drawNarrationPanel(g2);
-            if (riddleUI.isOpen) riddleUI.draw(g2);
-            g2.dispose();
-        
+        drawNarrationPanel(g2);
+        if (riddleUI.isOpen) {
+            riddleUI.draw(g2);
+        }
+        g2.dispose();
+
     }
 
     // HP bar
@@ -1087,16 +1105,17 @@ public class panel extends JPanel implements Runnable {
         }
     }
 
-
-    /** Advance to the next narration page, or begin fade-out if all pages done. */
+    /**
+     * Advance to the next narration page, or begin fade-out if all pages done.
+     */
     private void advanceNarration() {
         narPageIndex++;
         if (narPageIndex >= NARRATION_PAGES.length) {
             narrationFadeOut = true;
         } else {
-            narCharIndex   = 0;
+            narCharIndex = 0;
             narTickCounter = 0;
-            narrationText  = "";
+            narrationText = "";
         }
     }
 
@@ -1122,5 +1141,14 @@ public class panel extends JPanel implements Runnable {
 
         models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
         return !house.isDoorOpen && !house.isWindow1Open && !house.isWindow2Open && !house.isWindow3Open;
+    }
+
+    @Override
+    public void startGame() {
+        showNarration = true;
+        narrationAlpha = 0f;
+        narrationComplete = true;
+        narrationFadeOut = false;
+        dC.startTime = System.nanoTime();
     }
 }
