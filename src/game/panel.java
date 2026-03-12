@@ -1,5 +1,6 @@
 package game;
 
+import database.DatabaseConn;
 import java.awt.BasicStroke;
 import models.Monster;
 import models.Player;
@@ -8,7 +9,7 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class panel extends JPanel implements Runnable {
+public class panel extends JPanel implements Runnable, LandingPage.LandingPageListener {
 
     final int origtileSize = 16;
     public final int charHeight = origtileSize * 2;
@@ -31,8 +32,11 @@ public class panel extends JPanel implements Runnable {
     public Monster monster = new Monster(this);
     public dayCounter dC = new dayCounter(this);
     public Inventory inventory = new Inventory(this);
-    public RiddleManager riddleM  = new RiddleManager(this);
-    public RiddleUI  riddleUI = new RiddleUI(this);
+    public playerDataHolder holder;
+    public DatabaseConn dbConn;
+    public LandingPage LPage;
+    public RiddleManager riddleM = new RiddleManager(this);
+    public RiddleUI riddleUI = new RiddleUI(this);
     public boolean isGameOver = false;
     private boolean showMonsterDialogue = false;
     private String dialogueText = "";
@@ -44,7 +48,7 @@ public class panel extends JPanel implements Runnable {
     private int dialogueCharIndex = 0;
     private int dialogueTickCounter = 0;
     private static final int TYPEWRITER_DELAY = 3;
-
+    
     // Win / Lose
     public enum GameState {
         PLAYING, WIN, LOSE
@@ -90,6 +94,10 @@ public class panel extends JPanel implements Runnable {
     public float narrationAlpha = 0f;
     public boolean narrationComplete = false;
     public boolean narrationFadeOut = false;
+    
+    public String username;
+    public int playerID;
+    public String returnUsername;
 
     //narration 
     private static final String[] NARRATION_PAGES = {
@@ -112,7 +120,8 @@ public class panel extends JPanel implements Runnable {
     private int musicBoxDelayTimer = 0;
     private boolean knockPlayed = false;
     
-    public long getGameStartTime() { 
+    
+    public long getGameStartTime() {
         return gameStartTime;
     }
 
@@ -162,9 +171,13 @@ public class panel extends JPanel implements Runnable {
         musicBox.load("musicBox.wav");
 
         this.parentFrame = frame;
+        dbConn = new DatabaseConn(this);
+        dC = new dayCounter(this);
+        holder = new playerDataHolder();
+        LPage = new LandingPage(this,this);
 
         this.addMouseListener(new java.awt.event.MouseAdapter() {
-            
+
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {
 
@@ -183,13 +196,14 @@ public class panel extends JPanel implements Runnable {
                     int btnW = 100, btnH = 32;
                     int btnX = px + NARRATION_W - btnW - 16;
                     int btnY = py + NARRATION_H - 48;
-                    
+
                     if (mx >= btnX && mx <= btnX + btnW && my >= btnY && my <= btnY + btnH
                             && narPageIndex < NARRATION_PAGES.length) {
                         String fullPage = NARRATION_PAGES[narPageIndex];
                         
                         if (narCharIndex < fullPage.length()) {
-                            narCharIndex  = fullPage.length();
+                            // First click reveals remaining text
+                            narCharIndex = fullPage.length();
                             narrationText = fullPage;
                         } else {
                             advanceNarration();
@@ -305,7 +319,7 @@ public class panel extends JPanel implements Runnable {
 
         GameThread = null;
         parentFrame.getContentPane().removeAll();
-        LandingPage landingPage = new LandingPage(() -> {
+        LandingPage landingPage = new LandingPage(this,() -> {
             parentFrame.getContentPane().removeAll();
             panel gamePanel = new panel(parentFrame);
             parentFrame.add(gamePanel);
@@ -313,7 +327,7 @@ public class panel extends JPanel implements Runnable {
             parentFrame.revalidate();
             parentFrame.repaint();
             parentFrame.setLocationRelativeTo(null);
-            
+
             gamePanel.showNarration = true;
             gamePanel.narrationAlpha = 0f;
             gamePanel.narrationComplete = true;
@@ -373,25 +387,28 @@ public class panel extends JPanel implements Runnable {
 
                 narrationAlpha = 1f;
                 narrationComplete = false;
-                narPageIndex   = 0;
-                narCharIndex   = 0;
+                
+                // Start typewriter from first page
+                narPageIndex = 0;
+                narCharIndex = 0;
+
                 narTickCounter = 0;
-                narrationText  = "";
+                narrationText = "";
             }
             return;
         }
-        
+
         if (narrationFadeOut) {
-            
+
             narrationAlpha -= 0.02f;
-            
+
             if (narrationAlpha <= 0f) {
-                
+
                 narrationAlpha = 0f;
                 narrationFadeOut = false;
                 showNarration = false;
             }
-            
+
             return;
         }
 
@@ -608,7 +625,7 @@ public class panel extends JPanel implements Runnable {
             player.draw(g2);
             dC.draw(g2);
             dC.drawOverlay(g2);
-        
+
             drawHUD(g2);
             drawHPBar(g2);
             drawMenuButton(g2);
@@ -617,18 +634,20 @@ public class panel extends JPanel implements Runnable {
             inventory.drawScrollPanel(g2);
             drawMenuPanel(g2);
         }
-            if (isGameOver) {
-                if (gameState == GameState.WIN) {
-                    winScreen.draw(g2);
-                } else if (gameState == GameState.LOSE) {
-                    loseScreen.draw(g2);
-                }
+        if (isGameOver) {
+            if (gameState == GameState.WIN) {
+                winScreen.draw(g2);
+            } else if (gameState == GameState.LOSE) {
+                loseScreen.draw(g2);
             }
+        }
 
-            drawNarrationPanel(g2);
-            if (riddleUI.isOpen) riddleUI.draw(g2);
-            g2.dispose();
-        
+        drawNarrationPanel(g2);
+        if (riddleUI.isOpen) {
+            riddleUI.draw(g2);
+        }
+        g2.dispose();
+
     }
 
     // HP bar
@@ -1246,7 +1265,6 @@ public class panel extends JPanel implements Runnable {
         }
     }
 
-
     private void advanceNarration() {
         narPageIndex++;
         
@@ -1283,5 +1301,14 @@ public class panel extends JPanel implements Runnable {
 
         models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
         return !house.isDoorOpen && !house.isWindow1Open && !house.isWindow2Open && !house.isWindow3Open;
+    }
+
+    @Override
+    public void startGame() {
+        showNarration = true;
+        narrationAlpha = 0f;
+        narrationComplete = true;
+        narrationFadeOut = false;
+        dC.startTime = System.nanoTime();
     }
 }

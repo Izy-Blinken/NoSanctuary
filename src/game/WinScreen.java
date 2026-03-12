@@ -22,6 +22,7 @@ public class WinScreen {
     private static final float FADE_SPEED = 0.012f;
 
     public int completionSeconds = 0;
+    public String username;
 
     public WinScreen(panel gp) {
         
@@ -64,6 +65,17 @@ public class WinScreen {
         if (alpha < 1f) {
             
             alpha = Math.min(1f, alpha + FADE_SPEED);
+            gp.returnUsername = gp.holder.getUsername();
+            username = gp.LPage.usernameInput.getText();
+            int id = gp.holder.getPlayerID();
+            
+            if (id != -1) {
+                    gp.dbConn.update(id, completionSeconds);
+                    System.out.println("DEBUG: Completion time = " + gp.dC.dayCount
+                            + " | Day Count = " + gp.dC.dayCount
+                            + " | PlayerID = " + gp.holder.getPlayerID()
+                            + " | Username = " + gp.holder.getUsername());
+                }
             
         } else {
             fadeComplete = true;
@@ -151,7 +163,7 @@ public class WinScreen {
         g2.drawLine(bx, cy + 3, bx + labelW, cy + 3);
     }
 
-    private String formatTime(int totalSeconds) {
+    public String formatTime(int totalSeconds) {
         
         int mins = totalSeconds / 60;
         int secs = totalSeconds % 60;

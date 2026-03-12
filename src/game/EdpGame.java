@@ -10,11 +10,13 @@ public class EdpGame {
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setResizable(false);
             
-            LandingPage landingPage = new LandingPage(() -> {
+            panel gamePanel = new panel(frame);
+            
+            LandingPage landingPage = new LandingPage(gamePanel,() -> {
                 
                 frame.getContentPane().removeAll();
                 
-                panel gamePanel = new panel(frame);
+                
                 frame.add(gamePanel);
                 
                 frame.pack();
@@ -22,10 +24,6 @@ public class EdpGame {
                 frame.repaint();
                 frame.setLocationRelativeTo(null);
                 frame.setVisible(true);
-                
-                gamePanel.showNarration = true;
-                gamePanel.narrationAlpha = 0f;
-                gamePanel.narrationComplete = true;
                 
                 gamePanel.startThread();
                 gamePanel.requestFocusInWindow();

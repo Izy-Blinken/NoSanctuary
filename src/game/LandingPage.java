@@ -14,10 +14,11 @@ import javax.sound.sampled.FloatControl;
 
 public class LandingPage extends JPanel implements ActionListener {
 
+    panel gp;
     private LandingPageListener listener;
     private Image backgroundImg, leaderboardBGImg, settingBGImg, aboutBGImg, creditsBGImg, usernameInputBGImg;
 
-    private JTextField usernameInput;
+    public JTextField usernameInput;
 
     private JSlider volumeSlider;//sound
     private FloatControl gainControl;//sound
@@ -27,8 +28,9 @@ public class LandingPage extends JPanel implements ActionListener {
 
     private JButton startBtn, enterBtn, leaderboardBtn, aboutBtn, exitBtn1, exitBtn2, exitBtn3, exitBtn4, settingBtn, volumeBtn, creditsBtn, usernameBtn;
 
-    public LandingPage(LandingPageListener listener) {
+    public LandingPage(panel gp, LandingPageListener listener) {
         this.listener = listener;
+        this.gp = gp;
         setLayout(null);
 
         setPreferredSize(new Dimension(960, 540));
@@ -202,8 +204,23 @@ public class LandingPage extends JPanel implements ActionListener {
 
             enterBtn.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
+                String username = usernameInput.getText().trim();
+                if (username.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "Please enter a username!");
+                    return;
+                }
+
+                gp.username = username;
+                gp.holder.setUsername(username);
+                gp.playerID = gp.dbConn.insert(username, 0);
+                gp.holder.setPlayerID(gp.playerID);
+
+                System.out.println("Inserting: " + gp.playerID + "\n" + "Current Completion time: " + gp.dC.completion_time + "\n");
+
                 removeAll();
                 listener.startGame();
+                gp.startGame();
+
                 bgMusic.stop();
                 repaint();
             });
@@ -217,6 +234,7 @@ public class LandingPage extends JPanel implements ActionListener {
                 settingBtn.setVisible(false);
                 exitBtn1.setVisible(false);
                 exitBtn3.setVisible(true);
+                gp.dbConn.showLeaderboard();
                 repaint();
             });
             settingBtn.addActionListener(e -> {
@@ -467,10 +485,17 @@ public class LandingPage extends JPanel implements ActionListener {
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
+        String output = gp.dbConn.showLeaderboard();
+        int y = 190;
         switch (menuState) {
             case "LEADERBOARD":
                 g.drawImage(leaderboardBGImg, 0, 0, getWidth(), getHeight(), null);
+                g.setFont(new Font("monospaced", Font.BOLD, 30));
+                g.setColor(Color.WHITE);
+                for (String line : output.split("\n")) {
+                    g.drawString(line, 150, y);
+                    y += 50;
+                }
                 break;
             case "SETTINGS":
                 g.drawImage(settingBGImg, 0, 0, getWidth(), getHeight(), null);

@@ -18,6 +18,9 @@ public class dayCounter {
     private Font imFellSmall;   // for phase label (DAY / NIGHT)
 
     public int dayCount = 1;
+    
+    public float startTime;
+    public float completion_time;
 
     public enum dayNightState {
         Day,
@@ -96,7 +99,7 @@ public class dayCounter {
 
     public void update() {
         stateCounter += 0.016f;
-        
+        completion_time = Math.round(((System.nanoTime() - startTime) / 1_000_000_000f) * 100f) / 100f;
         switch (currentState) {
             case Day:
                 if (stateCounter >= day_duration) {
