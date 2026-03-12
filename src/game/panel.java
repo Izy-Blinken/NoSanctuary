@@ -76,6 +76,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     public Sound typewriting = new Sound();
     public Sound windowCreak = new Sound();
     public Sound musicBox = new Sound();
+    public Sound forcedEntry = new Sound();
+
     
 
     private static final int MENU_BTN_X = 900;
@@ -169,12 +171,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         typewriting.load("typewriting.wav");
         windowCreak.load("window_creak.wav");
         musicBox.load("musicBox.wav");
+        forcedEntry.load("forcedEntry.wav");
 
         this.parentFrame = frame;
         dbConn = new DatabaseConn(this);
         dC = new dayCounter(this);
         holder = new playerDataHolder();
-        //LPage = new LandingPage(this,this);
+        LPage = new LandingPage(this,this);
 
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
@@ -539,13 +542,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 dialogueTickCounter = 0;
 
                 onYesAction = () -> {
-                    
-                    isGameOver = true;
-                    gameState = GameState.LOSE;
-                    loseScreen.causeOfDeath = player.hp <= 0 ? "hp" : "time";
-                    loseScreen.reset();
-                    heartbeat.stop();
-                    musicLose.play();
+                    showMonsterDialogue = false;
+                    monsterDialogueResponded = true;
+                    hardKnock.play();
+                    musicBox.stop();
+                    tileM.switchMap(2);
+                    monster.forceEnter = true;
+                    monster.spawnInsideHouse();
                 };
 
                 onNoAction = () -> {
@@ -605,6 +608,16 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             }
         }
         
+        /* not yet done
+        if (dC.dayCount >= 4 && !monster.isEnraged) {
+            
+            monster.isEnraged = true;
+            monster.spawnNearEdge();
+            musicBox.stop();
+            heartbeat.loop();
+            player.heartbeatTimer = 600;
+        }*/
+
         wasNight = isNight;
     }
 
@@ -618,7 +631,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             tileM.draw(g2);
             objectM.draw(g2);
 
-            if (tileM.currentMap == 1) {
+            if (tileM.currentMap == 1 || monster.forceEnter) {
                 monster.draw(g2);
             }
 

@@ -1,4 +1,3 @@
-
 package models;
 
 import game.panel;
@@ -59,6 +58,9 @@ public class Monster extends Entity {
 
     private final panel gp;
 
+    public boolean forceEnter = false;
+    public boolean isEnraged = false;
+
     public Monster(panel gp) {
         this.gp = gp;
         speed = 4;
@@ -112,11 +114,13 @@ public class Monster extends Entity {
             damageCooldown--;
         }
 
-        if (actionTimer > 0) actionTimer--;
+        if (actionTimer > 0) { 
+            actionTimer--;
+        }
 
         boolean isNight = (gp.dC.currentState == game.dayCounter.dayNightState.Night);
 
-        if (!isNight) {
+        if (!isNight && !isEnraged && !forceEnter) {
             state = State.IDLE;
             worldX = -1000;
             worldY = -1000;
@@ -138,23 +142,51 @@ public class Monster extends Entity {
         double distToHouse = Math.sqrt(Math.pow(houseX - worldX, 2) + Math.pow(houseY - worldY, 2));
 
         if (playerOutside && !playerSafe) {
+            
             if (distToPlayer < ATTACK_RANGE) {
+                
                 if (state != State.ATTACKING) {
+                    
                     state = State.ATTACKING;
                     animFrame = 0;
                     animCounter = 0;
                     actionTimer = ACTION_DISPLAY;
                 }
                 faceToward(gp.player.worldX, gp.player.worldY);
+                
+            } else {
+                state = State.CHASING;
+                moveToward(gp.player.worldX, gp.player.worldY);
+            }
+        } else if (forceEnter) {
+
+            double dx = gp.player.worldX - worldX;
+            double dy = gp.player.worldY - worldY;
+            distToPlayer = Math.sqrt(dx * dx + dy * dy);
+
+            if (distToPlayer < ATTACK_RANGE) {
+
+                if (state != State.ATTACKING) {
+
+                    state = State.ATTACKING;
+                    animFrame = 0;
+                    animCounter = 0;
+                    actionTimer = ACTION_DISPLAY;
+                }
+                faceToward(gp.player.worldX, gp.player.worldY);
+
             } else {
                 state = State.CHASING;
                 moveToward(gp.player.worldX, gp.player.worldY);
             }
         } else {
+            
             if (distToHouse < KNOCK_RANGE) {
+                
                 state = State.KNOCKING;
                 faceToward(houseX, houseY);
                 knockTimer++;
+                
                 if (knockTimer >= KNOCK_INTERVAL) {
                     knockTimer = 0;
                     actionTimer = ACTION_DISPLAY;
@@ -166,14 +198,21 @@ public class Monster extends Entity {
         }
 
         if (state == State.CHASING) {
+            
             animCounter++;
+            
             if (animCounter >= WALK_SPEED) {
+                
                 animCounter = 0;
                 animFrame = (animFrame + 1) % WALK_FRAMES;
             }
+            
         } else if (state == State.ATTACKING) {
+            
             if (damageCooldown == 0) {
-                gp.player.takeDamage(30);
+                
+                int damage = (forceEnter || isEnraged) ? 100 : 30;
+                gp.player.takeDamage(damage);
                 damageCooldown = 60;
             }
         } else {
@@ -193,8 +232,9 @@ public class Monster extends Entity {
         int dx = tx - worldX, dy = ty - worldY;
         double dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 1) return;
-        worldX += (int)(dx / dist * speed);
-        worldY += (int)(dy / dist * speed);
+        int currentSpeed = isEnraged ? speed * 2 : speed;
+        worldX += (int)(dx / dist * currentSpeed);
+        worldY += (int)(dy / dist * currentSpeed);
         faceToward(tx, ty);
     }
 
@@ -217,7 +257,14 @@ public class Monster extends Entity {
 
         g2.drawImage(frame, screenX, screenY, 64, 64, null);
 
-        
     }
-   
+
+    public void spawnInsideHouse() {
+        
+        gp.forcedEntry.play();
+        worldX = 160;
+        worldY = 200;
+        state = State.CHASING;
+    }
+
 }
