@@ -2,6 +2,8 @@ package models;
 
 import game.panel;
 import game.KeyHandler;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
@@ -30,8 +32,8 @@ public class Player extends Entity {
     }
 
     public void setDefaultValues() {
-        worldX = gp.tileSize * 30;
-        worldY = gp.tileSize * 22;
+        worldX = 784;
+        worldY = 744;
         speed = 4;
         direction = "down";
         screenX = gp.screenWidth / 2 - gp.tileSize / 2;
@@ -74,37 +76,51 @@ public class Player extends Entity {
         }
         
         if (keyH.upPressed || keyH.downPressed || keyH.rightPressed || keyH.leftPressed) {
+            
             if (keyH.upPressed) {
                 direction = "up";
+                
             } else if (keyH.downPressed) {
+                
                 direction = "down";
+              
             } else if (keyH.rightPressed) {
                 direction = "right";
+                
             } else if (keyH.leftPressed) {
                 direction = "left";
             }
+            
             boolean collisionOn = gp.cChecker.checkTile(this);
             
             if (gp.tileM.currentMap == 1) {
+                
                 if (!collisionOn){
                     collisionOn = gp.cChecker.checkObject(this, gp.objectM.objects);
                 }
                 if (!collisionOn) {
                     collisionOn = gp.cChecker.checkObject(this, gp.objectM.objAppleTree);
                 }
-                if (!collisionOn) {
-                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjVehicle);
-                }
+                
                 if (!collisionOn) {
                     collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjHouse);
                 }
                 if (!collisionOn) {
-                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjWoods);
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.objects);
                 }
+
                 if (!collisionOn) {
-                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.FireCamp);
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.objAppleTree);
                 }
-                if (!collisionOn) collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjPineTree);
+
+                if (!collisionOn) {
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjHouse);
+                }
+
+                if (!collisionOn) {
+                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.extObjects);
+                }
+                
             }
             
             if (!gp.playerFootsteps.isRunning()) {
@@ -123,7 +139,9 @@ public class Player extends Entity {
                     worldX -= speed;
                 }
             }
+            
             spriteCounter++;
+            
             if (spriteCounter > 7) {
                 spriteNum = (spriteNum == 1) ? 2 : 1;
                 spriteCounter = 0;
@@ -136,6 +154,7 @@ public class Player extends Entity {
 
         // collect pag E pressed - daytime lang
         if (keyH.ePressed) {
+            
             collectNearbyItems();
             keyH.ePressed = false;
         }
@@ -147,6 +166,7 @@ public class Player extends Entity {
 
         // check apple items na nasa lupa
         for (int i = 0; i < gp.objectM.appleItems.length; i++) {
+            
             if (gp.objectM.appleItems[i] == null) continue;
             if (gp.objectM.appleItems[i].collected) continue;
 
@@ -154,17 +174,22 @@ public class Player extends Entity {
             int dy = Math.abs(worldY - gp.objectM.appleItems[i].worldY);
 
             if (dx <= collectRange && dy <= collectRange) {
+                
                 boolean added = gp.inventory.addApple();
+                
                 if (added) {
+                    
                     gp.objectM.appleItems[i].collected = true;
                     System.out.println("Apple picked up!");
                 }
+                
                 break; // isa lang per press
             }
         }
 
         // check wood items na nasa lupa
         for (int i = 0; i < gp.objectM.woodItems.length; i++) {
+            
             if (gp.objectM.woodItems[i] == null) continue;
             if (gp.objectM.woodItems[i].collected) continue;
 
@@ -172,8 +197,11 @@ public class Player extends Entity {
             int dy = Math.abs(worldY - gp.objectM.woodItems[i].worldY);
 
             if (dx <= collectRange && dy <= collectRange) {
+                
                 boolean added = gp.inventory.addWood();
+                
                 if (added) {
+                    
                     gp.objectM.woodItems[i].collected = true;
                     System.out.println("Wood picked up!");
                 }
@@ -211,19 +239,34 @@ public void takeDamage(int amount) {
         BufferedImage image = null;
         
         switch (direction) {
+            
             case "up":
                 image = (spriteNum == 1) ? top1 : top2;
                 break;
+                
             case "down":
                 image = (spriteNum == 1) ? down1 : down2;
                 break;
+                
             case "right":
                 image = (spriteNum == 1) ? right1 : right2;
                 break;
+                
             case "left":
                 image = (spriteNum == 1) ? left1 : left2;
                 break;
         }
+        
         g2.drawImage(image, screenX + (gp.tileSize - 32) / 2, screenY + (gp.tileSize - 48) / 2, 32, 48, null);
+        
+        String pos = "X: " + worldX + "  Y: " + worldY;
+        g2.setFont(new Font("Arial", Font.BOLD, 14));
+        int textWidth = g2.getFontMetrics().stringWidth(pos);
+        int boxX = gp.screenWidth / 2 - textWidth / 2 - 8;
+
+        g2.setColor(new Color(0, 0, 0, 150));
+        g2.fillRect(boxX, gp.screenheight - 55, textWidth + 16, 25);
+        g2.setColor(Color.YELLOW);
+        g2.drawString(pos, boxX + 8, gp.screenheight - 37);
     }
 }

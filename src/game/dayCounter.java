@@ -14,8 +14,8 @@ public class dayCounter {
     panel gp;
     Graphics2D g2;
 
-    private Font imFellLarge;   // for "Day X" text
-    private Font imFellSmall;   // for phase label (DAY / NIGHT)
+    private Font imFellLarge;   
+    private Font imFellSmall;  
 
     public int dayCount = 1;
     
@@ -30,10 +30,10 @@ public class dayCounter {
 
     public dayNightState currentState = dayNightState.Day;
 
-    private final float day_duration    = 27f;
-    private final float night_duration  = 27f;
-    private final float fade_duration   = 1.5f;  // fade to black + fade back in
-    private final float hold_duration   = 3.5f;  // suspense hold with text visible
+    private final float day_duration = 27f;
+    private final float night_duration = 27f;
+    private final float fade_duration = 1.5f;  
+    private final float hold_duration = 3.5f;  
     // total DayTitle = fade_duration + hold_duration + fade_duration = 6.5f
 
     public float stateCounter = 0f;
@@ -49,9 +49,9 @@ public class dayCounter {
             Font base = Font.createFont(Font.TRUETYPE_FONT, is);
             imFellLarge = base.deriveFont(Font.PLAIN, 28f);
             imFellSmall = base.deriveFont(Font.PLAIN, 11f);
+            
         } catch (FontFormatException | IOException e) {
             e.printStackTrace();
-            // fallback so game doesn't crash
             imFellLarge = new Font("Serif", Font.PLAIN, 28);
             imFellSmall = new Font("Serif", Font.PLAIN, 11);
         }
@@ -62,7 +62,7 @@ public class dayCounter {
 
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-        String dayText  = "Day " + dayCount;
+        String dayText = "Day " + dayCount;
         String phase = (currentState == dayNightState.Night) ? "N I G H T" : "D A Y";
 
         g2.setFont(imFellLarge);
@@ -100,8 +100,11 @@ public class dayCounter {
     public void update() {
         stateCounter += 0.016f;
         completion_time = Math.round(((System.nanoTime() - startTime) / 1_000_000_000f) * 100f) / 100f;
+        
         switch (currentState) {
+            
             case Day:
+                
                 if (stateCounter >= day_duration) {
                     currentState = dayNightState.Night;
                     stateCounter = 0f;
@@ -109,6 +112,7 @@ public class dayCounter {
                 break;
                 
             case Night:
+                
                 if (stateCounter >= night_duration) {
                     currentState = dayNightState.DayTitle;
                     stateCounter = 0f;
@@ -116,13 +120,27 @@ public class dayCounter {
                 break;
                 
             case DayTitle:
+                
                 if (stateCounter >= fade_duration + hold_duration + fade_duration) {
-                    currentState = dayNightState.Day;
+                    
+                    dayCount++;
                     stateCounter = 0f;
-                    if (dayCount <= 4) { dayCount++; }
-                    else { dayCount++; gp.player.speed += 10; }
-                    gp.objectM.respawnResources();
-                    //gp.inventory.resetDaily();
+                    
+                    if (dayCount >= 4) {
+                        // Endgame — stay in night, no daytime
+                        currentState = dayNightState.Night;
+                        gp.monster.isEnraged = true;
+                        gp.monster.speed += 1;
+                        gp.player.speed = 2;
+                        gp.switchToExterior();
+                        gp.monster.spawnNearEdge();
+                        gp.musicBox.stop();
+                        gp.heartbeat.loop();
+                        gp.player.heartbeatTimer = 600;
+                    } else {
+                        currentState = dayNightState.Day;
+                        gp.objectM.respawnResources();
+                    }
                 }
                 break;
         }
@@ -159,9 +177,12 @@ public class dayCounter {
                 g2.setColor(new Color(0, 0, 0, alpha));
                 g2.fillRect(0, 0, gp.getWidth(), gp.getHeight());
 
-                // show only yung day x during and near fade out
                 if (t >= fade_duration && alpha > 220) {
-                    drawTransitionTitle(g2, "Day " + (dayCount + 1), new Color(200, 215, 175));
+                    String title = (dayCount + 1 >= 4) ? "Endgame" : "Day " + (dayCount + 1);
+                    Color titleColor = (dayCount + 1 >= 4)
+                        ? new Color(180, 60, 60)
+                        : new Color(200, 215, 175);
+                    drawTransitionTitle(g2, title, titleColor);
                 }
                 break;
             }
@@ -172,9 +193,11 @@ public class dayCounter {
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         try {
+            
             InputStream is = getClass().getResourceAsStream("/assets/game_ui/fonts/IMFellEnglish-Regular.ttf");
             Font titleFont = Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 52f);
             g2.setFont(titleFont);
+            
         } catch (Exception e) {
             g2.setFont(new Font("Serif", Font.PLAIN, 52));
         }
@@ -188,6 +211,7 @@ public class dayCounter {
         g2.drawString(text, tx - 1, ty + 2);
 
         try {
+            
             InputStream is = getClass().getResourceAsStream("/assets/game_ui/fonts/IMFellEnglish-Regular.ttf");
             g2.setFont(Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(Font.PLAIN, 52f));
             

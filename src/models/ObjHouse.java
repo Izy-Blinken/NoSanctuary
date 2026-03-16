@@ -38,17 +38,27 @@ public class ObjHouse extends GameObject {
     }
     
     public void toggleWindow(int windowNum) {
-        if (windowNum == 1) isWindow1Open = !isWindow1Open;
-        else if (windowNum == 2) isWindow2Open = !isWindow2Open;
-        else if (windowNum == 3) isWindow3Open = !isWindow3Open;
+        
+        if (windowNum == 1){
+            isWindow1Open = !isWindow1Open;
+        }
+        else if (windowNum == 2){
+            isWindow2Open = !isWindow2Open;
+        }
+        else if (windowNum == 3){
+            isWindow3Open = !isWindow3Open;
+        }
     }
+    
     private static BufferedImage sheet;
 
     public ObjHouse(panel gp, double scale) {
+        
         this.gp = gp;
         this.scale = scale;
 
         try {
+             
             BufferedImage details = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/house_details.png"));
             BufferedImage doorsWin = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/Doors_windows_animation.png"));
 
@@ -83,6 +93,13 @@ public class ObjHouse extends GameObject {
 
             win3OffsetX = (int)(67 * scale);
             win3OffsetY = (int)(52 * scale);
+            
+            wall = tintImage(wall, new java.awt.Color(35, 30, 25), 0.3f);   // dull ashy brown
+            roof = tintImage(roof, new java.awt.Color(30, 20, 20), 0.35f);  // dark muted red
+            doorClosed = tintImage(doorClosed, new java.awt.Color(35, 30, 25), 0.3f);
+            doorOpened = tintImage(doorOpened, new java.awt.Color(35, 30, 25), 0.3f);
+            windowClosed = tintImage(windowClosed, new java.awt.Color(20, 25, 30), 0.25f); // cold grey-blue
+            windowOpened = tintImage(windowOpened, new java.awt.Color(20, 25, 30), 0.25f);
 
             // Collision (wall lang)
             collision = true;   
@@ -93,6 +110,19 @@ public class ObjHouse extends GameObject {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private BufferedImage tintImage(BufferedImage original, java.awt.Color color, float alpha) {
+        
+        BufferedImage tinted = new BufferedImage(original.getWidth(), original.getHeight(), BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = tinted.createGraphics();
+        g2d.drawImage(original, 0, 0, null);
+        g2d.setComposite(java.awt.AlphaComposite.SrcAtop.derive(alpha));
+        g2d.setColor(color);
+        g2d.fillRect(0, 0, original.getWidth(), original.getHeight());
+        g2d.dispose();
+        
+        return tinted;
     }
 
     private BufferedImage scale(BufferedImage src, double scale) {

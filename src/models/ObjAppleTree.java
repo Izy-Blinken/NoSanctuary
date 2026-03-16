@@ -14,10 +14,10 @@ public class ObjAppleTree extends GameObject {
     public ObjAppleTree(panel gp, double scale) {
         try {
             if (sheet == null)
-                sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
+                sheet = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/natural_large.png"));
 
-            BufferedImage rawImage = sheet.getSubimage(95, 76, 79, 113); // apple tree
-            int newWidth  = (int)(rawImage.getWidth()  * scale);
+            BufferedImage rawImage = sheet.getSubimage(65, 8, 42, 69); // apple tree
+            int newWidth  = (int)(rawImage.getWidth() * scale);
             int newHeight = (int)(rawImage.getHeight() * scale);
 
             image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);

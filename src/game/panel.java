@@ -442,6 +442,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 keyH.skipPressed = false;
                 
                 if (narCharIndex < fullPage.length()) {
+                    
                     typewriting.stop();
                     narCharIndex  = fullPage.length();
                     narrationText = fullPage;
@@ -509,6 +510,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             
             interactionChecker.checkInteraction();
             
+            if (monster.forceEnter) {
+                monster.forceEnter = false;
+                monster.worldX = 1515;
+                monster.worldY = 975;
+                monster.state = Monster.State.CHASING;
+            }
+            
         } else {
             interactionChecker.checkInteriorInteraction();
         }
@@ -566,18 +574,29 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         }
 
         if (!isNight || monster.state != Monster.State.KNOCKING) {
+            
             monsterDialogueResponded = false;
             knockDelayTimer = 0;
             knockPlayed = false;
         }
       
         if (!isNight && wasNight) {
-            musicBox.stop(); 
+            
+            musicBox.stop();
+            
+            if (monster.forceEnter) {
+                
+                monster.forceEnter = false;
+                monster.worldX = -1000;
+                monster.worldY = -1000;
+                monster.state = Monster.State.IDLE;
+            }
         }
 
         dC.update();
 
-        if (dC.dayCount > 3 || player.hp <= 0) {
+        if (player.hp <= 0) {
+            
             isGameOver = true;
             gameState = GameState.LOSE;
             loseScreen.causeOfDeath = player.hp <= 0 ? "hp" : "time";
@@ -586,17 +605,9 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             musicBox.stop();
             musicLose.play();
         }
-
-        /* Night-end check
-        if (wasNight && !isNight) {
-            if (!playerHealedThisNight) {
-                isGameOver = true;
-                System.out.println("Game Over! You didn't heal during the night.");
-            }
-            playerHealedThisNight = false;
-        }*/
         
         if (musicBoxDelayTimer > 0) {
+            
             musicBoxDelayTimer--;
             
             if (musicBoxDelayTimer == 0) {
@@ -608,15 +619,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             }
         }
         
-        /* not yet done
-        if (dC.dayCount >= 4 && !monster.isEnraged) {
-            
-            monster.isEnraged = true;
-            monster.spawnNearEdge();
-            musicBox.stop();
-            heartbeat.loop();
-            player.heartbeatTimer = 600;
-        }*/
+
 
         wasNight = isNight;
     }
@@ -628,6 +631,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         Graphics2D g2 = (Graphics2D) g;
 
         if (!showNarration) {
+            
             tileM.draw(g2);
             objectM.draw(g2);
 
@@ -648,9 +652,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             drawMenuPanel(g2);
         }
         if (isGameOver) {
+            
             if (gameState == GameState.WIN) {
+                
                 winScreen.draw(g2);
+                
             } else if (gameState == GameState.LOSE) {
+                
                 loseScreen.draw(g2);
             }
         }
@@ -783,11 +791,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     private boolean isMenuBtnClicked(int mx, int my) {
+        
         return mx >= MENU_BTN_X && mx <= MENU_BTN_X + MENU_BTN_W
                 && my >= MENU_BTN_Y && my <= MENU_BTN_Y + MENU_BTN_H;
     }
 
     private boolean isMenuPanelXClicked(int mx, int my) {
+        
 
         int px = screenWidth / 2 - MENU_PANEL_W / 2;
         int py = screenheight / 2 - MENU_PANEL_H / 2;
@@ -1103,9 +1113,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             if (interactionChecker.showDoorPrompt) {
 
                 models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
+                
                 if (house.isDoorOpen) {
+                    
                     drawKeyPromptBox(g2, "E", "Enter", cx - 80, screenheight - 70, 15f);
                     drawKeyPromptBox(g2, "F", "Close Door", cx + 60, screenheight - 70, 15f);
+                    
                 } else {
                     drawKeyPromptBox(g2, "E", "Open Door", cx, screenheight - 70, 15f);
                 }
@@ -1116,8 +1129,10 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             }
 
             if (interactionChecker.showRiddlePrompt) {
+                
                 int ri = interactionChecker.nearRiddleIndex;
                 boolean solved = ri >= 0 && riddleM.getRiddle(ri) != null && riddleM.getRiddle(ri).solved;
+                
                 if (!solved) {
                     drawKeyPromptBox(g2, "E", "Read the Riddle  (" + (riddleM.solvedCount) + "/3 solved)", cx, screenheight - 110, 15f);
                 }
@@ -1130,9 +1145,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         if (interactionChecker.showExitPrompt) {
 
             models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
+            
             if (house.isDoorOpen) {
+                
                 drawKeyPromptBox(g2, "E", "Exit", cx - 80, screenheight - 70, 15f);
                 drawKeyPromptBox(g2, "F", "Close Door", cx + 60, screenheight - 70, 15f);
+                
             } else {
                 drawKeyPromptBox(g2, "F", "Open Door", cx, screenheight - 70, 15f);
             }
@@ -1302,8 +1320,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     public void switchToExterior() {
 
         tileM.switchMap(1);
-        player.worldX = 1455;
-        player.worldY = 1056;
+        player.worldX = 872;
+        player.worldY = 700;
     }
 
     public boolean isPlayerSafe() {
@@ -1318,6 +1336,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     @Override
     public void startGame() {
+        
         showNarration = true;
         narrationAlpha = 0f;
         narrationComplete = true;

@@ -62,6 +62,7 @@ public class Monster extends Entity {
     public boolean isEnraged = false;
 
     public Monster(panel gp) {
+        
         this.gp = gp;
         speed = 4;
         solidArea = new Rectangle(8, 16, 32, 32);
@@ -72,26 +73,35 @@ public class Monster extends Entity {
 
     private void loadSprites() {
         try {
-            BufferedImage sheet = ImageIO.read(
-                getClass().getResourceAsStream(
-                    "/assets/Charac/edp character/monster1_universal.png"));
+            BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/Charac/edp character/monster1_universal.png"));
 
             int[] walkRows = { 8, 9, 10, 11 };
             int[] slashRows = { 12, 13, 14, 15 };
 
             for (int d = 0; d < DIRS; d++) {
+                
                 for (int f = 0; f < WALK_FRAMES; f++) {
                     walkFrames[d][f] = sheet.getSubimage(f * 64, walkRows[d] * 64, 64, 64);
                 }
+                
                 for (int f = 0; f < SLASH_FRAMES; f++) {
                     slashFrames[d][f] = sheet.getSubimage(f * 64, slashRows[d] * 64, 64, 64);
                 }
             }
+            
         } catch (IOException | IllegalArgumentException e) {
+            
             System.err.println("Monster sprite load failed: " + e.getMessage());
+            
             for (int d = 0; d < DIRS; d++) {
-                for (int f = 0; f < WALK_FRAMES; f++) walkFrames[d][f] = blankFrame();
-                for (int f = 0; f < SLASH_FRAMES; f++) slashFrames[d][f] = blankFrame();
+                
+                for (int f = 0; f < WALK_FRAMES; f++)   { 
+                    walkFrames[d][f] = blankFrame();
+                }
+                
+                for (int f = 0; f < SLASH_FRAMES; f++){
+                    slashFrames[d][f] = blankFrame();
+                }
             }
         }
     }
@@ -124,6 +134,7 @@ public class Monster extends Entity {
             state = State.IDLE;
             worldX = -1000;
             worldY = -1000;
+            
             return;
         }
 
@@ -131,9 +142,12 @@ public class Monster extends Entity {
         boolean playerOutside = (gp.tileM.currentMap == 1);
 
         double distToPlayer = Double.MAX_VALUE;
+        
         if (playerOutside) {
+            
             int dx = gp.player.worldX - worldX;
             int dy = gp.player.worldY - worldY;
+            
             distToPlayer = Math.sqrt(dx * dx + dy * dy);
         }
 
@@ -179,6 +193,7 @@ public class Monster extends Entity {
                 state = State.CHASING;
                 moveToward(gp.player.worldX, gp.player.worldY);
             }
+            
         } else {
             
             if (distToHouse < KNOCK_RANGE) {
@@ -188,9 +203,11 @@ public class Monster extends Entity {
                 knockTimer++;
                 
                 if (knockTimer >= KNOCK_INTERVAL) {
+                    
                     knockTimer = 0;
                     actionTimer = ACTION_DISPLAY;
                 }
+                
             } else {
                 state = State.CHASING;
                 moveToward(houseX, houseY);
@@ -211,10 +228,12 @@ public class Monster extends Entity {
             
             if (damageCooldown == 0) {
                 
-                int damage = (forceEnter || isEnraged) ? 100 : 30;
+                int damage = isEnraged ? 100 : (forceEnter ? 50 : 30);
+                
                 gp.player.takeDamage(damage);
                 damageCooldown = 60;
             }
+            
         } else {
             animFrame = 0;
             animCounter = 0;
@@ -222,35 +241,50 @@ public class Monster extends Entity {
     }
 
     private void faceToward(int tx, int ty) {
+        
         int dx = tx - worldX, dy = ty - worldY;
+        
         currentDir = (Math.abs(dx) > Math.abs(dy))
                    ? (dx > 0 ? DIR_RIGHT : DIR_LEFT)
                    : (dy > 0 ? DIR_DOWN : DIR_UP);
     }
 
     private void moveToward(int tx, int ty) {
+        
         int dx = tx - worldX, dy = ty - worldY;
         double dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 1) return;
+        
+        if (dist < 1) { 
+            return;
+        }
+        
         int currentSpeed = isEnraged ? speed * 2 : speed;
+        
         worldX += (int)(dx / dist * currentSpeed);
         worldY += (int)(dy / dist * currentSpeed);
         faceToward(tx, ty);
     }
 
     public void draw(Graphics2D g2) {
+        
         if (state == State.IDLE) return;
 
         int screenX = worldX - gp.player.worldX + gp.player.screenX;
         int screenY = worldY - gp.player.worldY + gp.player.screenY;
 
         if (screenX < -96 || screenX > gp.screenWidth + 96
-         || screenY < -96 || screenY > gp.screenheight + 96) return;
+         || screenY < -96 || screenY > gp.screenheight + 96){
+            
+            return;
+        }
 
         BufferedImage frame;
+        
         if (state == State.ATTACKING) {
+            
             int safeFrame = Math.min(animFrame, SLASH_FRAMES - 1);
             frame = slashFrames[currentDir][safeFrame];
+            
         } else {
             frame = walkFrames[currentDir][animFrame];
         }

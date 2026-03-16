@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import javax.imageio.ImageIO;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -26,6 +27,14 @@ public class LandingPage extends JPanel implements ActionListener {
     private String menuState = "MAIN";
     private Clip bgMusic;
 
+    public float alpha = 0f;
+    public boolean fadingIn = false;
+    public boolean fadingOut = false;
+    public String nextState = "";
+    public javax.swing.Timer fadeTimer;
+    private Runnable onTransitionMid = null;
+    private boolean isFirstLoad = true;
+
     private JButton startBtn, enterBtn, leaderboardBtn, aboutBtn, exitBtn1, exitBtn2, exitBtn3, exitBtn4, settingBtn, volumeBtn, creditsBtn, usernameBtn;
 
     public LandingPage(panel gp, LandingPageListener listener) {
@@ -38,8 +47,9 @@ public class LandingPage extends JPanel implements ActionListener {
         setupGame();
         playBackgroundMusic("/assets/game_music/landingPage_music.wav");
         setImages();
-       
     }
+    
+   
 
     public void setImages() {
         try {
@@ -87,6 +97,7 @@ public class LandingPage extends JPanel implements ActionListener {
             startBtn.setBorderPainted(false);
             startBtn.setContentAreaFilled(false);
             startBtn.setFocusPainted(false);
+            startBtn.setVisible(false);
 
             enterBtn = new JButton(new ImageIcon(enterIcnNml));
             enterBtn.setBorderPainted(false);
@@ -113,6 +124,7 @@ public class LandingPage extends JPanel implements ActionListener {
             exitBtn1.setBorderPainted(false);
             exitBtn1.setContentAreaFilled(false);
             exitBtn1.setFocusPainted(false);
+            exitBtn1.setVisible(false);
 
             exitBtn2 = new JButton(new ImageIcon(exitIcnNml));
             exitBtn2.setBorderPainted(false);
@@ -136,11 +148,13 @@ public class LandingPage extends JPanel implements ActionListener {
             settingBtn.setBorderPainted(false);
             settingBtn.setContentAreaFilled(false);
             settingBtn.setFocusPainted(false);
+            settingBtn.setVisible(false);
 
             leaderboardBtn = new JButton(new ImageIcon(leaderboardIcnNml));
             leaderboardBtn.setBorderPainted(false);
             leaderboardBtn.setContentAreaFilled(false);
             leaderboardBtn.setFocusPainted(false);
+            leaderboardBtn.setVisible(false);
 
             volumeBtn = new JButton(new ImageIcon(volumeIcnNml));
             volumeBtn.setBorderPainted(false);
@@ -179,19 +193,51 @@ public class LandingPage extends JPanel implements ActionListener {
             volumeSlider.setVisible(false);
             volumeSlider.setOpaque(false);
 
-            startBtn.addActionListener(e -> {
-                menuState = "USERNAME";
-                playSound("/assets/game_pages/mouseClick.wav");
-                startBtn.setVisible(false);
-                leaderboardBtn.setVisible(false);
-                settingBtn.setVisible(false);
-                exitBtn1.setVisible(false);
-
-                exitBtn4.setVisible(true);
-                enterBtn.setVisible(true);
-                usernameBtn.setVisible(true);
-
+            fadeTimer = new javax.swing.Timer(16, e -> {
+                if (fadingOut) {
+                    alpha -= 0.05f;
+                    if (alpha <= 0f) {
+                        alpha = 0f;
+                        fadingOut = false;
+                        menuState = nextState;
+                        if (onTransitionMid != null) {
+                            onTransitionMid.run();
+                            onTransitionMid = null;
+                        }
+                        fadingIn = true;
+                    }
+                } else if (fadingIn) {
+                    alpha += (isFirstLoad ? 0.011f : 0.05f);
+                    if (alpha >= 1f) {
+                        alpha = 1f;
+                        fadingIn = false;
+                        isFirstLoad = false;
+                        if (menuState.equals("MAIN")) {
+                            startBtn.setVisible(true);
+                            leaderboardBtn.setVisible(true);
+                            settingBtn.setVisible(true);
+                            exitBtn1.setVisible(true);
+                        }
+                        fadeTimer.stop();
+                    }
+                }
                 repaint();
+            });
+            alpha = 0f;
+            fadingIn = true;
+            fadeTimer.start();
+
+            startBtn.addActionListener(e -> {
+                playSound("/assets/game_pages/mouseClick.wav");
+                transitionTo("USERNAME", () -> {
+                    startBtn.setVisible(false);
+                    leaderboardBtn.setVisible(false);
+                    settingBtn.setVisible(false);
+                    exitBtn1.setVisible(false);
+                    exitBtn4.setVisible(true);
+                    enterBtn.setVisible(true);
+                    usernameBtn.setVisible(true);
+                });
             });
 
             usernameBtn.addActionListener(e -> {
@@ -226,121 +272,95 @@ public class LandingPage extends JPanel implements ActionListener {
             });
 
             leaderboardBtn.addActionListener(e -> {
-
-                menuState = "LEADERBOARD";
                 playSound("/assets/game_pages/mouseClick.wav");
-                startBtn.setVisible(false);
-                leaderboardBtn.setVisible(false);
-                settingBtn.setVisible(false);
-                exitBtn1.setVisible(false);
-                exitBtn3.setVisible(true);
                 gp.dbConn.showLeaderboard();
-                repaint();
+                transitionTo("LEADERBOARD", () -> {
+                    startBtn.setVisible(false);
+                    leaderboardBtn.setVisible(false);
+                    settingBtn.setVisible(false);
+                    exitBtn1.setVisible(false);
+                    exitBtn3.setVisible(true);
+                });
             });
+
             settingBtn.addActionListener(e -> {
-
-                menuState = "SETTINGS";
                 playSound("/assets/game_pages/mouseClick.wav");
-
-                startBtn.setVisible(false);
-                leaderboardBtn.setVisible(false);
-                settingBtn.setVisible(false);
-                exitBtn1.setVisible(false);
-                volumeBtn.setVisible(true);
-                aboutBtn.setVisible(true);
-                creditsBtn.setVisible(true);
-                exitBtn2.setVisible(true);
-                repaint();
+                transitionTo("SETTINGS", () -> {
+                    startBtn.setVisible(false);
+                    leaderboardBtn.setVisible(false);
+                    settingBtn.setVisible(false);
+                    exitBtn1.setVisible(false);
+                    volumeBtn.setVisible(true);
+                    aboutBtn.setVisible(true);
+                    creditsBtn.setVisible(true);
+                    exitBtn2.setVisible(true);
+                });
             });
+
             exitBtn1.addActionListener(e -> {
                 System.out.print("haha");
                 playSound("/assets/game_pages/mouseClick.wav");
                 System.exit(0);
             });
+
             volumeBtn.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
-                startBtn.setVisible(false);
-                leaderboardBtn.setVisible(false);
-                settingBtn.setVisible(false);
-                exitBtn1.setVisible(false);
-                volumeBtn.setVisible(true);
-                aboutBtn.setVisible(true);
-                creditsBtn.setVisible(true);
             });
-            aboutBtn.addActionListener(e -> {
 
-                menuState = "ABOUT";
+            aboutBtn.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
                 System.out.print("about");
-                startBtn.setVisible(false);
-                leaderboardBtn.setVisible(false);
-                settingBtn.setVisible(false);
-                exitBtn1.setVisible(false);
-                volumeBtn.setVisible(true);
-                aboutBtn.setVisible(true);
-                creditsBtn.setVisible(true);
+                menuState = "ABOUT";
+                exitBtn2.setVisible(true);
                 repaint();
             });
+
             creditsBtn.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
                 menuState = "CREDITS";
-
-                startBtn.setVisible(false);
-                leaderboardBtn.setVisible(false);
-                settingBtn.setVisible(false);
-                exitBtn1.setVisible(false);
-                volumeBtn.setVisible(true);
-                aboutBtn.setVisible(true);
-                creditsBtn.setVisible(true);
+                exitBtn2.setVisible(true);
                 repaint();
             });
 
             exitBtn2.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
-                menuState = "MAIN";
-
-                startBtn.setVisible(true);
-                leaderboardBtn.setVisible(true);
-                settingBtn.setVisible(true);
-                exitBtn1.setVisible(true);
-
-                volumeBtn.setVisible(false);
-                aboutBtn.setVisible(false);
-                creditsBtn.setVisible(false);
-                exitBtn2.setVisible(false);
-                repaint();
+                transitionTo("MAIN", () -> {
+                    startBtn.setVisible(true);
+                    leaderboardBtn.setVisible(true);
+                    settingBtn.setVisible(true);
+                    exitBtn1.setVisible(true);
+                    volumeBtn.setVisible(false);
+                    aboutBtn.setVisible(false);
+                    creditsBtn.setVisible(false);
+                    exitBtn2.setVisible(false);
+                });
             });
 
             exitBtn3.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
-                menuState = "MAIN";
-
-                startBtn.setVisible(true);
-                leaderboardBtn.setVisible(true);
-                settingBtn.setVisible(true);
-                exitBtn1.setVisible(true);
-
-                exitBtn3.setVisible(false);
-                repaint();
+                transitionTo("MAIN", () -> {
+                    startBtn.setVisible(true);
+                    leaderboardBtn.setVisible(true);
+                    settingBtn.setVisible(true);
+                    exitBtn1.setVisible(true);
+                    exitBtn3.setVisible(false);
+                });
             });
+
             exitBtn4.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
-                menuState = "MAIN";
-
-                startBtn.setVisible(true);
-                leaderboardBtn.setVisible(true);
-                settingBtn.setVisible(true);
-                exitBtn1.setVisible(true);
-
-                enterBtn.setVisible(false);
-                usernameBtn.setVisible(false);
-                exitBtn4.setVisible(false);
-
-                if (usernameInput != null) {
-                    usernameInput.setVisible(false);
-                }
-
-                repaint();
+                transitionTo("MAIN", () -> {
+                    startBtn.setVisible(true);
+                    leaderboardBtn.setVisible(true);
+                    settingBtn.setVisible(true);
+                    exitBtn1.setVisible(true);
+                    enterBtn.setVisible(false);
+                    usernameBtn.setVisible(false);
+                    exitBtn4.setVisible(false);
+                    if (usernameInput != null) {
+                        usernameInput.setVisible(false);
+                    }
+                });
             });
 
             startBtn.addMouseListener(new MouseAdapter() {
@@ -514,22 +534,21 @@ public class LandingPage extends JPanel implements ActionListener {
                 break;
         }
 
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f - alpha));
+        g2.setColor(Color.BLACK);
+        g2.fillRect(0, 0, getWidth(), getHeight());
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
 
     private void playBackgroundMusic(String path) {
         try {
-
-            AudioInputStream audioIn
-                    = AudioSystem.getAudioInputStream(getClass().getResource(path));
-
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(getClass().getResource(path));
             bgMusic = AudioSystem.getClip();
             bgMusic.open(audioIn);
-
             gainControl = (FloatControl) bgMusic.getControl(FloatControl.Type.MASTER_GAIN);
-
             bgMusic.loop(Clip.LOOP_CONTINUOUSLY);
             bgMusic.start();
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -537,15 +556,37 @@ public class LandingPage extends JPanel implements ActionListener {
 
     private void playSound(String path) {
         try {
-
             var audioIn = javax.sound.sampled.AudioSystem.getAudioInputStream(getClass().getResource(path));
-
             var clip = javax.sound.sampled.AudioSystem.getClip();
             clip.open(audioIn);
             clip.start();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private void hideAllButtons() {
+        startBtn.setVisible(false);
+        enterBtn.setVisible(false);
+        usernameBtn.setVisible(false);
+        usernameInput.setVisible(false);
+        leaderboardBtn.setVisible(false);
+        settingBtn.setVisible(false);
+        volumeBtn.setVisible(false);
+        aboutBtn.setVisible(false);
+        creditsBtn.setVisible(false);
+        exitBtn1.setVisible(false);
+        exitBtn2.setVisible(false);
+        exitBtn3.setVisible(false);
+        exitBtn4.setVisible(false);
+    }
+
+    private void transitionTo(String state, Runnable onMid) {
+        hideAllButtons();
+        nextState = state;
+        onTransitionMid = onMid;
+        fadingOut = true;
+        fadeTimer.start();
     }
 
     @Override
