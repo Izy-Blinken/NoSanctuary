@@ -135,7 +135,9 @@ public class TileManager {
         }
     }
 
+    
     private BufferedImage createBlackTile() {
+        
         BufferedImage black = new BufferedImage(16, 16, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = black.createGraphics();
         g2.setColor(java.awt.Color.BLACK);
@@ -148,8 +150,11 @@ public class TileManager {
     public int currentMap = 1;
 
     public void loadMap() {
+        
         for (int c = 0; c < gp.maxWorldCol; c++) {
+            
             for (int r = 0; r < gp.maxWorldRow; r++) {
+                
                 mapTileNum[c][r] = 22;
             }
         }
@@ -158,6 +163,7 @@ public class TileManager {
             String mapFile = currentMap == 1
                     ? "/assets/no_sanctuary_map/map1_level1.txt"
                     : "/assets/no_sanctuary_map/lvl_1_int.txt";
+            
             InputStream is = getClass().getResourceAsStream(mapFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             

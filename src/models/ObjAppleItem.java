@@ -13,16 +13,19 @@ public class ObjAppleItem extends GameObject {
     private static BufferedImage sheet;
 
     public ObjAppleItem(panel gp) {
+        
         try {
-            if (sheet == null)
+            
+            if (sheet == null){
                 sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
+            }
 
             image = sheet.getSubimage(900, 298, 22, 26); // apple sprite
 
-            collision = false; // walang collision, lalakad lang player dito
+            collision = false; 
             solidArea = new Rectangle(0, 0, 22, 26);
 
-            generateNightImage(); // dark version pag gabi
+            generateNightImage(); 
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -152,37 +152,33 @@ public class ObjExternalObjects extends GameObject {
                 case "ruinPillar":
                 case "ruinArch":
                 case "ruinFourPillar":
-                    objectImage = tint(scaledRaw, new Color(20, 25, 30), 0.3f); // cold grey stone
+                    objectImage = tint(scaledRaw, new Color(20, 25, 30), 0.3f); // grey stone
                     break;
 
                 case "rockXS":
                 case "rockSmall":
                 case "rockMedium":
                 case "rockBig":
-                    objectImage = tint(scaledRaw, new Color(25, 22, 18), 0.25f); // ashy dark stone
+                    objectImage = tint(scaledRaw, new Color(25, 22, 18), 0.25f); // dark stone
                     break;
 
                 case "plantSmall":
                 case "plantMedium":
                 case "plantBig":
-                    objectImage = tint(scaledRaw, new Color(30, 25, 10), 0.3f); // withered yellow-brown
+                    objectImage = tint(scaledRaw, new Color(30, 25, 10), 0.3f); // yellow-brown
                     break;
 
                 case "greenPlantSmall":
                 case "greenPlantMedium":
                 case "greenPlantBig":
-                    objectImage = tint(scaledRaw, new Color(20, 30, 15), 0.2f); // muted dark green
+                    objectImage = tint(scaledRaw, new Color(20, 30, 15), 0.2f); // dark green
                     break;
 
                 case "pileSkull":
                 case "leftGrave1":
                 case "leftGrave2":
                 case "rightGrave":
-                    objectImage = tint(scaledRaw, new Color(15, 12, 20), 0.35f); // dark eerie purple-grey
-                    break;
-
-                case "shelter":
-                    objectImage = tint(scaledRaw, new Color(20, 25, 30), 0.3f); // cold stone
+                    objectImage = tint(scaledRaw, new Color(15, 12, 20), 0.35f); // purple-grey
                     break;
 
                 default:

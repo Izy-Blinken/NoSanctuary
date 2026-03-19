@@ -35,7 +35,7 @@ public class Inventory {
 
     public static final int BTN_X = 10;
     public static final int BTN_W = 50;
-    public static final int BTN_H  = 22;
+    public static final int BTN_H = 22;
     public static final int BAG_BTN_Y = 60;
     public static final int SCROLL_BTN_Y = 90;
 
@@ -70,9 +70,14 @@ public class Inventory {
             try {
 
                 InputStream is = getClass().getResourceAsStream("/assets/game_ui/fonts/IMFellEnglish-Regular.ttf");
-                if (is != null) imFellBase = Font.createFont(Font.TRUETYPE_FONT, is);
+                
+                if (is != null) { 
+                    
+                    imFellBase = Font.createFont(Font.TRUETYPE_FONT, is);
+                }
 
             } catch (FontFormatException | IOException e) {
+                
                 imFellBase = new Font("Serif", Font.PLAIN, 12);
             }
         }
@@ -82,22 +87,31 @@ public class Inventory {
 
     public boolean addWood() {
 
-        if (wood < MAX_WOOD) { wood++; return true; }
+        if (wood < MAX_WOOD) { 
+            wood++; return true; 
+        }
+        
         return false;
     }
 
     public boolean addApple() {
 
-        if (apple < MAX_APPLE) { apple++; return true; }
+        if (apple < MAX_APPLE) {
+            apple++; return true; 
+        }
+        
         return false;
     }
 
     public boolean eatApple() {
 
         if (apple > 0) {
+            
             apple--;
+            
             return true;
         }
+        
         return false;
     }
 
@@ -184,8 +198,11 @@ public class Inventory {
         int iy = y + (rowH - iconSize) / 2;
 
         if (img != null) {
+            
             g2.drawImage(img, x, iy, iconSize, iconSize, null);
+            
         } else {
+            
             g2.setColor(fallbackColor);
             g2.fillRect(x, iy, iconSize, iconSize);
             g2.setColor(new Color(75, 70, 65));
@@ -228,6 +245,7 @@ public class Inventory {
             g2.setColor(new Color(100, 95, 88));
             String empty = "No clue found yet.";
             int ew = g2.getFontMetrics().stringWidth(empty);
+            
             g2.drawString(empty, px + PANEL_W / 2 - ew / 2, py + PANEL_H / 2);
         }
     }
@@ -261,11 +279,13 @@ public class Inventory {
 
 
     public boolean isBagBtnClicked(int mx, int my) {
+        
         return mx >= BTN_X && mx <= BTN_X + BTN_W
             && my >= BAG_BTN_Y && my <= BAG_BTN_Y + BTN_H;
     }
 
     public boolean isScrollBtnClicked(int mx, int my) {
+        
         return mx >= BTN_X && mx <= BTN_X + BTN_W
             && my >= SCROLL_BTN_Y && my <= SCROLL_BTN_Y + BTN_H;
     }
@@ -274,6 +294,7 @@ public class Inventory {
 
         int px = gp.screenWidth  / 2 - PANEL_W / 2;
         int py = gp.screenheight / 2 - PANEL_H / 2;
+        
         return mx >= px + PANEL_W - 24 && mx <= px + PANEL_W - 6
             && my >= py + 8 && my <= py + 28;
     }
@@ -282,6 +303,7 @@ public class Inventory {
 
         int px = gp.screenWidth  / 2 - PANEL_W / 2;
         int py = gp.screenheight / 2 - PANEL_H / 2;
+        
         return mx >= px + PANEL_W - 24 && mx <= px + PANEL_W - 6
             && my >= py + 8 && my <= py + 28;
     }
@@ -296,7 +318,7 @@ public class Inventory {
             return false;
         }
         
-        int px = gp.screenWidth  / 2 - PANEL_W / 2;
+        int px = gp.screenWidth / 2 - PANEL_W / 2;
         int py = gp.screenheight / 2 - PANEL_H / 2;
         int rowY = py + 75;
         int btnW = 180;
@@ -318,14 +340,19 @@ public class Inventory {
             String test = line.length() == 0 ? word : line + " " + word;
 
             if (g2.getFontMetrics().stringWidth(test) > maxWidth) {
+                
                 g2.drawString(line.toString(), x, curY);
                 line = new StringBuilder(word);
                 curY += lineHeight;
+                
             } else {
+                
                 line = new StringBuilder(test);
             }
         }
 
-        if (line.length() > 0) g2.drawString(line.toString(), x, curY);
+        if (line.length() > 0) { 
+            g2.drawString(line.toString(), x, curY);
+        }
     }
 }

@@ -20,6 +20,7 @@ public class InteractionChecker {
     public boolean showAppleTablePrompt = false;
     public boolean showRiddlePrompt = false;
     public int nearRiddleIndex = -1;
+    public boolean showShelterPrompt = false;
 
     // Feedback messages
     public String torchFeedback = "";
@@ -50,21 +51,26 @@ public class InteractionChecker {
     private static final int INTERACT_DEBOUNCE = 10;
 
     public InteractionChecker(panel gp) {
+        
         this.gp = gp;
     }
 
     public void checkInteraction() {
-        // Update debounce timer
+        
+        showShelterPrompt = false;
+        
         if (interactDebounceTimer > 0) {
             interactDebounceTimer--;
         }
 
-        // Handle debounced interact press
         boolean interactJustPressed = false;
+        
         if (gp.keyH.interactPressed && !interactKeyWasPressed && interactDebounceTimer == 0) {
+            
             interactJustPressed = true;
             interactDebounceTimer = INTERACT_DEBOUNCE;
         }
+        
         interactKeyWasPressed = gp.keyH.interactPressed;
 
         // Reset prompts
@@ -73,55 +79,93 @@ public class InteractionChecker {
         nearRiddleIndex = -1;
         showPortalPrompt = false;
 
-        // Check door interactions
         checkDoorInteraction(interactJustPressed);
 
-        // Check riddle interactions
         checkRiddleInteraction(interactJustPressed);
 
-        // Check portal interaction
         checkPortalInteraction(interactJustPressed);
+        
+        checkShelterInteraction(interactJustPressed);
+    }
+    
+    private void checkShelterInteraction(boolean interactJustPressed) {
+
+        if (gp.objectM.ObjUndergroundShelter == null) return;
+
+        showShelterPrompt = false;
+
+        for (int i = 0; i < gp.objectM.ObjUndergroundShelter.length; i++) {
+
+            if (gp.objectM.ObjUndergroundShelter[i] == null) continue;
+
+            models.ObjUndergroundShelter shelter = (models.ObjUndergroundShelter) gp.objectM.ObjUndergroundShelter[i];
+
+            if (shelter.used) continue;
+
+            double dist = getDistance(gp.player.worldX, gp.player.worldY, shelter.worldX, shelter.worldY);
+
+            if (dist < INTERACT_DIST) {
+
+                showShelterPrompt = true;
+
+                if (interactJustPressed) {
+                    shelter.discovered = true;
+                    shelter.used = true;
+                    gp.keyH.interactPressed = false;
+                    gp.switchToInterior();
+                }
+
+                break;
+            }
+        }
     }
 
     private void checkDoorInteraction(boolean interactJustPressed) {
+        
         if (gp.objectM.ObjHouse == null || gp.objectM.ObjHouse.length == 0) {
             return;
         }
 
         for (int i = 0; i < gp.objectM.ObjHouse.length; i++) {
+            
             if (gp.objectM.ObjHouse[i] == null) {
+                
                 continue;
             }
 
             ObjHouse house = (ObjHouse) gp.objectM.ObjHouse[i];
             
-            // Calculate door world position
             int doorWorldX = gp.objectM.ObjHouse[i].worldX + house.doorOffsetX;
             int doorWorldY = gp.objectM.ObjHouse[i].worldY + house.doorOffsetY;
             
-            // Use Euclidean distance for more accurate measurement
             double dist = getDistance(gp.player.worldX, gp.player.worldY, doorWorldX, doorWorldY);
 
             if (dist < DOOR_INTERACT_DIST) {
+                
                 showDoorPrompt = true;
 
-                // Check if player is actually facing the door
                 boolean facingDoor = isPlayerFacingDoor(house, doorWorldX, doorWorldY);
 
                 if (interactJustPressed && facingDoor) {
+                    
                     gp.keyH.interactPressed = false;
                     
                     if (!house.isDoorOpen) {
+                        
                         house.toggleDoor();
                         gp.doorCreak.play();
+                        
                     } else {
+                        
                         gp.switchToInterior();
                         showDoorPrompt = false;
                     }
+                    
                     break;
                 }
 
                 if (gp.keyH.closePressed && house.isDoorOpen) {
+                    
                     house.toggleDoor();
                     gp.doorCreak.play();
                     gp.keyH.closePressed = false;
@@ -132,6 +176,7 @@ public class InteractionChecker {
     }
 
     private void checkRiddleInteraction(boolean interactJustPressed) {
+        
         if (gp.objectM.riddleObjects == null) {
             return;
         }
@@ -140,7 +185,9 @@ public class InteractionChecker {
         int closestIndex = -1;
 
         for (int i = 0; i < gp.objectM.riddleObjects.length; i++) {
+            
             if (gp.objectM.riddleObjects[i] == null) {
+                
                 continue;
             }
 
@@ -152,16 +199,19 @@ public class InteractionChecker {
             );
 
             if (dist < RIDDLE_DIST && dist < closestDist) {
+                
                 closestDist = dist;
                 closestIndex = i;
             }
         }
 
         if (closestIndex != -1) {
+            
             showRiddlePrompt = true;
             nearRiddleIndex = ((ObjRiddle) gp.objectM.riddleObjects[closestIndex]).riddleIndex;
 
             if (interactJustPressed) {
+                
                 gp.keyH.interactPressed = false;
                 gp.riddleUI.open(nearRiddleIndex);
             }
@@ -169,11 +219,13 @@ public class InteractionChecker {
     }
 
     private void checkPortalInteraction(boolean interactJustPressed) {
+        
         if (!gp.objectM.portalVisible || gp.objectM.portal == null) {
             return;
         }
 
         double dist = getDistance(
+                
             gp.player.worldX,
             gp.player.worldY,
             gp.objectM.portal.worldX,
@@ -181,9 +233,11 @@ public class InteractionChecker {
         );
 
         if (dist < PORTAL_DIST) {
+            
             showPortalPrompt = true;
 
             if (interactJustPressed) {
+                
                 gp.keyH.interactPressed = false;
                 long elapsed = (System.currentTimeMillis() - gp.getGameStartTime()) / 1000;
                 gp.winScreen.completionSeconds = (int) elapsed;
@@ -196,6 +250,7 @@ public class InteractionChecker {
     }
 
     public void checkInteriorInteraction() {
+        
         if (gp.objectM.ObjHouse == null || gp.objectM.ObjHouse[0] == null) {
             return;
         }
@@ -203,73 +258,78 @@ public class InteractionChecker {
         ObjHouse house = (ObjHouse) gp.objectM.ObjHouse[0];
         
         if (gp.objectM.interior == null) {
+            
             return;
         }
 
         tickFeedback();
 
-        // Exit door
         checkExitDoorInteraction(house);
-
-        // Windows
         checkWindowInteraction(house);
-
-        // Torches
         checkTorchInteraction();
-
-        // Cabinet
         checkCabinetInteraction();
-
-        // Apple table
         checkAppleTableInteraction();
     }
 
     private void checkExitDoorInteraction(ObjHouse house) {
+        
         double dist = getDistance(gp.player.worldX, gp.player.worldY, intDoorX, intDoorY);
 
         if (dist < INTERACT_DIST) {
+            
             showExitPrompt = true;
 
             if (gp.keyH.closePressed) {
+                
                 house.toggleDoor();
                 gp.doorCreak.play();
                 gp.keyH.closePressed = false;
             }
 
             if (gp.keyH.interactPressed && house.isDoorOpen) {
+                
                 gp.switchToExterior();
                 gp.keyH.interactPressed = false;
                 showExitPrompt = false;
                 return;
             }
+            
         } else {
+            
             showExitPrompt = false;
         }
     }
 
     private void checkWindowInteraction(ObjHouse house) {
+        
         int[][] winPos = {{intWin1X, intWin1Y}, {intWin2X, intWin2Y}, {intWin3X, intWin3Y}};
+        
         nearWindowNum = 0;
         showWindowPrompt = false;
 
         for (int i = 0; i < 3; i++) {
+            
             double dist = getDistance(gp.player.worldX, gp.player.worldY, winPos[i][0], winPos[i][1]);
 
             if (dist < INTERACT_DIST) {
+                
                 nearWindowNum = i + 1;
                 showWindowPrompt = true;
 
                 if (gp.keyH.interactPressed) {
+                    
                     gp.keyH.interactPressed = false;
                     house.toggleWindow(nearWindowNum);
                     gp.windowCreak.play();
                 }
+                
                 break;
             }
         }
     }
 
     private void checkTorchInteraction() {
+        
         if (gp.objectM.interior == null) {
             return;
         }
@@ -278,30 +338,43 @@ public class InteractionChecker {
         showTorchPrompt = false;
 
         for (ObjTorch t : torches) {
-            if (t == null) continue;
+            
+            if (t == null){
+                
+                continue;
+            }
             
             double dist = getDistance(gp.player.worldX, gp.player.worldY, t.worldX, t.worldY);
 
             if (dist < INTERACT_DIST) {
+                
                 showTorchPrompt = true;
 
                 if (gp.keyH.interactPressed) {
+                    
                     gp.keyH.interactPressed = false;
                     boolean ok = t.refuel(gp.inventory);
-                    if (ok) gp.torchLight.play();
+                    
+                    if (ok){
+                        gp.torchLight.play();
+                    }
+                    
                     torchFeedback = ok
                         ? "+3 Wood burned! (" + t.getSecondsLeft() + "s)" 
                         : "Need " + ObjTorch.WOOD_BATCH + " woods! (Have: " + gp.inventory.wood + ")";
                     torchFeedbackTimer = 120;
                 }
+                
                 break;
             }
         }
     }
 
     private void checkCabinetInteraction() {
+        
         if (gp.objectM.interior == null || gp.objectM.interior.cabinet == null) {
             showCabinetPrompt = false;
+            
             return;
         }
 
@@ -309,121 +382,155 @@ public class InteractionChecker {
         double dist = getDistance(gp.player.worldX, gp.player.worldY, cabinet.worldX, cabinet.worldY);
 
         if (dist < CABINET_DIST) {
+            
             showCabinetPrompt = true;
 
+            
             if (gp.keyH.interactPressed) {
+                
                 gp.keyH.interactPressed = false;
                 cabinet.toggleUI();
             }
             
             if (cabinet.isOpen && gp.keyH.depositPressed) {
+                
                 int w = cabinet.depositWood(gp.inventory);
+                
                 cabinetFeedback = "Deposited: " + w + " wood";
                 cabinetFeedbackTimer = 120;
                 gp.keyH.depositPressed = false;
             }
             
             if (cabinet.isOpen && gp.keyH.withdrawPressed) {
+                
                 int w = cabinet.withdrawWood(gp.inventory);
+                
                 cabinetFeedback = "Withdrew: " + w + " wood";
                 cabinetFeedbackTimer = 120;
                 gp.keyH.withdrawPressed = false;
             }
+            
         } else {
+            
             showCabinetPrompt = false;
             cabinet.closeUI();
         }
     }
 
     private void checkAppleTableInteraction() {
+        
         if (gp.objectM.interior == null || gp.objectM.interior.appleTable == null) {
             showAppleTablePrompt = false;
+            
             return;
         }
 
         models.ObjAppleTable appleTable = gp.objectM.interior.appleTable;
         double dist = getDistance(gp.player.worldX, gp.player.worldY, appleTable.worldX, appleTable.worldY);
 
+        
         if (dist < INTERACT_DIST) {
+            
             showAppleTablePrompt = true;
 
             if (gp.keyH.interactPressed) {
+                
                 gp.keyH.interactPressed = false;
                 appleTable.toggleUI();
             }
             
             if (appleTable.isOpen && gp.keyH.appleDepositPressed) {
+                
                 int a = appleTable.depositApple(gp.inventory);
+                
                 appleTableFeedback = "Deposited: " + a + " apple";
                 appleTableFeedbackTimer = 120;
                 gp.keyH.appleDepositPressed = false;
             }
             
             if (appleTable.isOpen && gp.keyH.appleWithdrawPressed) {
+                
                 int a = appleTable.withdrawApple(gp.inventory);
+                
                 appleTableFeedback = "Withdrew: " + a + " apple";
                 appleTableFeedbackTimer = 120;
                 gp.keyH.appleWithdrawPressed = false;
             }
+            
         } else {
+            
             showAppleTablePrompt = false;
             appleTable.closeUI();
         }
     }
 
-    // Helper methods
+    
     private double getDistance(int x1, int y1, int x2, int y2) {
+        
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
     private boolean isPlayerFacingDoor(ObjHouse house, int doorX, int doorY) {
-        // Simple check: player should be below the door (for this house orientation)
-        // and facing up, or adjust based on your house orientation
+
         int dx = doorX - gp.player.worldX;
         int dy = doorY - gp.player.worldY;
         
-        // Normalize to direction
         String requiredDir;
+        
         if (Math.abs(dx) > Math.abs(dy)) {
+            
             requiredDir = (dx > 0) ? "right" : "left";
+            
         } else {
+            
             requiredDir = (dy > 0) ? "down" : "up";
         }
         
-        // Allow interaction if player is facing roughly toward door
-        // or just return true for more lenient interaction
-        return true; // Set to false and implement strict facing if desired
+        return true; 
     }
 
     private void tickFeedback() {
+        
         if (torchFeedbackTimer > 0) {
+            
             torchFeedbackTimer--;
+            
         } else {
+            
             torchFeedback = "";
         }
         
         if (cabinetFeedbackTimer > 0) {
+            
             cabinetFeedbackTimer--;
+            
         } else {
+            
             cabinetFeedback = "";
         }
         
         if (appleTableFeedbackTimer > 0) {
+            
             appleTableFeedbackTimer--;
+            
         } else {
+            
             appleTableFeedback = "";
         }
     }
 
     public boolean hasTorchFeedback() { 
+        
         return !torchFeedback.isEmpty();
     }
     
     public boolean hasCabinetFeedback() {
+        
         return !cabinetFeedback.isEmpty();   
     }
     
     public boolean hasAppleTableFeedback() {
+        
         return !appleTableFeedback.isEmpty(); 
     }
 }

@@ -6,6 +6,7 @@ public class EdpGame {
     public static void main(String[] args) {
         
         SwingUtilities.invokeLater(() -> {
+            
             JFrame frame = new JFrame("No Sanctuary");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setResizable(false);
@@ -15,7 +16,6 @@ public class EdpGame {
             LandingPage landingPage = new LandingPage(gamePanel,() -> {
                 
                 frame.getContentPane().removeAll();
-                
                 
                 frame.add(gamePanel);
                 
@@ -27,7 +27,9 @@ public class EdpGame {
                 
                 gamePanel.startThread();
                 gamePanel.requestFocusInWindow();
+                
             });
+            
             frame.add(landingPage);
             frame.pack();
             frame.setLocationRelativeTo(null);

@@ -44,7 +44,9 @@ public class dayCounter {
     }
 
     private void loadFonts() {
+        
         try {
+            
             InputStream is = getClass().getResourceAsStream("/assets/game_ui/fonts/IMFellEnglish-Regular.ttf");
             Font base = Font.createFont(Font.TRUETYPE_FONT, is);
             imFellLarge = base.deriveFont(Font.PLAIN, 28f);
@@ -58,6 +60,7 @@ public class dayCounter {
     }
 
     public void draw(Graphics2D g2) {
+        
         this.g2 = g2;
 
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -98,6 +101,7 @@ public class dayCounter {
     }
 
     public void update() {
+        
         stateCounter += 0.016f;
         completion_time = Math.round(((System.nanoTime() - startTime) / 1_000_000_000f) * 100f) / 100f;
         
@@ -109,6 +113,7 @@ public class dayCounter {
                     currentState = dayNightState.Night;
                     stateCounter = 0f;
                 }
+                
                 break;
                 
             case Night:
@@ -117,6 +122,7 @@ public class dayCounter {
                     currentState = dayNightState.DayTitle;
                     stateCounter = 0f;
                 }
+                
                 break;
                 
             case DayTitle:
@@ -137,6 +143,7 @@ public class dayCounter {
                         gp.musicBox.stop();
                         gp.heartbeat.loop();
                         gp.player.heartbeatTimer = 600;
+                        
                     } else {
                         currentState = dayNightState.Day;
                         gp.objectM.respawnResources();
@@ -147,7 +154,9 @@ public class dayCounter {
     }
 
     public void drawOverlay(Graphics2D g2) {
+        
         switch (currentState) {
+            
             case Day: break;
 
             case Night: {
@@ -178,18 +187,22 @@ public class dayCounter {
                 g2.fillRect(0, 0, gp.getWidth(), gp.getHeight());
 
                 if (t >= fade_duration && alpha > 220) {
+                    
                     String title = (dayCount + 1 >= 4) ? "Endgame" : "Day " + (dayCount + 1);
                     Color titleColor = (dayCount + 1 >= 4)
                         ? new Color(180, 60, 60)
                         : new Color(200, 215, 175);
+                    
                     drawTransitionTitle(g2, title, titleColor);
                 }
+                
                 break;
             }
         }
     }
 
     private void drawTransitionTitle(Graphics2D g2, String text, Color color) {
+        
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
         try {
@@ -203,7 +216,7 @@ public class dayCounter {
         }
 
         int tw = g2.getFontMetrics().stringWidth(text);
-        int tx = gp.getWidth()  / 2 - tw / 2;
+        int tx = gp.getWidth() / 2 - tw / 2;
         int ty = gp.getHeight() / 2 + 18;
 
         g2.setColor(new Color(color.getRed(), color.getGreen(), color.getBlue(), 30));

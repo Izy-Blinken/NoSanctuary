@@ -4,22 +4,19 @@
  */
 package models;
 
-/**
- * Data class for a single riddle.
- * Holds the question, expected answer, a scroll clue, and solved state.
- */
 public class Riddle {
 
-    public int     id;
-    public String  question;
-    public String  answer;   // stored lowercase + trimmed for easy compare
-    public String  clue;     // short hint written into the inventory scroll
+    public int id;
+    public String question;
+    public String answer;
+    public String clue; 
     public boolean solved = false;
 
     public Riddle(int id, String question, String answer, String clue) {
-        this.id       = id;
+        
+        this.id = id;
         this.question = question;
-        this.answer   = answer.toLowerCase().trim();
-        this.clue     = clue;
+        this.answer = answer.toLowerCase().trim();
+        this.clue = clue;
     }
 }

@@ -16,7 +16,9 @@ import javax.imageio.ImageIO;
 public class ObjTreeTop extends GameObject {
     
     public ObjTreeTop(panel gp, double scale) {
+        
         try {
+            
             BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
 
             BufferedImage rawImage = tint(sheet.getSubimage(179, 10, 97, 49), new Color (35, 30, 15), 0.35f); // Tree Top

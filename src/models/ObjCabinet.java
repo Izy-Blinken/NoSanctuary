@@ -57,10 +57,11 @@ public class ObjCabinet extends GameObject {
     }
 
     public void toggleUI() {
-        // Close other storage UIs if opening this one
+        
         if (!isOpen && gp.objectM.interior != null && gp.objectM.interior.appleTable != null) {
             gp.objectM.interior.appleTable.closeUI();
         }
+        
         isOpen = !isOpen;
     }
 
@@ -131,10 +132,12 @@ public class ObjCabinet extends GameObject {
     }
 
     private Font getImFell(float size) {
+        
         try {
-            java.io.InputStream is = getClass().getResourceAsStream(
-                    "/assets/game_ui/fonts/IMFellEnglish-Regular.ttf");
+            
+            java.io.InputStream is = getClass().getResourceAsStream( "/assets/game_ui/fonts/IMFellEnglish-Regular.ttf");
             return Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(size);
+            
         } catch (Exception e) {
             return new Font("Serif", Font.PLAIN, (int) size);
         }

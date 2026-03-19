@@ -17,7 +17,7 @@ public class ObjTorch extends GameObject {
     public int woodFuel = 0;
 
     public static final int WOOD_BATCH = 3;
-    public static final int SECONDS_PER_WOOD = 30;
+    public static final int SECONDS_PER_WOOD = 20;
     public static final int FPS = 60;
 
     private int timerTicks = 0;
@@ -44,7 +44,7 @@ public class ObjTorch extends GameObject {
 
     private BufferedImage scaleImg(BufferedImage src, double scale) {
         
-        int w = (int)(src.getWidth()  * scale);
+        int w = (int)(src.getWidth() * scale);
         int h = (int)(src.getHeight() * scale);
         
         BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
@@ -65,7 +65,7 @@ public class ObjTorch extends GameObject {
 
             double scale = 2.5;
             
-            frameRight = scaleImg(sheet.getSubimage(24,  10, 17, 45), scale);
+            frameRight = scaleImg(sheet.getSubimage(24, 10, 17, 45), scale);
             frameLeft = scaleImg(sheet.getSubimage(148, 72, 18, 47), scale);
             frameSteady = scaleImg(sheet.getSubimage(215,  8, 18, 47), scale);
             frameUnlit = darken(frameSteady);
@@ -83,6 +83,7 @@ public class ObjTorch extends GameObject {
         BufferedImage out = new BufferedImage(w, h, BufferedImage.TYPE_INT_ARGB);
 
         for (int y = 0; y < h; y++) {
+            
             for (int x = 0; x < w; x++) {
 
                 int argb = src.getRGB(x, y);
@@ -107,6 +108,7 @@ public class ObjTorch extends GameObject {
     private BufferedImage getAnimFrame() {
         
         switch (animFrame % 4) {
+            
             case 0:  
                 return frameRight;
                 
@@ -140,6 +142,7 @@ public class ObjTorch extends GameObject {
 
         timerTicks--;
         warningActive = timerTicks > 0 && timerTicks <= (15 * FPS);
+        
         if (warningActive) {
             warningFlashTick++;
         }

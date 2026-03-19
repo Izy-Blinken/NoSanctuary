@@ -11,6 +11,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Player extends Entity {
+    
     panel gp;
     KeyHandler keyH;
     
@@ -63,14 +64,19 @@ public class Player extends Entity {
         if (heartbeatTimer > 0) {
             heartbeatTimer--;
         }
-        if (hp < 30) {
+        
+        if (hp <= 40) {
+            
             if (!gp.heartbeat.isRunning()) {
                 gp.heartbeat.loop();
             }
+            
         } else if (heartbeatTimer > 0) {
+            
             if (!gp.heartbeat.isRunning()) {
                 gp.heartbeat.loop();
             }
+            
         } else {
             gp.heartbeat.stop();
         }
@@ -98,6 +104,7 @@ public class Player extends Entity {
                 if (!collisionOn){
                     collisionOn = gp.cChecker.checkObject(this, gp.objectM.objects);
                 }
+                
                 if (!collisionOn) {
                     collisionOn = gp.cChecker.checkObject(this, gp.objectM.objAppleTree);
                 }
@@ -131,10 +138,13 @@ public class Player extends Entity {
                 
                 if (keyH.upPressed) {
                     worldY -= speed;
+                    
                 } else if (keyH.downPressed) {
                     worldY += speed;
+                    
                 } else if (keyH.rightPressed) {
                     worldX += speed;
+                    
                 } else if (keyH.leftPressed) {
                     worldX -= speed;
                 }
@@ -143,6 +153,7 @@ public class Player extends Entity {
             spriteCounter++;
             
             if (spriteCounter > 7) {
+                
                 spriteNum = (spriteNum == 1) ? 2 : 1;
                 spriteCounter = 0;
             }
@@ -152,7 +163,7 @@ public class Player extends Entity {
         }
         
 
-        // collect pag E pressed - daytime lang
+        // collect pag E pressed
         if (keyH.ePressed) {
             
             collectNearbyItems();
@@ -216,17 +227,21 @@ public class Player extends Entity {
     
 
 public void takeDamage(int amount) {
+    
     hp -= amount;
 
     if (hp < 0) {
         hp = 0;
         
     }
+    
     triggerDamage();
     
     if (hp == 0) {
+        
         gp.heartbeat.stop();
         heartbeatTimer = 0;
+        
         return;
     }
     
@@ -236,6 +251,7 @@ public void takeDamage(int amount) {
 }
 
     public void draw(Graphics2D g2) {
+        
         BufferedImage image = null;
         
         switch (direction) {

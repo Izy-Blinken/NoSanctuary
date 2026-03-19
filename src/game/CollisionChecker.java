@@ -18,6 +18,7 @@ public class CollisionChecker {
     }
 
     public boolean checkObject(Entity entity, GameObject[] objArray) {
+        
         for (int i = 0; i < objArray.length; i++) {
             if (objArray[i] == null) {
                 continue;
@@ -59,10 +60,12 @@ public class CollisionChecker {
                 return true;
             }
         }
+        
         return false;
     }
 
     public boolean checkTile(Entity entity) {
+        
         int entityLeftX = entity.worldX + entity.solidArea.x;
         int entityRightX = entity.worldX + entity.solidArea.x + entity.solidArea.width;
         int entityTopY = entity.worldY + entity.solidArea.y;
@@ -77,28 +80,38 @@ public class CollisionChecker {
         int bottomRow = Math.max(0, Math.min(entityBottomY / gp.tileSize, maxRow));
 
         int tileNum1, tileNum2;
+        
         switch (entity.direction) {
+            
             case "up":
                 topRow = Math.max(0, (entityTopY - entity.speed) / gp.tileSize);
                 tileNum1 = gp.tileM.mapTileNum[leftCol][topRow];
                 tileNum2 = gp.tileM.mapTileNum[rightCol][topRow];
+                
                 return gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision;
+            
             case "down":
                 bottomRow = Math.min(maxRow, (entityBottomY + entity.speed) / gp.tileSize);
                 tileNum1 = gp.tileM.mapTileNum[leftCol][bottomRow];
                 tileNum2 = gp.tileM.mapTileNum[rightCol][bottomRow];
+                
                 return gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision;
+            
             case "left":
                 leftCol = Math.max(0, (entityLeftX - entity.speed) / gp.tileSize);
                 tileNum1 = gp.tileM.mapTileNum[leftCol][topRow];
                 tileNum2 = gp.tileM.mapTileNum[leftCol][bottomRow];
+                
                 return gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision;
+           
             case "right":
                 rightCol = Math.min(maxCol, (entityRightX + entity.speed) / gp.tileSize);
                 tileNum1 = gp.tileM.mapTileNum[rightCol][topRow];
+                
                 tileNum2 = gp.tileM.mapTileNum[rightCol][bottomRow];
                 return gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision;
         }
+        
         return false;
     }
 }

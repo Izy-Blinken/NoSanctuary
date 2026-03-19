@@ -12,9 +12,12 @@ public class ObjAppleTree extends GameObject {
     private static BufferedImage sheet;
 
     public ObjAppleTree(panel gp, double scale) {
+        
         try {
-            if (sheet == null)
+            
+            if (sheet == null){
                 sheet = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/natural_large.png"));
+            }
 
             BufferedImage rawImage = sheet.getSubimage(65, 8, 42, 69); // apple tree
             int newWidth  = (int)(rawImage.getWidth() * scale);
@@ -28,6 +31,7 @@ public class ObjAppleTree extends GameObject {
             collision = true;
             solidArea = new Rectangle((int)(20*scale), (int)(80*scale), (int)(40*scale), (int)(30*scale));
             generateNightImage(); 
+            
         } catch (IOException e) {
             e.printStackTrace();
         }

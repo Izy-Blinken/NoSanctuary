@@ -13,6 +13,7 @@ public class Sound {
     private Clip clip;
     
     public void load(String filename){
+        
         try{
             
             URL url = getClass().getResource("/assets/game_music/" + filename);

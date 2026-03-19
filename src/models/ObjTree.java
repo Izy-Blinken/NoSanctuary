@@ -15,6 +15,7 @@ public class ObjTree extends GameObject {
     public ObjTree(panel gp, int type) {
         
         try {
+            
             if (sheet == null)
                 sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
 

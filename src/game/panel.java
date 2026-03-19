@@ -53,6 +53,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     public enum GameState {
         PLAYING, WIN, LOSE
     }
+    
     public GameState gameState = GameState.PLAYING;
     public WinScreen winScreen = new WinScreen(this);
     public LoseScreen loseScreen = new LoseScreen(this);
@@ -157,6 +158,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     public panel(JFrame frame) {
         
+        
+        
         doorCreak.load("door_creak.wav");
         doorKnock.load("door_knock.wav");
         heartbeat.load("heartbeat.wav");
@@ -189,6 +192,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 if (riddleUI.isOpen) {
                     riddleUI.handleClick(mx, my);
+                    
                     return;
                 }
 
@@ -200,14 +204,16 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                     int btnX = px + NARRATION_W - btnW - 16;
                     int btnY = py + NARRATION_H - 48;
 
-                    if (mx >= btnX && mx <= btnX + btnW && my >= btnY && my <= btnY + btnH
-                            && narPageIndex < NARRATION_PAGES.length) {
+                    if (mx >= btnX && mx <= btnX + btnW && my >= btnY && my <= btnY + btnH && narPageIndex < NARRATION_PAGES.length) {
+                        
                         String fullPage = NARRATION_PAGES[narPageIndex];
                         
                         if (narCharIndex < fullPage.length()) {
+                            
                             // First click reveals remaining text
                             narCharIndex = fullPage.length();
                             narrationText = fullPage;
+                            
                         } else {
                             advanceNarration();
                         }
@@ -221,6 +227,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 if (gameState == GameState.WIN && winScreen.handleClick(mx, my)) {
                     returnToMenu();
                 }
+                
                 if (gameState == GameState.LOSE && loseScreen.handleClick(mx, my)) {
                     returnToMenu();
                 }
@@ -243,8 +250,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         // Bag button
         if (inventory.isBagBtnClicked(mx, my)) {
+            
             inventory.showPanel = !inventory.showPanel;
+            
             if (inventory.showPanel) {
+                
                 inventory.showScroll = false;
                 showMenuPanel = false;
             }
@@ -253,6 +263,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         // Scroll button
         if (inventory.isScrollBtnClicked(mx, my)) {
+            
             inventory.showScroll = !inventory.showScroll;
             if (inventory.showScroll) {
                 inventory.showPanel = false;
@@ -263,8 +274,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         // Menu button
         if (isMenuBtnClicked(mx, my)) {
+            
             showMenuPanel = !showMenuPanel;
+            
             if (showMenuPanel) {
+                
                 inventory.showPanel = false;
                 inventory.showScroll = false;
             }
@@ -280,7 +294,9 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             }
 
             if (inventory.isEatClicked(mx, my)) {
+                
                 if (inventory.eatApple()) {
+                    
                     player.hp = Math.min(player.maxHP, player.hp + 20);
                 }
                 return;
@@ -289,6 +305,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         // Scroll panel close
         if (inventory.showScroll && inventory.isScrollXClicked(mx, my)) {
+            
             inventory.showScroll = false;
             return;
         }
@@ -322,9 +339,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         GameThread = null;
         parentFrame.getContentPane().removeAll();
+        
         LandingPage landingPage = new LandingPage(this,() -> {
+            
             parentFrame.getContentPane().removeAll();
             panel gamePanel = new panel(parentFrame);
+            
             parentFrame.add(gamePanel);
             parentFrame.pack();
             parentFrame.revalidate();
@@ -338,6 +358,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             
             gamePanel.requestFocusInWindow();
         });
+        
         parentFrame.add(landingPage);
         parentFrame.pack();
         parentFrame.revalidate();
@@ -366,9 +387,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 double remaining = nextDrawTime - System.nanoTime();
                 remaining /= 1000000;
+                
                 if (remaining < 0) {
                     remaining = 0;
                 }
+                
                 Thread.sleep((long) remaining);
                 nextDrawTime += drawInterval;
 
@@ -382,7 +405,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     public void update() {
 
-        // Update key handler debounce - CRITICAL for new interaction system
         keyH.update();
 
         if (narrationComplete) {
@@ -394,7 +416,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 narrationAlpha = 1f;
                 narrationComplete = false;
                 
-                // Start typewriter from first page
                 narPageIndex = 0;
                 narCharIndex = 0;
 
@@ -422,15 +443,19 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
             // Typewriter
             String fullPage = NARRATION_PAGES[narPageIndex];
+            
             if (narCharIndex < fullPage.length()) {
+                
                 narTickCounter++;
                 
                 if (narTickCounter >= NAR_TYPEWRITER_DELAY) {
+                    
                     narTickCounter = 0;
                     narCharIndex++;
                     narrationText = fullPage.substring(0, narCharIndex);
                     
                     if (!typewriting.isRunning()) {
+                        
                         typewriting.loop();
                     }
                 }
@@ -463,6 +488,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
             if (gameState == GameState.WIN) {
                 winScreen.update();
+                
             } else if (gameState == GameState.LOSE) {
                 loseScreen.update();
             }
@@ -553,6 +579,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 dialogueTickCounter = 0;
 
                 onYesAction = () -> {
+                    
                     showMonsterDialogue = false;
                     monsterDialogueResponded = true;
                     hardKnock.play();
@@ -570,7 +597,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                     hardKnock.play();
                     heartbeat.loop();
                     musicBox.stop();
-                    player.heartbeatTimer = 3*60;
+                    player.heartbeatTimer = 3*70;
                     musicBoxDelayTimer = hardKnock.getDurationTicks() + (4 * 60);
                 };
             }
@@ -654,6 +681,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             inventory.drawScrollPanel(g2);
             drawMenuPanel(g2);
         }
+        
         if (isGameOver) {
             
             if (gameState == GameState.WIN) {
@@ -667,9 +695,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         }
 
         drawNarrationPanel(g2);
+        
         if (riddleUI.isOpen) {
             riddleUI.draw(g2);
         }
+        
         g2.dispose();
 
     }
@@ -700,10 +730,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int currentWidth = (int) ((barWidth - 22) * hpPercent);
 
         if (player.hp > 60) {
+            
             g2.setColor(new Color(45, 110, 55));
+            
         } else if (player.hp > 30) {
+            
             g2.setColor(new Color(140, 90, 20));
+            
         } else {
+            
             g2.setColor(new Color(120, 25, 25));
         }
 
@@ -721,6 +756,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         // Percentage text
         g2.setFont(getImFell(13f));
         g2.setColor(new Color(210, 205, 195));
+        
         String text = player.hp + "%";
         int textWidth = g2.getFontMetrics().stringWidth(text);
         g2.drawString(text, x + 22 + (barWidth - 22) / 2 - textWidth / 2, y + 15);
@@ -795,17 +831,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     private boolean isMenuBtnClicked(int mx, int my) {
         
-        return mx >= MENU_BTN_X && mx <= MENU_BTN_X + MENU_BTN_W
-                && my >= MENU_BTN_Y && my <= MENU_BTN_Y + MENU_BTN_H;
+        return mx >= MENU_BTN_X && mx <= MENU_BTN_X + MENU_BTN_W && my >= MENU_BTN_Y && my <= MENU_BTN_Y + MENU_BTN_H;
     }
 
     private boolean isMenuPanelXClicked(int mx, int my) {
-        
 
         int px = screenWidth / 2 - MENU_PANEL_W / 2;
         int py = screenheight / 2 - MENU_PANEL_H / 2;
-        return mx >= px + MENU_PANEL_W - 24 && mx <= px + MENU_PANEL_W - 6
-                && my >= py + 8 && my <= py + 28;
+        
+        return mx >= px + MENU_PANEL_W - 24 && mx <= px + MENU_PANEL_W - 6 && my >= py + 8 && my <= py + 28;
     }
 
     private boolean isMuteRowClicked(int mx, int my) {
@@ -813,8 +847,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int px = screenWidth / 2 - MENU_PANEL_W / 2;
         int py = screenheight / 2 - MENU_PANEL_H / 2;
         int rowY = py + 62;
-        return mx >= px + 12 && mx <= px + MENU_PANEL_W - 12
-                && my >= rowY && my <= rowY + 36;
+        
+        return mx >= px + 12 && mx <= px + MENU_PANEL_W - 12 && my >= rowY && my <= rowY + 36;
     }
 
     private boolean isQuitRowClicked(int mx, int my) {
@@ -822,8 +856,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int px = screenWidth / 2 - MENU_PANEL_W / 2;
         int py = screenheight / 2 - MENU_PANEL_H / 2;
         int rowY = py + 62 + 44 + 8;
-        return mx >= px + 12 && mx <= px + MENU_PANEL_W - 12
-                && my >= rowY && my <= rowY + 36;
+        
+        return mx >= px + 12 && mx <= px + MENU_PANEL_W - 12 && my >= rowY && my <= rowY + 36;
     }
 
     private void handleDialogueClick(int mx, int my) {
@@ -968,9 +1002,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                     String test = currentLine.isEmpty() 
                                 ? word 
                                 : currentLine + " " + word;
+                    
                     if (fm.stringWidth(test) > maxWidth) {
+                        
                         lineCount++;
                         currentLine = word;
+                        
                     } else {
                         currentLine = test;
                     }
@@ -989,9 +1026,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int btnX = px + NARRATION_W - btnW - 16;
         int btnY = py + NARRATION_H - 48;
         g2.setFont(getImFell(13f));
+        
         String btnLabel = narCharIndex < fullPage.length()
                 ? "Skip >"
                 : (narPageIndex + 1 < NARRATION_PAGES.length ? "Next >" : "Begin");
+        
         g2.setColor(new Color(195, 188, 174));
         int lw = g2.getFontMetrics().stringWidth(btnLabel);
         g2.drawString(btnLabel, btnX + btnW / 2 - lw / 2, btnY + 28);
@@ -1002,21 +1041,30 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     private void drawWrappedText(Graphics2D g2, String text, int x, int y, int maxWidth, int lineHeight) {
+        
         if (text == null || text.isEmpty()) {
             return;
         }
+        
         String[] words = text.split(" ");
         StringBuilder line = new StringBuilder();
+        
+        
         for (String word : words) {
+            
             String test = line.length() == 0 ? word : line + " " + word;
+            
             if (g2.getFontMetrics().stringWidth(test) > maxWidth) {
+                
                 g2.drawString(line.toString(), x, y);
                 y += lineHeight;
                 line = new StringBuilder(word);
+                
             } else {
                 line = new StringBuilder(test);
             }
         }
+        
         if (line.length() > 0) {
             g2.drawString(line.toString(), x, y);
         }
@@ -1036,10 +1084,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int currentWidth = (int) (barWidth * hpPercent);
 
         if (player.hp > 60) {
+            
             g2.setColor(Color.GREEN);
+            
         } else if (player.hp > 30) {
+            
             g2.setColor(Color.ORANGE);
+            
         } else {
+            
             g2.setColor(Color.RED);
         }
 
@@ -1128,7 +1181,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             }
 
             if (interactionChecker.showPortalPrompt) {
-                drawKeyPromptBox(g2, "E", "Enter the Portal", cx, screenheight - 110, 15f);
+                drawKeyPromptBox(g2, "E", "Enter", cx, screenheight - 110, 15f);
             }
 
             if (interactionChecker.showRiddlePrompt) {
@@ -1139,6 +1192,10 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 if (!solved) {
                     drawKeyPromptBox(g2, "E", "Read the Riddle  (" + (riddleM.solvedCount) + "/3 solved)", cx, screenheight - 110, 15f);
                 }
+            }
+            
+            if (interactionChecker.showShelterPrompt) {
+                drawKeyPromptBox(g2, "E", "Enter", cx, screenheight - 70, 15f);
             }
 
             return;

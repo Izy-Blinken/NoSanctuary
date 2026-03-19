@@ -91,7 +91,7 @@ public class LoseScreen {
         g2.setFont(getImFell(62f));
         g2.setColor(new Color(160, 60, 55));
         
-        String title = "You Perished";
+        String title = "GAME OVER";
         
         int titleW = g2.getFontMetrics().stringWidth(title);
         g2.drawString(title, cx - titleW / 2, h / 2 - 30);

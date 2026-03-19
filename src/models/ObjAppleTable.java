@@ -57,10 +57,12 @@ public class ObjAppleTable extends GameObject {
     }
 
     public void toggleUI() {
-        // Close other storage UIs if opening this one
+        
+        // close other panel kapag binuksan 2
         if (!isOpen && gp.objectM.interior != null && gp.objectM.interior.cabinet != null) {
             gp.objectM.interior.cabinet.closeUI();
         }
+        
         isOpen = !isOpen;
     }
 
@@ -92,7 +94,6 @@ public class ObjAppleTable extends GameObject {
         g2.drawImage(image, screenX, screenY, null);
     }
 
-    /* overlay for apple storage ui */
     public void drawUI(Graphics2D g2, int screenX, int screenY) {
         if (!isOpen) {
             return;
@@ -132,10 +133,13 @@ public class ObjAppleTable extends GameObject {
     }
 
     private Font getImFell(float size) {
+        
         try {
+            
             java.io.InputStream is = getClass().getResourceAsStream(
                     "/assets/game_ui/fonts/IMFellEnglish-Regular.ttf");
             return Font.createFont(Font.TRUETYPE_FONT, is).deriveFont(size);
+            
         } catch (Exception e) {
             return new Font("Serif", Font.PLAIN, (int) size);
         }

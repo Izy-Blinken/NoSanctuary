@@ -65,8 +65,9 @@ public class ObjHouse extends GameObject {
             wall = scale(details.getSubimage(16, 14, 129, 81), scale);
 
             roof = scale(details.getSubimage(9, 98, 139, 103), scale);
-            if (sheet == null)
+            if (sheet == null){
                 sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
+            }
 
             BufferedImage rawImage = sheet.getSubimage(531, 155, 116, 102); // house
             int newWidth  = (int)(rawImage.getWidth()  * scale);
@@ -94,8 +95,8 @@ public class ObjHouse extends GameObject {
             win3OffsetX = (int)(67 * scale);
             win3OffsetY = (int)(52 * scale);
             
-            wall = tintImage(wall, new java.awt.Color(35, 30, 25), 0.3f);   // dull ashy brown
-            roof = tintImage(roof, new java.awt.Color(30, 20, 20), 0.35f);  // dark muted red
+            wall = tintImage(wall, new java.awt.Color(35, 30, 25), 0.3f);   // dull brown
+            roof = tintImage(roof, new java.awt.Color(30, 20, 20), 0.35f);  // dark red
             doorClosed = tintImage(doorClosed, new java.awt.Color(35, 30, 25), 0.3f);
             doorOpened = tintImage(doorOpened, new java.awt.Color(35, 30, 25), 0.3f);
             windowClosed = tintImage(windowClosed, new java.awt.Color(20, 25, 30), 0.25f); // cold grey-blue
@@ -142,6 +143,7 @@ public class ObjHouse extends GameObject {
     }
 
     public void draw(Graphics2D g2, int screenX, int screenY) {
+        
         g2.drawImage(wall, screenX, screenY, null); 
 
         BufferedImage d = isDoorOpen ? doorOpened : doorClosed; //If bukas ba or hindi yung pinto

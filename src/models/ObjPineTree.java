@@ -12,12 +12,15 @@ public class ObjPineTree extends GameObject {
     private static BufferedImage sheet;
 
     public ObjPineTree(panel gp, double scale) {
+        
         try {
-            if (sheet == null)
+            
+            if (sheet == null){
                 sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
+            }
 
             BufferedImage rawImage = sheet.getSubimage(342, 74, 51, 114); // pine tree
-            int newWidth  = (int)(rawImage.getWidth()  * scale);
+            int newWidth = (int)(rawImage.getWidth() * scale);
             int newHeight = (int)(rawImage.getHeight() * scale);
 
             image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);

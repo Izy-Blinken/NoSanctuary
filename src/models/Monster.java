@@ -9,23 +9,12 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
-/**
- * Monster – night-time AI entity.
- *
- * Sprite: monster1_universal.png (LPC 832×1344, 64×64 per frame)
- *
- *   Walk  rows 8-11  (up/left/down/right) – 8 frames used
- *   Slash rows 12-15 (up/left/down/right) – 6 frames
- *
- * AI states:
- *   IDLE      – daytime; hidden off-screen
- *   CHASING   – night; moves toward player / house
- *   ATTACKING – night + player outside + within range → plays slash anim
- *   KNOCKING  – night + player safe inside + at house door
- */
 public class Monster extends Entity {
 
-    public enum State { IDLE, CHASING, ATTACKING, KNOCKING }
+    public enum State { 
+        IDLE, CHASING, ATTACKING, KNOCKING 
+    }
+    
     public State state = State.IDLE;
 
     private static final int DIRS = 4;
@@ -72,7 +61,9 @@ public class Monster extends Entity {
     }
 
     private void loadSprites() {
+        
         try {
+            
             BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/Charac/edp character/monster1_universal.png"));
 
             int[] walkRows = { 8, 9, 10, 11 };
@@ -111,6 +102,7 @@ public class Monster extends Entity {
     }
 
     public void spawnNearEdge() {
+        
         worldX = 200;
         worldY = gp.player.worldY;
         state = State.CHASING;
@@ -172,6 +164,7 @@ public class Monster extends Entity {
                 state = State.CHASING;
                 moveToward(gp.player.worldX, gp.player.worldY);
             }
+            
         } else if (forceEnter) {
 
             double dx = gp.player.worldX - worldX;

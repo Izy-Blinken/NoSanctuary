@@ -8,7 +8,9 @@ import javax.imageio.ImageIO;
 public class ObjStone extends GameObject {
 
     public ObjStone(panel gp, double scale) {
+        
         try {
+            
             BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/stone.png"));
             BufferedImage raw = sheet.getSubimage(387, 288, 285, 364);
 

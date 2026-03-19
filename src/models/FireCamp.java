@@ -20,12 +20,15 @@ public class FireCamp extends GameObject {
     private static BufferedImage sheet;
 
     public FireCamp(panel gp, double scale) {
+        
         try {
-            if (sheet == null)
+            
+            if (sheet == null){
                 sheet = ImageIO.read(getClass().getResourceAsStream("/assets/no_sanctuary_map/MAP TILES.png"));
+            }
 
             BufferedImage rawImage = sheet.getSubimage(853, 152, 93, 77); // firecamp
-            int newWidth  = (int)(rawImage.getWidth()  * scale);
+            int newWidth = (int)(rawImage.getWidth()  * scale);
             int newHeight = (int)(rawImage.getHeight() * scale);
 
             image = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_ARGB);

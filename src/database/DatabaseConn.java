@@ -46,6 +46,22 @@ public class DatabaseConn {
 
         return playerID;
     }
+    
+    /* pang delete
+    
+    public void clearLeaderboard() {
+        
+        try {
+            
+            Connection conn = DriverManager.getConnection("jdbc:derby://localhost:1527/NoSancDb", "root", "root");
+            Statement st = conn.createStatement();
+            st.executeUpdate("DELETE FROM UserProgress");
+            conn.close();
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }*/
 
     public void update(int id, float dayC) {
         try{

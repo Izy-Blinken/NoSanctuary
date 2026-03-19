@@ -31,6 +31,7 @@ public class ObjectManager {
     public GameObject houseStone;
     public GameObject[] riddleObjects;
     public GameObject[] extObjects;
+    public GameObject[] ObjUndergroundShelter;
 
     public ObjPortal portal;
     public boolean portalVisible = false;
@@ -48,7 +49,8 @@ public class ObjectManager {
         woodItems = new GameObject[50];
         riddleObjects = new GameObject[3];
         extObjects = new GameObject[200];
-        portal = new ObjPortal(0, 0);
+        extObjects = new GameObject[200];
+        ObjUndergroundShelter = new GameObject[3];
         setObjects();
         spawnCollectibles();
     }
@@ -304,46 +306,74 @@ public class ObjectManager {
         extObjects[ei] = new ObjExternalObjects(gp, "greenPlantMedium", 2.5); extObjects[ei].worldX = 600; extObjects[ei].worldY = 1750; ei++;
         extObjects[ei] = new ObjExternalObjects(gp, "greenPlantSmall", 2.5); extObjects[ei].worldX = 2100; extObjects[ei].worldY = 1500; ei++;
 
-        // Shelter
-        extObjects[ei] = new ObjExternalObjects(gp, "shelter", 2.5); extObjects[ei].worldX = 1700; extObjects[ei].worldY = 1400; ei++;
-
-        // Riddles - Predefined valid spawn spots for better randomization
-        // These spots are: accessible, not in collision, not too close to house (644, 530)
-                // Riddles - Predefined valid spawn spots based on actual map layout
-        // Coordinates are placed in accessible areas, away from trees/house/rocks
-        int[][] riddleSpawnSpots = {
-            // Near apple trees (left side) - open areas
-            {580, 650},      // Near apple tree 0 (496, 748) - west side
-            {920, 650},      // Near apple tree 1 (990, 748) - center-left
-            {650, 950},      // Near apple tree 2 (520, 1048) - southwest
+        // Underground shelter
+        int[][] shelterSpawnSpots = {
             
-            // Near apple trees (upper area)
-            {1070, 200},     // Near apple tree 3 (1147, 248) - north
-            {1070, 470},     // Near apple tree 4 (1147, 538) - north-center
-            
-            // Ruins area (east side) - open spaces between ruins
-            {1550, 350},     // Near ruinFourPillar (1688, 324) - west of ruins
-            {1800, 480},     // Near ruinArch (1836, 550) - south of arch
-            {1650, 720},     // Near ruinWall (1840, 788) - southwest of wall
-            {1950, 720},     // Near ruinPillar (2100, 672) - accessible spot
-            
-            // Right side woods (far east) - clearings
-            {2150, 350},     // East of ruins, accessible
-            {2340, 500},     // Far east middle area
-            {2250, 850},     // Southeast area
-            
-            // Lower areas (south of house)
-            {750, 1250},     // South of house, below dead trees
-            {1100, 1350},    // Southeast area, near broken tree
-            {550, 1550},     // Far southwest, near graves
-            
-            // Upper left area (near start)
-            {620, 320},      // Northwest of house, accessible
-            {970, 650},      // West area, near left tree wall gap
-            {850, 320}       // North of house, near graves
+            {500, 600}, {900, 700}, {700, 1000},
+            {1100, 300}, {1400, 500}, {1600, 750},
+            {1900, 400}, {1000, 600}, {1300, 900},
+            {800, 1300}, {1200, 1400}, {600, 1600}
         };
 
-        // Randomly select 3 unique spots from predefined locations
+        ArrayList<Integer> usedShelterIndices = new ArrayList<>();
+
+        for (int i = 0; i < 3; i++) {
+            
+            int spotIndex;
+            int attempts = 0;
+
+            do {
+                
+                spotIndex = rand.nextInt(shelterSpawnSpots.length);
+                attempts++;
+
+                if (attempts > 100) break;
+
+            } while (usedShelterIndices.contains(spotIndex));
+
+            usedShelterIndices.add(spotIndex);
+            int[] spot = shelterSpawnSpots[spotIndex];
+
+            ObjUndergroundShelter[i] = new models.ObjUndergroundShelter(gp);
+            ObjUndergroundShelter[i].worldX = spot[0];
+            ObjUndergroundShelter[i].worldY = spot[1];
+        }
+        
+        
+        // Riddles
+        int[][] riddleSpawnSpots = {
+            
+            // Near apple trees 
+            {580, 650}, //west side
+            {920, 650}, //center-left
+            {650, 950}, //southwest
+            
+            {1070, 200}, //north
+            {1070, 470}, //north-center
+            
+            // Ruins area
+            {1550, 350}, //west
+            {1800, 480}, //south
+            {1650, 720}, //soutwest
+            {1950, 720}, // near pillar
+            
+            // Right side woods
+            {2150, 350}, //east
+            {2340, 500}, //far-east
+            {2250, 850}, //southeast
+            
+            // Lower areas
+            {750, 1250}, //south
+            {1100, 1350}, // Southeast 
+            {550, 1550}, //southwest
+            
+            // Upper left area
+            {620, 320}, //northwest
+            {970, 650}, // West 
+            {850, 320} // North
+        };
+
+        // randomly select 3 spots sa fixed locations
         ArrayList<Integer> usedIndices = new ArrayList<>();
         
         for (int i = 0; i < 3; i++) {
@@ -353,8 +383,9 @@ public class ObjectManager {
             do {
                 spotIndex = rand.nextInt(riddleSpawnSpots.length);
                 attempts++;
-                // Prevent infinite loop if something goes wrong
+                
                 if (attempts > 100) break;
+                
             } while (usedIndices.contains(spotIndex));
             
             usedIndices.add(spotIndex);
@@ -559,6 +590,19 @@ public class ObjectManager {
 
                 portal.draw(g2, screenX, screenY);
             }
+            
+            for (int i = 0; i < ObjUndergroundShelter.length; i++) {
+                
+            if (ObjUndergroundShelter[i] == null){
+                continue;
+            }
+
+            int screenX = ObjUndergroundShelter[i].worldX - gp.player.worldX + gp.player.screenX;
+            int screenY = ObjUndergroundShelter[i].worldY - gp.player.worldY + gp.player.screenY;
+
+            ((models.ObjUndergroundShelter) ObjUndergroundShelter[i]).draw(g2, screenX, screenY);
+        }
+
         }
 
         if (gp.tileM.currentMap == 2) {
