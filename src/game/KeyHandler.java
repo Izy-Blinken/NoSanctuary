@@ -25,9 +25,23 @@ public class KeyHandler implements KeyListener {
     public boolean backspacePressed = false;
     public boolean enterTyped       = false;
 
+    // --- Debounce for interaction ---
+    public boolean interactWasPressed = false;
+    public int interactDebounce = 0;
+    private static final int INTERACT_DEBOUNCE_FRAMES = 5;
+
     // ---------------------------------------------------------------
+
+
+    // ---------------------------------------------------------------
+
+
+    // ---------------------------------------------------------------
+
+
     // Helpers called by RiddleUI.open() / close()
     // ---------------------------------------------------------------
+
 
     /** Resets all typing-mode flags. */
     public void clearTypingFlags() {
@@ -45,7 +59,18 @@ public class KeyHandler implements KeyListener {
         rightPressed = false;
     }
 
+    /**
+     * Update debounce timers - call this every frame
+     */
+    public void update() {
+        if (interactDebounce > 0) {
+            interactDebounce--;
+        }
+    }
+
     // ---------------------------------------------------------------
+
+
     @Override
     public void keyTyped(KeyEvent e) {
         if (typingMode) {
@@ -85,7 +110,14 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) rightPressed = true;
         if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT)  leftPressed  = true;
 
-        if (code == KeyEvent.VK_E) { interactPressed = true; ePressed = true; }
+        // Interact key with debounce
+        if (code == KeyEvent.VK_E) { 
+            if (interactDebounce == 0 && !interactWasPressed) {
+                interactPressed = true;
+                ePressed = true;
+                interactDebounce = INTERACT_DEBOUNCE_FRAMES;
+            }
+        }
         
         if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_ENTER) { skipPressed = true;}
         
@@ -106,7 +138,11 @@ public class KeyHandler implements KeyListener {
         if (code == KeyEvent.VK_D || code == KeyEvent.VK_RIGHT) rightPressed = false;
         if (code == KeyEvent.VK_A || code == KeyEvent.VK_LEFT)  leftPressed  = false;
 
-        if (code == KeyEvent.VK_E) { interactPressed = false; ePressed = false; }
+        if (code == KeyEvent.VK_E) { 
+            interactPressed = false; 
+            ePressed = false; 
+            interactWasPressed = false;
+        }
         if (code == KeyEvent.VK_SPACE || code == KeyEvent.VK_ENTER) {skipPressed = false;}       
         if (code == KeyEvent.VK_F) closePressed         = false;
         if (code == KeyEvent.VK_P) depositPressed       = false;       
