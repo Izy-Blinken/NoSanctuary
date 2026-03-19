@@ -57,12 +57,14 @@ public class ObjAppleTable extends GameObject {
     }
 
     public void toggleUI() {
-
+        // Close other storage UIs if opening this one
+        if (!isOpen && gp.objectM.interior != null && gp.objectM.interior.cabinet != null) {
+            gp.objectM.interior.cabinet.closeUI();
+        }
         isOpen = !isOpen;
     }
 
     public void closeUI() {
-
         isOpen = false;
     }
 
