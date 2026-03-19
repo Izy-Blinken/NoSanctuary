@@ -2,6 +2,7 @@ package game;
 
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import models.GameObject;
 import models.ObjAppleItem;
 import models.ObjAppleTree;
@@ -306,32 +307,64 @@ public class ObjectManager {
         // Shelter
         extObjects[ei] = new ObjExternalObjects(gp, "shelter", 2.5); extObjects[ei].worldX = 1700; extObjects[ei].worldY = 1400; ei++;
 
-        // Riddles
-        int[][] riddleZones = {
+        // Riddles - Predefined valid spawn spots for better randomization
+        // These spots are: accessible, not in collision, not too close to house (644, 530)
+                // Riddles - Predefined valid spawn spots based on actual map layout
+        // Coordinates are placed in accessible areas, away from trees/house/rocks
+        int[][] riddleSpawnSpots = {
+            // Near apple trees (left side) - open areas
+            {580, 650},      // Near apple tree 0 (496, 748) - west side
+            {920, 650},      // Near apple tree 1 (990, 748) - center-left
+            {650, 950},      // Near apple tree 2 (520, 1048) - southwest
             
-            {250, 700, 250, 650},
-            {1600, 2500, 250, 750},
-            {400, 2200, 1000, 1700},
+            // Near apple trees (upper area)
+            {1070, 200},     // Near apple tree 3 (1147, 248) - north
+            {1070, 470},     // Near apple tree 4 (1147, 538) - north-center
+            
+            // Ruins area (east side) - open spaces between ruins
+            {1550, 350},     // Near ruinFourPillar (1688, 324) - west of ruins
+            {1800, 480},     // Near ruinArch (1836, 550) - south of arch
+            {1650, 720},     // Near ruinWall (1840, 788) - southwest of wall
+            {1950, 720},     // Near ruinPillar (2100, 672) - accessible spot
+            
+            // Right side woods (far east) - clearings
+            {2150, 350},     // East of ruins, accessible
+            {2340, 500},     // Far east middle area
+            {2250, 850},     // Southeast area
+            
+            // Lower areas (south of house)
+            {750, 1250},     // South of house, below dead trees
+            {1100, 1350},    // Southeast area, near broken tree
+            {550, 1550},     // Far southwest, near graves
+            
+            // Upper left area (near start)
+            {620, 320},      // Northwest of house, accessible
+            {950, 650},      // West area, near left tree wall gap
+            {850, 320}       // North of house, near graves
         };
 
+        // Randomly select 3 unique spots from predefined locations
+        ArrayList<Integer> usedIndices = new ArrayList<>();
+        
         for (int i = 0; i < 3; i++) {
-
-            int minX = riddleZones[i][0], maxX = riddleZones[i][1];
-            int minY = riddleZones[i][2], maxY = riddleZones[i][3];
-            int rx, ry;
+            int spotIndex;
             int attempts = 0;
-
+            
             do {
-
-                rx = minX + rand.nextInt(maxX - minX);
-                ry = minY + rand.nextInt(maxY - minY);
+                spotIndex = rand.nextInt(riddleSpawnSpots.length);
                 attempts++;
-
-            } while (attempts < 10 && Math.abs(rx - 644) < 300 && Math.abs(ry - 530) < 250);
-
+                // Prevent infinite loop if something goes wrong
+                if (attempts > 100) break;
+            } while (usedIndices.contains(spotIndex));
+            
+            usedIndices.add(spotIndex);
+            int[] spot = riddleSpawnSpots[spotIndex];
+            
             riddleObjects[i] = new ObjRiddle(gp, i);
-            riddleObjects[i].worldX = rx;
-            riddleObjects[i].worldY = ry;
+            riddleObjects[i].worldX = spot[0];
+            riddleObjects[i].worldY = spot[1];
+            
+            System.out.println("Riddle " + i + " spawned at: (" + spot[0] + ", " + spot[1] + ")");
         }
 
         // Portal
