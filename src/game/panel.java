@@ -382,6 +382,9 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     public void update() {
 
+        // Update key handler debounce - CRITICAL for new interaction system
+        keyH.update();
+
         if (narrationComplete) {
 
             narrationAlpha += 0.02f;
