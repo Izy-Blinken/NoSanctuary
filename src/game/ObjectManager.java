@@ -339,7 +339,7 @@ public class ObjectManager {
             
             // Upper left area (near start)
             {620, 320},      // Northwest of house, accessible
-            {950, 650},      // West area, near left tree wall gap
+            {970, 650},      // West area, near left tree wall gap
             {850, 320}       // North of house, near graves
         };
 
