@@ -48,12 +48,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     private int dialogueCharIndex = 0;
     private int dialogueTickCounter = 0;
     private static final int TYPEWRITER_DELAY = 3;
-    
+
     // Win / Lose
     public enum GameState {
         PLAYING, WIN, LOSE
     }
-    
+
     public GameState gameState = GameState.PLAYING;
     public WinScreen winScreen = new WinScreen(this);
     public LoseScreen loseScreen = new LoseScreen(this);
@@ -62,7 +62,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     // Settings / Menu
     private boolean showMenuPanel = false;
     public boolean isMuted = false;
-    
+
     public Sound doorCreak = new Sound();
     public Sound doorKnock = new Sound();
     public Sound heartbeat = new Sound();
@@ -78,8 +78,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     public Sound windowCreak = new Sound();
     public Sound musicBox = new Sound();
     public Sound forcedEntry = new Sound();
-
-    
 
     private static final int MENU_BTN_X = 900;
     private static final int MENU_BTN_Y = 10;
@@ -97,7 +95,10 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     public float narrationAlpha = 0f;
     public boolean narrationComplete = false;
     public boolean narrationFadeOut = false;
-    
+
+    public boolean gameWorldFadeIn = false;
+    public float gameWorldAlpha = 1f;
+
     public String username;
     public int playerID;
     public String returnUsername;
@@ -112,19 +113,19 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         "But you are still breathing. That means something — though you are not yet sure what. Maybe you are different. Maybe the thing outside is simply not done with you yet. Maybe it wants you to reach the portal first. Maybe it feeds on hope before it feeds on anything else.",
         "Find the portal before the third night ends. Gather what you can. Keep the torches burning. Keep the doors sealed. And if you hear knocking — do not mistake it for rescue. Nothing out there is coming to save you. It is only checking whether you are still afraid.",
         "They touch, they break, they steal. No one here is free. Here they come, they come for three. Until you stop the melody..."
-        
+
     };
     private int narPageIndex = 0;
     private int narCharIndex = 0;
     private int narTickCounter = 0;
-    private static final int NAR_TYPEWRITER_DELAY = 2; 
-    
+    private static final int NAR_TYPEWRITER_DELAY = 2;
+
     private int knockDelayTimer = 0;
     private int musicBoxDelayTimer = 0;
     private boolean knockPlayed = false;
-    
-    
+
     public long getGameStartTime() {
+
         return gameStartTime;
     }
 
@@ -157,9 +158,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     public panel(JFrame frame) {
-        
-        
-        
+
         doorCreak.load("door_creak.wav");
         doorKnock.load("door_knock.wav");
         heartbeat.load("heartbeat.wav");
@@ -180,7 +179,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         dbConn = new DatabaseConn(this);
         dC = new dayCounter(this);
         holder = new playerDataHolder();
-        LPage = new LandingPage(this,this);
+        LPage = new LandingPage(this, this);
+        landingMusic.loop();
 
         this.addMouseListener(new java.awt.event.MouseAdapter() {
 
@@ -192,7 +192,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 if (riddleUI.isOpen) {
                     riddleUI.handleClick(mx, my);
-                    
+
                     return;
                 }
 
@@ -205,15 +205,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                     int btnY = py + NARRATION_H - 48;
 
                     if (mx >= btnX && mx <= btnX + btnW && my >= btnY && my <= btnY + btnH && narPageIndex < NARRATION_PAGES.length) {
-                        
+
                         String fullPage = NARRATION_PAGES[narPageIndex];
-                        
+
                         if (narCharIndex < fullPage.length()) {
-                            
+
                             // First click reveals remaining text
                             narCharIndex = fullPage.length();
                             narrationText = fullPage;
-                            
+
                         } else {
                             advanceNarration();
                         }
@@ -227,7 +227,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 if (gameState == GameState.WIN && winScreen.handleClick(mx, my)) {
                     returnToMenu();
                 }
-                
+
                 if (gameState == GameState.LOSE && loseScreen.handleClick(mx, my)) {
                     returnToMenu();
                 }
@@ -250,11 +250,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         // Bag button
         if (inventory.isBagBtnClicked(mx, my)) {
-            
+
             inventory.showPanel = !inventory.showPanel;
-            
+
             if (inventory.showPanel) {
-                
+
                 inventory.showScroll = false;
                 showMenuPanel = false;
             }
@@ -263,7 +263,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         // Scroll button
         if (inventory.isScrollBtnClicked(mx, my)) {
-            
+
             inventory.showScroll = !inventory.showScroll;
             if (inventory.showScroll) {
                 inventory.showPanel = false;
@@ -274,11 +274,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         // Menu button
         if (isMenuBtnClicked(mx, my)) {
-            
+
             showMenuPanel = !showMenuPanel;
-            
+
             if (showMenuPanel) {
-                
+
                 inventory.showPanel = false;
                 inventory.showScroll = false;
             }
@@ -294,9 +294,9 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             }
 
             if (inventory.isEatClicked(mx, my)) {
-                
+
                 if (inventory.eatApple()) {
-                    
+
                     player.hp = Math.min(player.maxHP, player.hp + 20);
                 }
                 return;
@@ -305,7 +305,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         // Scroll panel close
         if (inventory.showScroll && inventory.isScrollXClicked(mx, my)) {
-            
+
             inventory.showScroll = false;
             return;
         }
@@ -331,20 +331,22 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     private void returnToMenu() {
-        
+
         musicLose.stop();
-        musicWin.stop(); 
+        musicWin.stop();
         heartbeat.stop();
         playerFootsteps.stop();
+        musicBox.stop();
+        landingMusic.loop();
 
         GameThread = null;
         parentFrame.getContentPane().removeAll();
-        
-        LandingPage landingPage = new LandingPage(this,() -> {
-            
+
+        LandingPage landingPage = new LandingPage(this, () -> {
+
             parentFrame.getContentPane().removeAll();
             panel gamePanel = new panel(parentFrame);
-            
+
             parentFrame.add(gamePanel);
             parentFrame.pack();
             parentFrame.revalidate();
@@ -354,11 +356,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             gamePanel.showNarration = true;
             gamePanel.narrationAlpha = 0f;
             gamePanel.narrationComplete = true;
+
+            gamePanel.landingMusic.stop();
             gamePanel.startThread();
-            
             gamePanel.requestFocusInWindow();
         });
-        
+
         parentFrame.add(landingPage);
         parentFrame.pack();
         parentFrame.revalidate();
@@ -387,11 +390,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 double remaining = nextDrawTime - System.nanoTime();
                 remaining /= 1000000;
-                
+
                 if (remaining < 0) {
                     remaining = 0;
                 }
-                
+
                 Thread.sleep((long) remaining);
                 nextDrawTime += drawInterval;
 
@@ -407,15 +410,43 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         keyH.update();
 
+        if (narrationFadeOut) {
+
+            narrationAlpha -= 0.007f;
+
+            if (narrationAlpha <= 0f) {
+
+                narrationAlpha = 0f;
+                narrationFadeOut = false;
+                showNarration = false;
+                gameWorldFadeIn = true;
+                gameWorldAlpha = 1f;
+            }
+
+            return;
+
+        }
+
+        if (gameWorldFadeIn) {
+
+            gameWorldAlpha -= 0.005f;
+
+            if (gameWorldAlpha <= 0f) {
+
+                gameWorldAlpha = 0f;
+                gameWorldFadeIn = false;
+            }
+        }
+
         if (narrationComplete) {
 
-            narrationAlpha += 0.02f;
+            narrationAlpha += 0.004f;
 
             if (narrationAlpha >= 1f) {
 
                 narrationAlpha = 1f;
                 narrationComplete = false;
-                
+
                 narPageIndex = 0;
                 narCharIndex = 0;
 
@@ -425,56 +456,42 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             return;
         }
 
-        if (narrationFadeOut) {
-
-            narrationAlpha -= 0.02f;
-
-            if (narrationAlpha <= 0f) {
-
-                narrationAlpha = 0f;
-                narrationFadeOut = false;
-                showNarration = false;
-            }
-
-            return;
-        }
-
         if (showNarration) {
 
             // Typewriter
             String fullPage = NARRATION_PAGES[narPageIndex];
-            
+
             if (narCharIndex < fullPage.length()) {
-                
+
                 narTickCounter++;
-                
+
                 if (narTickCounter >= NAR_TYPEWRITER_DELAY) {
-                    
+
                     narTickCounter = 0;
                     narCharIndex++;
                     narrationText = fullPage.substring(0, narCharIndex);
-                    
+
                     if (!typewriting.isRunning()) {
-                        
+
                         typewriting.loop();
                     }
                 }
-                
+
             } else {
                 typewriting.stop();
             }
 
             // Space / Enter: skip or advance
             if (keyH.skipPressed) {
-                
+
                 keyH.skipPressed = false;
-                
+
                 if (narCharIndex < fullPage.length()) {
-                    
+
                     typewriting.stop();
-                    narCharIndex  = fullPage.length();
+                    narCharIndex = fullPage.length();
                     narrationText = fullPage;
-                    
+
                 } else {
                     // Advance to next page or close
                     advanceNarration();
@@ -488,7 +505,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
             if (gameState == GameState.WIN) {
                 winScreen.update();
-                
+
             } else if (gameState == GameState.LOSE) {
                 loseScreen.update();
             }
@@ -508,16 +525,16 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                     dialogueTickCounter = 0;
                     dialogueCharIndex++;
                     dialogueText = dialogueFullText.substring(0, dialogueCharIndex);
-                    
+
                     if (!typewriting.isRunning()) {
-                        typewriting.loop(); 
+                        typewriting.loop();
                     }
                 }
-                
-            }else {
-                 typewriting.stop();
+
+            } else {
+                typewriting.stop();
             }
-            
+
             return;
         }
 
@@ -536,42 +553,41 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         objectM.update();
 
         if (tileM.currentMap == 1) {
-            
+
             interactionChecker.checkInteraction();
-            
+
             if (monster.forceEnter) {
                 monster.forceEnter = false;
                 monster.worldX = 1515;
                 monster.worldY = 975;
                 monster.state = Monster.State.CHASING;
             }
-            
+
         } else {
             interactionChecker.checkInteriorInteraction();
         }
 
         // Monster knock dialogue
         if (monster.state == Monster.State.KNOCKING && !showMonsterDialogue && !monsterDialogueResponded && monster.actionTimer > 0) {
-            
+
             if (knockDelayTimer == 0 && !knockPlayed) {
-                
+
                 musicBox.stop();
-                knockDelayTimer = 4 * 60; 
+                knockDelayTimer = 4 * 60;
             }
         }
 
         if (knockDelayTimer > 0) {
-            
+
             knockDelayTimer--;
 
             if (knockDelayTimer == 0 && !knockPlayed) {
-                
+
                 doorKnock.play();
                 knockPlayed = true;
-                knockDelayTimer = (3 * 60); 
-            }
-            else if (knockDelayTimer == 0 && knockPlayed && !showMonsterDialogue && !monsterDialogueResponded) {
-                
+                knockDelayTimer = (3 * 60);
+            } else if (knockDelayTimer == 0 && knockPlayed && !showMonsterDialogue && !monsterDialogueResponded) {
+
                 showMonsterDialogue = true;
                 dialogueFullText = "Hello?! Is anyone in there?! Please, I need help!      \nSomething is out here with me!     \nPlease just open the door! I am just a person, I promise!";
                 dialogueText = "";
@@ -579,7 +595,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 dialogueTickCounter = 0;
 
                 onYesAction = () -> {
-                    
+
                     showMonsterDialogue = false;
                     monsterDialogueResponded = true;
                     hardKnock.play();
@@ -590,32 +606,32 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 };
 
                 onNoAction = () -> {
-                    
+
                     showMonsterDialogue = false;
                     monsterDialogueResponded = true;
                     knockPlayed = false;
                     hardKnock.play();
                     heartbeat.loop();
                     musicBox.stop();
-                    player.heartbeatTimer = 3*70;
+                    player.heartbeatTimer = 3 * 70;
                     musicBoxDelayTimer = hardKnock.getDurationTicks() + (4 * 60);
                 };
             }
         }
 
         if (!isNight || monster.state != Monster.State.KNOCKING) {
-            
+
             monsterDialogueResponded = false;
             knockDelayTimer = 0;
             knockPlayed = false;
         }
-      
+
         if (!isNight && wasNight) {
-            
+
             musicBox.stop();
-            
+
             if (monster.forceEnter) {
-                
+
                 monster.forceEnter = false;
                 monster.worldX = -1000;
                 monster.worldY = -1000;
@@ -626,7 +642,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         dC.update();
 
         if (player.hp <= 0) {
-            
+
             isGameOver = true;
             gameState = GameState.LOSE;
             loseScreen.causeOfDeath = player.hp <= 0 ? "hp" : "time";
@@ -635,21 +651,19 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             musicBox.stop();
             musicLose.play();
         }
-        
+
         if (musicBoxDelayTimer > 0) {
-            
+
             musicBoxDelayTimer--;
-            
+
             if (musicBoxDelayTimer == 0) {
-                
+
                 if (isNight && !musicBox.isRunning()) {
-                    
-                    musicBox.loop(); 
+
+                    musicBox.loop();
                 }
             }
         }
-        
-
 
         wasNight = isNight;
     }
@@ -661,7 +675,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         Graphics2D g2 = (Graphics2D) g;
 
         if (!showNarration) {
-            
+
             tileM.draw(g2);
             objectM.draw(g2);
 
@@ -681,25 +695,32 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             inventory.drawScrollPanel(g2);
             drawMenuPanel(g2);
         }
-        
+
         if (isGameOver) {
-            
+
             if (gameState == GameState.WIN) {
-                
+
                 winScreen.draw(g2);
-                
+
             } else if (gameState == GameState.LOSE) {
-                
+
                 loseScreen.draw(g2);
             }
         }
 
         drawNarrationPanel(g2);
-        
+
         if (riddleUI.isOpen) {
             riddleUI.draw(g2);
         }
-        
+
+        if (gameWorldFadeIn) {
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, gameWorldAlpha));
+            g2.setColor(Color.BLACK);
+            g2.fillRect(0, 0, screenWidth, screenheight);
+            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+        }
+
         g2.dispose();
 
     }
@@ -730,15 +751,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int currentWidth = (int) ((barWidth - 22) * hpPercent);
 
         if (player.hp > 60) {
-            
+
             g2.setColor(new Color(45, 110, 55));
-            
+
         } else if (player.hp > 30) {
-            
+
             g2.setColor(new Color(140, 90, 20));
-            
+
         } else {
-            
+
             g2.setColor(new Color(120, 25, 25));
         }
 
@@ -756,7 +777,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         // Percentage text
         g2.setFont(getImFell(13f));
         g2.setColor(new Color(210, 205, 195));
-        
+
         String text = player.hp + "%";
         int textWidth = g2.getFontMetrics().stringWidth(text);
         g2.drawString(text, x + 22 + (barWidth - 22) / 2 - textWidth / 2, y + 15);
@@ -803,8 +824,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         drawMenuRow(g2, px, rowY, MENU_PANEL_W, isMuted ? "Unmute" : "Mute");
         rowY += rowH;
 
-        // Divider
-        g2.setColor(new Color(65, 60, 55));
+        g2.setColor(new Color(30, 50, 25, 140));
         g2.setStroke(new BasicStroke(1f));
         g2.drawLine(px + 30, rowY - 2, px + MENU_PANEL_W - 30, rowY - 2);
         rowY += 8;
@@ -818,11 +838,14 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         int rowH = 36;
 
-        g2.setColor(new Color(45, 43, 40, 200));
+        g2.setColor(new Color(2, 8, 2, 225));
         g2.fillRect(px + 12, rowY, pw - 24, rowH);
+        g2.setStroke(new BasicStroke(1f));
+        g2.setColor(new Color(35, 55, 30, 160));
+        g2.drawRect(px + 12, rowY, pw - 24, rowH);
 
         g2.setFont(getImFell(15f));
-        g2.setColor(new Color(190, 185, 175));
+        g2.setColor(new Color(150, 190, 130));
         int lw = g2.getFontMetrics().stringWidth(label);
         g2.drawString(label, px + pw / 2 - lw / 2, rowY + 24);
 
@@ -830,7 +853,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     private boolean isMenuBtnClicked(int mx, int my) {
-        
+
         return mx >= MENU_BTN_X && mx <= MENU_BTN_X + MENU_BTN_W && my >= MENU_BTN_Y && my <= MENU_BTN_Y + MENU_BTN_H;
     }
 
@@ -838,7 +861,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         int px = screenWidth / 2 - MENU_PANEL_W / 2;
         int py = screenheight / 2 - MENU_PANEL_H / 2;
-        
+
         return mx >= px + MENU_PANEL_W - 24 && mx <= px + MENU_PANEL_W - 6 && my >= py + 8 && my <= py + 28;
     }
 
@@ -847,7 +870,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int px = screenWidth / 2 - MENU_PANEL_W / 2;
         int py = screenheight / 2 - MENU_PANEL_H / 2;
         int rowY = py + 62;
-        
+
         return mx >= px + 12 && mx <= px + MENU_PANEL_W - 12 && my >= rowY && my <= rowY + 36;
     }
 
@@ -856,7 +879,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int px = screenWidth / 2 - MENU_PANEL_W / 2;
         int py = screenheight / 2 - MENU_PANEL_H / 2;
         int rowY = py + 62 + 44 + 8;
-        
+
         return mx >= px + 12 && mx <= px + MENU_PANEL_W - 12 && my >= rowY && my <= rowY + 36;
     }
 
@@ -906,7 +929,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     private void drawNarrationPanel(Graphics2D g2) {
-        
+
         if (!showNarration) {
             return;
         }
@@ -914,10 +937,10 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         if (narPageIndex >= NARRATION_PAGES.length) {
             Composite orig2 = g2.getComposite();
             g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, narrationAlpha));
-            g2.setColor(new Color(0, 0, 0, 160));
+            g2.setColor(Color.BLACK);
             g2.fillRect(0, 0, screenWidth, screenheight);
             g2.setComposite(orig2);
-            
+
             return;
         }
 
@@ -930,18 +953,44 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int px = screenWidth / 2 - NARRATION_W / 2;
         int py = screenheight / 2 - NARRATION_H / 2;
 
-        //bg
-        g2.setColor(new Color(30, 28, 25, 235));
+        // Black background
+        g2.setColor(new Color(0, 0, 0, 240));
         g2.fillRect(px, py, NARRATION_W, NARRATION_H);
 
-        //border
-        g2.setColor(new Color(90, 85, 78));
+        // Outer glow layers
+        g2.setStroke(new BasicStroke(10f));
+        g2.setColor(new Color(20, 35, 20, 40));
+        g2.drawRect(px - 5, py - 5, NARRATION_W + 10, NARRATION_H + 10);
+
+        g2.setStroke(new BasicStroke(7f));
+        g2.setColor(new Color(25, 42, 22, 70));
+        g2.drawRect(px - 3, py - 3, NARRATION_W + 6, NARRATION_H + 6);
+
+        g2.setStroke(new BasicStroke(4f));
+        g2.setColor(new Color(30, 50, 25, 100));
+        g2.drawRect(px - 1, py - 1, NARRATION_W + 2, NARRATION_H + 2);
+
+        // Main border
         g2.setStroke(new BasicStroke(1.5f));
+        g2.setColor(new Color(35, 55, 30, 180));
         g2.drawRect(px, py, NARRATION_W, NARRATION_H);
 
-        //accent line sa top 
-        g2.setColor(new Color(65, 60, 55));
+        // Corner
+        int cs = 14;
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.setColor(new Color(35, 55, 30, 200));
+
+        // Top-left
+        g2.drawLine(px, py, px + cs, py);
+        g2.drawLine(px, py, px, py + cs);
+
+        // Bottom-right
+        g2.drawLine(px + NARRATION_W - cs, py + NARRATION_H, px + NARRATION_W, py + NARRATION_H);
+        g2.drawLine(px + NARRATION_W, py + NARRATION_H - cs, px + NARRATION_W, py + NARRATION_H);
+
+        // line under title
         g2.setStroke(new BasicStroke(1f));
+        g2.setColor(new Color(30, 50, 25, 140));
         g2.drawLine(px + 20, py + 40, px + NARRATION_W - 20, py + 40);
 
         //title 
@@ -953,13 +1002,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         // narration text
         g2.setFont(getImFell(15f));
         g2.setColor(new Color(168, 162, 150));
-        
+
         int textStartY = py + 84;
         drawWrappedText(g2, narrationText, px + 28, textStartY, NARRATION_W - 56, 26);
 
         // Bottom accent line
-        g2.setColor(new Color(55, 50, 46));
         g2.setStroke(new BasicStroke(1f));
+        g2.setColor(new Color(30, 50, 25, 140));
         g2.drawLine(px + 20, py + NARRATION_H - 48, px + NARRATION_W - 20, py + NARRATION_H - 48);
 
         // Footer
@@ -968,29 +1017,29 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         // Page indicator
         g2.setFont(getImFell(12f));
         String pageLabel = (narPageIndex + 1) + " / " + NARRATION_PAGES.length;
-        
+
         g2.setColor(new Color(110, 105, 98));
         g2.drawString(pageLabel, px + 24, footerY);
 
         // Skip hint
         String hint = "Space · Enter · Click to advance";
         int hintW = g2.getFontMetrics().stringWidth(hint);
-        
+
         g2.setColor(new Color(90, 86, 80));
         g2.drawString(hint, px + NARRATION_W / 2 - hintW / 2, footerY);
 
         // Blinking cursor
         String fullPage = NARRATION_PAGES[narPageIndex];
-        
+
         if (narCharIndex < fullPage.length()) {
-            
+
             long blink = (System.currentTimeMillis() / 400) % 2;
-            
+
             if (blink == 0) {
-                
+
                 g2.setFont(getImFell(15f));
                 g2.setColor(new Color(160, 155, 145, 180));
-                
+
                 FontMetrics fm = g2.getFontMetrics();
                 int maxWidth = NARRATION_W - 56;
                 String[] words = narrationText.split(" ");
@@ -998,16 +1047,16 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 int lineCount = 0;
 
                 for (String word : words) {
-                    
-                    String test = currentLine.isEmpty() 
-                                ? word 
-                                : currentLine + " " + word;
-                    
+
+                    String test = currentLine.isEmpty()
+                            ? word
+                            : currentLine + " " + word;
+
                     if (fm.stringWidth(test) > maxWidth) {
-                        
+
                         lineCount++;
                         currentLine = word;
-                        
+
                     } else {
                         currentLine = test;
                     }
@@ -1015,7 +1064,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 int cursorX = px + 28 + fm.stringWidth(currentLine);
                 int cursorY = textStartY + (lineCount * 26);
-                
+
                 g2.setColor(new Color(160, 155, 145, 180));
                 g2.fillRect(cursorX + 2, cursorY - 14, 2, 16);
             }
@@ -1026,11 +1075,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int btnX = px + NARRATION_W - btnW - 16;
         int btnY = py + NARRATION_H - 48;
         g2.setFont(getImFell(13f));
-        
+
         String btnLabel = narCharIndex < fullPage.length()
                 ? "Skip >"
                 : (narPageIndex + 1 < NARRATION_PAGES.length ? "Next >" : "Begin");
-        
+
         g2.setColor(new Color(195, 188, 174));
         int lw = g2.getFontMetrics().stringWidth(btnLabel);
         g2.drawString(btnLabel, btnX + btnW / 2 - lw / 2, btnY + 28);
@@ -1041,30 +1090,29 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     private void drawWrappedText(Graphics2D g2, String text, int x, int y, int maxWidth, int lineHeight) {
-        
+
         if (text == null || text.isEmpty()) {
             return;
         }
-        
+
         String[] words = text.split(" ");
         StringBuilder line = new StringBuilder();
-        
-        
+
         for (String word : words) {
-            
+
             String test = line.length() == 0 ? word : line + " " + word;
-            
+
             if (g2.getFontMetrics().stringWidth(test) > maxWidth) {
-                
+
                 g2.drawString(line.toString(), x, y);
                 y += lineHeight;
                 line = new StringBuilder(word);
-                
+
             } else {
                 line = new StringBuilder(test);
             }
         }
-        
+
         if (line.length() > 0) {
             g2.drawString(line.toString(), x, y);
         }
@@ -1084,15 +1132,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int currentWidth = (int) (barWidth * hpPercent);
 
         if (player.hp > 60) {
-            
+
             g2.setColor(Color.GREEN);
-            
+
         } else if (player.hp > 30) {
-            
+
             g2.setColor(Color.ORANGE);
-            
+
         } else {
-            
+
             g2.setColor(Color.RED);
         }
 
@@ -1116,10 +1164,14 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int boxH = (int) fontSize + padY * 2;
         int boxX = cx - boxW / 2;
 
-        g2.setColor(new Color(8, 8, 6, 210));
+        g2.setColor(new Color(0, 0, 0, 220));
         g2.fillRect(boxX, y, boxW, boxH);
 
-        g2.setColor(new Color(200, 190, 165));
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.setColor(new Color(35, 55, 30, 180));
+        g2.drawRect(boxX, y, boxW, boxH);
+
+        g2.setColor(new Color(150, 190, 130));
         g2.drawString(text, boxX + padX, y + padY + (int) fontSize - 2);
         g2.setStroke(new BasicStroke(1f));
     }
@@ -1139,22 +1191,31 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int boxH = keyBoxSize + padY * 2;
         int boxX = cx - boxW / 2;
 
-        // Outer panel
-        g2.setColor(new Color(8, 8, 6, 210));
+        // Background
+        g2.setColor(new Color(0, 0, 0, 220));
         g2.fillRect(boxX, y, boxW, boxH);
 
+        // Border
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.setColor(new Color(35, 55, 30, 180));
         g2.drawRect(boxX, y, boxW, boxH);
 
         // Key box
         int keyX = boxX + padX;
         int keyY = y + padY;
 
-        g2.setColor(new Color(220, 210, 180));
+        g2.setColor(new Color(20, 35, 15, 200));
+        g2.fillRect(keyX, keyY, keyBoxSize, keyBoxSize);
+        g2.setStroke(new BasicStroke(1f));
+        g2.setColor(new Color(35, 55, 30, 200));
+        g2.drawRect(keyX, keyY, keyBoxSize, keyBoxSize);
+
+        g2.setColor(new Color(150, 190, 130));
         g2.setFont(getImFell(fontSize));
         g2.drawString(key, keyX + (keyBoxSize - keyW) / 2, keyY + keyBoxSize - 4);
 
         // Label
-        g2.setColor(new Color(180, 170, 145));
+        g2.setColor(new Color(120, 160, 100));
         g2.drawString(label, keyX + keyBoxSize + gap, keyY + keyBoxSize - 4);
 
         g2.setStroke(new BasicStroke(1f));
@@ -1169,12 +1230,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             if (interactionChecker.showDoorPrompt) {
 
                 models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
-                
+
                 if (house.isDoorOpen) {
-                    
+
                     drawKeyPromptBox(g2, "E", "Enter", cx - 80, screenheight - 70, 15f);
                     drawKeyPromptBox(g2, "F", "Close Door", cx + 60, screenheight - 70, 15f);
-                    
+
                 } else {
                     drawKeyPromptBox(g2, "E", "Open Door", cx, screenheight - 70, 15f);
                 }
@@ -1185,15 +1246,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             }
 
             if (interactionChecker.showRiddlePrompt) {
-                
+
                 int ri = interactionChecker.nearRiddleIndex;
                 boolean solved = ri >= 0 && riddleM.getRiddle(ri) != null && riddleM.getRiddle(ri).solved;
-                
+
                 if (!solved) {
                     drawKeyPromptBox(g2, "E", "Read the Riddle  (" + (riddleM.solvedCount) + "/3 solved)", cx, screenheight - 110, 15f);
                 }
             }
-            
+
             if (interactionChecker.showShelterPrompt) {
                 drawKeyPromptBox(g2, "E", "Enter", cx, screenheight - 70, 15f);
             }
@@ -1205,12 +1266,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         if (interactionChecker.showExitPrompt) {
 
             models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
-            
+
             if (house.isDoorOpen) {
-                
+
                 drawKeyPromptBox(g2, "E", "Exit", cx - 80, screenheight - 70, 15f);
                 drawKeyPromptBox(g2, "F", "Close Door", cx + 60, screenheight - 70, 15f);
-                
+
             } else {
                 drawKeyPromptBox(g2, "F", "Open Door", cx, screenheight - 70, 15f);
             }
@@ -1295,45 +1356,73 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             int x = screenWidth / 2 - w / 2;
             int y = screenheight / 2 - h / 2;
 
-            // Outer panel
-            g2.setColor(new Color(6, 5, 4, 230));
+            // Black background
+            g2.setColor(new Color(0, 0, 0, 240));
             g2.fillRect(x, y, w, h);
+
+            // Outer glow layers
+            g2.setStroke(new BasicStroke(10f));
+            g2.setColor(new Color(20, 35, 20, 40));
+            g2.drawRect(x - 5, y - 5, w + 10, h + 10);
+
+            g2.setStroke(new BasicStroke(7f));
+            g2.setColor(new Color(25, 42, 22, 70));
+            g2.drawRect(x - 3, y - 3, w + 6, h + 6);
+
+            g2.setStroke(new BasicStroke(4f));
+            g2.setColor(new Color(30, 50, 25, 100));
+            g2.drawRect(x - 1, y - 1, w + 2, h + 2);
+
+            // Main border
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.setColor(new Color(35, 55, 30, 180));
+            g2.drawRect(x, y, w, h);
+
+            // Corner
+            int cs = 14;
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.setColor(new Color(35, 55, 30, 200));
+            g2.drawLine(x, y, x + cs, y);
+            g2.drawLine(x, y, x, y + cs);
+            g2.drawLine(x + w - cs, y + h, x + w, y + h);
+            g2.drawLine(x + w, y + h - cs, x + w, y + h);
 
             // Label
             g2.setFont(getImFell(12f));
-            g2.setColor(new Color(120, 100, 70));
+            g2.setColor(new Color(100, 130, 80));
             g2.drawString("Outside :", x + 16, y + 22);
 
-            // divider
-            g2.setColor(new Color(55, 45, 35));
+            // Divider
+            g2.setStroke(new BasicStroke(1f));
+            g2.setColor(new Color(30, 50, 25, 140));
             g2.drawLine(x + 10, y + 30, x + w - 10, y + 30);
 
             // Dialogue text (typewriter)
             g2.setFont(getImFell(15f));
             g2.setColor(new Color(195, 182, 155));
             FontMetrics dlgFm = g2.getFontMetrics();
-            
+
             int lineHeight = 22;
             int textStartX = x + 16;
             int textStartY = y + 60;
 
             String[] lines = dialogueText.split("\n", -1);
-            
+
             for (int i = 0; i < lines.length; i++) {
-                
+
                 g2.drawString(lines[i], textStartX, textStartY + (i * lineHeight));
             }
 
             if (dialogueCharIndex < dialogueFullText.length()) {
-                
+
                 long blink = (System.currentTimeMillis() / 400) % 2;
-                
+
                 if (blink == 0) {
-                    
+
                     String lastLine = lines[lines.length - 1];
                     int cursorX = textStartX + dlgFm.stringWidth(lastLine);
                     int cursorY = textStartY + ((lines.length - 1) * lineHeight);
-                    
+
                     g2.setColor(new Color(150, 130, 100));
                     g2.fillRect(cursorX + 2, cursorY - 14, 2, 16);
                 }
@@ -1358,11 +1447,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     private void advanceNarration() {
         narPageIndex++;
-        
+
         if (narPageIndex >= NARRATION_PAGES.length) {
-            
+            narPageIndex = NARRATION_PAGES.length - 1;
             narrationFadeOut = true;
-            
+
         } else {
             narCharIndex = 0;
             narTickCounter = 0;
@@ -1396,11 +1485,14 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     @Override
     public void startGame() {
-        
+
+        landingMusic.stop();
+
         showNarration = true;
         narrationAlpha = 0f;
         narrationComplete = true;
         narrationFadeOut = false;
         dC.startTime = System.nanoTime();
+
     }
 }

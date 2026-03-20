@@ -309,10 +309,10 @@ public class ObjectManager {
         // Underground shelter
         int[][] shelterSpawnSpots = {
             
-            {500, 600}, {900, 700}, {700, 1000},
-            {1100, 300}, {1400, 500}, {1600, 750},
-            {1900, 400}, {1000, 600}, {1300, 900},
-            {800, 1300}, {1200, 1400}, {600, 1600}
+            {1236, 1824}, {520, 860}, {480, 1544},
+            {2260, 1308}, {1492, 248}, {464, 248},
+            {2096, 588}, {1640, 1254}, {2324, 252},
+            {1196, 376}, {1960, 676}, {1252, 1196}
         };
 
         ArrayList<Integer> usedShelterIndices = new ArrayList<>();
@@ -343,13 +343,11 @@ public class ObjectManager {
         // Riddles
         int[][] riddleSpawnSpots = {
             
-            // Near apple trees 
-            {580, 650}, //west side
-            {920, 650}, //center-left
-            {650, 950}, //southwest
-            
-            {1070, 200}, //north
-            {1070, 470}, //north-center
+            {1500, 650}, 
+            {920, 1150},
+            {1476, 1333}, 
+            {1070, 1200},
+            {1070, 1470}, 
             
             // Ruins area
             {1550, 350}, //west
@@ -367,10 +365,9 @@ public class ObjectManager {
             {1100, 1350}, // Southeast 
             {550, 1550}, //southwest
             
-            // Upper left area
-            {620, 320}, //northwest
-            {970, 650}, // West 
-            {850, 320} // North
+            {620, 300}, 
+            {970, 950}, 
+            {850, 1320} 
         };
 
         // randomly select 3 spots sa fixed locations
@@ -395,7 +392,6 @@ public class ObjectManager {
             riddleObjects[i].worldX = spot[0];
             riddleObjects[i].worldY = spot[1];
             
-            System.out.println("Riddle " + i + " spawned at: (" + spot[0] + ", " + spot[1] + ")");
         }
 
         // Portal

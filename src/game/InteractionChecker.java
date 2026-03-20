@@ -238,6 +238,11 @@ public class InteractionChecker {
 
             if (interactJustPressed) {
                 
+                gp.musicLose.stop();
+                gp.musicWin.stop(); 
+                gp.heartbeat.stop();
+                gp.playerFootsteps.stop();
+                
                 gp.keyH.interactPressed = false;
                 long elapsed = (System.currentTimeMillis() - gp.getGameStartTime()) / 1000;
                 gp.winScreen.completionSeconds = (int) elapsed;

@@ -16,7 +16,7 @@ public class Inventory {
 
     panel gp;
 
-    public int wood  = 0;
+    public int wood = 0;
     public int apple = 0;
 
     public final int MAX_WOOD = 10;
@@ -70,14 +70,14 @@ public class Inventory {
             try {
 
                 InputStream is = getClass().getResourceAsStream("/assets/game_ui/fonts/IMFellEnglish-Regular.ttf");
-                
-                if (is != null) { 
-                    
+
+                if (is != null) {
+
                     imFellBase = Font.createFont(Font.TRUETYPE_FONT, is);
                 }
 
             } catch (FontFormatException | IOException e) {
-                
+
                 imFellBase = new Font("Serif", Font.PLAIN, 12);
             }
         }
@@ -87,31 +87,33 @@ public class Inventory {
 
     public boolean addWood() {
 
-        if (wood < MAX_WOOD) { 
-            wood++; return true; 
+        if (wood < MAX_WOOD) {
+            wood++;
+            return true;
         }
-        
+
         return false;
     }
 
     public boolean addApple() {
 
         if (apple < MAX_APPLE) {
-            apple++; return true; 
+            apple++;
+            return true;
         }
-        
+
         return false;
     }
 
     public boolean eatApple() {
 
         if (apple > 0) {
-            
+
             apple--;
-            
+
             return true;
         }
-        
+
         return false;
     }
 
@@ -125,15 +127,15 @@ public class Inventory {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
-        g2.setColor(active ? new Color(50, 48, 45, 230) : new Color(30, 28, 25, 200));
+        g2.setColor(active ? new Color(20, 35, 15, 230) : new Color(0, 0, 0, 200));
         g2.fillRect(x, y, w, h);
 
-        g2.setColor(active ? new Color(160, 155, 148) : new Color(90, 85, 78));
-        g2.setStroke(new BasicStroke(1f));
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.setColor(new Color(35, 55, 30, 180));
         g2.drawRect(x, y, w, h);
 
         g2.setFont(getImFell(12f));
-        g2.setColor(active ? new Color(210, 205, 195) : new Color(140, 135, 128));
+        g2.setColor(active ? new Color(150, 190, 130) : new Color(80, 110, 65));
         int sw = g2.getFontMetrics().stringWidth(label);
         g2.drawString(label, x + (w - sw) / 2, y + h - 6);
 
@@ -143,7 +145,9 @@ public class Inventory {
     // inv panel
     public void drawInventoryPanel(Graphics2D g2) {
 
-        if (!showPanel) return;
+        if (!showPanel) {
+            return;
+        }
 
         int sw = gp.screenWidth;
         int sh = gp.screenheight;
@@ -155,16 +159,16 @@ public class Inventory {
         drawPanelBase(g2, px, py, PANEL_W, PANEL_H, "Inventory");
 
         // wood (left col) , apple (right col)
-        int rowY  = py + 75;
+        int rowY = py + 75;
         int col1X = px + 40;
         int col2X = px + PANEL_W / 2 + 20;
-        int rowH  = 60;
+        int rowH = 60;
 
         drawGridItem(g2, col1X, rowY, rowH, null, new Color(100, 65, 20), "Wood", wood, MAX_WOOD);
 
         BufferedImage appleImg = (isNight && appleNight != null) ? appleNight : appleDay;
         drawGridItem(g2, col2X, rowY, rowH, appleImg, null, "Apple", apple, MAX_APPLE);
-       
+
         // Eat btn
         int btnW = 180;
         int btnH = 34;
@@ -172,18 +176,18 @@ public class Inventory {
         int btnY = rowY + rowH + 28;
 
         boolean canEat = apple > 0 && gp.player.hp < 100;
-        
+
         g2.setColor(canEat ? new Color(35, 45, 28, 215) : new Color(30, 28, 25, 180));
         g2.fillRect(btnX, btnY, btnW, btnH);
-        
+
         g2.setColor(canEat ? new Color(90, 105, 75) : new Color(75, 70, 65));
         g2.setStroke(new BasicStroke(1f));
-        
+
         g2.drawRect(btnX, btnY, btnW, btnH);
         g2.setFont(getImFell(14f));
         g2.setColor(canEat ? new Color(190, 205, 170) : new Color(100, 95, 88));
         String eatLabel = "Eat Apple  (+20 HP)";
-        
+
         int eatW = g2.getFontMetrics().stringWidth(eatLabel);
         g2.drawString(eatLabel, btnX + (btnW - eatW) / 2, btnY + 22);
 
@@ -191,18 +195,18 @@ public class Inventory {
     }
 
     private void drawGridItem(Graphics2D g2, int x, int y, int rowH,
-                               BufferedImage img, Color fallbackColor,
-                               String label, int count, int max) {
+            BufferedImage img, Color fallbackColor,
+            String label, int count, int max) {
 
         int iconSize = 28;
         int iy = y + (rowH - iconSize) / 2;
 
         if (img != null) {
-            
+
             g2.drawImage(img, x, iy, iconSize, iconSize, null);
-            
+
         } else {
-            
+
             g2.setColor(fallbackColor);
             g2.fillRect(x, iy, iconSize, iconSize);
             g2.setColor(new Color(75, 70, 65));
@@ -224,7 +228,9 @@ public class Inventory {
     // clue panel
     public void drawScrollPanel(Graphics2D g2) {
 
-        if (!showScroll) return;
+        if (!showScroll) {
+            return;
+        }
 
         int sw = gp.screenWidth;
         int sh = gp.screenheight;
@@ -245,7 +251,7 @@ public class Inventory {
             g2.setColor(new Color(100, 95, 88));
             String empty = "No clue found yet.";
             int ew = g2.getFontMetrics().stringWidth(empty);
-            
+
             g2.drawString(empty, px + PANEL_W / 2 - ew / 2, py + PANEL_H / 2);
         }
     }
@@ -255,57 +261,84 @@ public class Inventory {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
-        // panel bg
-        g2.setColor(new Color(30, 28, 25, 225));
+        // Black background
+        g2.setColor(new Color(2, 8, 2, 235));
         g2.fillRect(px, py, pw, ph);
+
+        // Outer glow layers
+        g2.setStroke(new BasicStroke(10f));
+        g2.setColor(new Color(20, 35, 20, 40));
+        g2.drawRect(px - 5, py - 5, pw + 10, ph + 10);
+
+        g2.setStroke(new BasicStroke(7f));
+        g2.setColor(new Color(25, 42, 22, 70));
+        g2.drawRect(px - 3, py - 3, pw + 6, ph + 6);
+
+        g2.setStroke(new BasicStroke(4f));
+        g2.setColor(new Color(30, 50, 25, 100));
+        g2.drawRect(px - 1, py - 1, pw + 2, ph + 2);
+
+        // Main border
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.setColor(new Color(35, 55, 30, 180));
+        g2.drawRect(px, py, pw, ph);
+
+        // Corner decorations
+        int cs = 14;
+        g2.setStroke(new BasicStroke(1.5f));
+        g2.setColor(new Color(35, 55, 30, 200));
+        g2.drawLine(px, py, px + cs, py);
+        g2.drawLine(px, py, px, py + cs);
+        g2.drawLine(px + pw - cs, py + ph, px + pw, py + ph);
+        g2.drawLine(px + pw, py + ph - cs, px + pw, py + ph);
 
         // Title
         g2.setFont(getImFell(20f));
-        g2.setColor(new Color(210, 205, 195));
+        g2.setColor(new Color(180, 200, 170));
         int tw = g2.getFontMetrics().stringWidth(title);
         g2.drawString(title, px + pw / 2 - tw / 2, py + 32);
 
         // Title underline
-        g2.setColor(new Color(65, 60, 55));
+        g2.setStroke(new BasicStroke(1f));
+        g2.setColor(new Color(30, 50, 25, 140));
         g2.drawLine(px + 30, py + 42, px + pw - 30, py + 42);
 
         // X button
         g2.setFont(getImFell(14f));
-        g2.setColor(new Color(140, 135, 128));
+        g2.setColor(new Color(100, 130, 80));
         g2.drawString("x", px + pw - 20, py + 22);
 
         g2.setStroke(new BasicStroke(1f));
     }
 
-
     public boolean isBagBtnClicked(int mx, int my) {
-        
+
         return mx >= BTN_X && mx <= BTN_X + BTN_W
-            && my >= BAG_BTN_Y && my <= BAG_BTN_Y + BTN_H;
+                && my >= BAG_BTN_Y && my <= BAG_BTN_Y + BTN_H;
     }
 
     public boolean isScrollBtnClicked(int mx, int my) {
-        
+
         return mx >= BTN_X && mx <= BTN_X + BTN_W
-            && my >= SCROLL_BTN_Y && my <= SCROLL_BTN_Y + BTN_H;
+                && my >= SCROLL_BTN_Y && my <= SCROLL_BTN_Y + BTN_H;
     }
 
     public boolean isInventoryXClicked(int mx, int my) {
 
-        int px = gp.screenWidth  / 2 - PANEL_W / 2;
+        int px = gp.screenWidth / 2 - PANEL_W / 2;
         int py = gp.screenheight / 2 - PANEL_H / 2;
-        
+
         return mx >= px + PANEL_W - 24 && mx <= px + PANEL_W - 6
-            && my >= py + 8 && my <= py + 28;
+                && my >= py + 8 && my <= py + 28;
     }
 
     public boolean isScrollXClicked(int mx, int my) {
 
-        int px = gp.screenWidth  / 2 - PANEL_W / 2;
+        int px = gp.screenWidth / 2 - PANEL_W / 2;
         int py = gp.screenheight / 2 - PANEL_H / 2;
-        
+
         return mx >= px + PANEL_W - 24 && mx <= px + PANEL_W - 6
-            && my >= py + 8 && my <= py + 28;
+                && my >= py + 8 && my <= py + 28;
     }
 
     public boolean isEatClicked(int mx, int my) {
@@ -314,10 +347,10 @@ public class Inventory {
             return false;
         }
 
-        if(apple <= 0 || gp.player.hp >= 100 ){
+        if (apple <= 0 || gp.player.hp >= 100) {
             return false;
         }
-        
+
         int px = gp.screenWidth / 2 - PANEL_W / 2;
         int py = gp.screenheight / 2 - PANEL_H / 2;
         int rowY = py + 75;
@@ -340,18 +373,18 @@ public class Inventory {
             String test = line.length() == 0 ? word : line + " " + word;
 
             if (g2.getFontMetrics().stringWidth(test) > maxWidth) {
-                
+
                 g2.drawString(line.toString(), x, curY);
                 line = new StringBuilder(word);
                 curY += lineHeight;
-                
+
             } else {
-                
+
                 line = new StringBuilder(test);
             }
         }
 
-        if (line.length() > 0) { 
+        if (line.length() > 0) {
             g2.drawString(line.toString(), x, curY);
         }
     }

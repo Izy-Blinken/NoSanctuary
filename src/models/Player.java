@@ -191,7 +191,6 @@ public class Player extends Entity {
                 if (added) {
                     
                     gp.objectM.appleItems[i].collected = true;
-                    System.out.println("Apple picked up!");
                 }
                 
                 break; // isa lang per press
@@ -214,7 +213,6 @@ public class Player extends Entity {
                 if (added) {
                     
                     gp.objectM.woodItems[i].collected = true;
-                    System.out.println("Wood picked up!");
                 }
                 break; // isa lang per press
             }

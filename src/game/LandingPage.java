@@ -27,7 +27,6 @@ public class LandingPage extends JPanel implements ActionListener {
     private FloatControl gainControl;//sound
 
     private String menuState = "MAIN";
-    private Clip bgMusic;
 
     public float alpha = 0f;
     public boolean fadingIn = false;
@@ -38,6 +37,8 @@ public class LandingPage extends JPanel implements ActionListener {
     private boolean isFirstLoad = true;
     
     private int leaderboardScroll = 0;
+    
+    private float fadeSpeed = 0.05f;
 
     private JButton startBtn, enterBtn, leaderboardBtn, aboutBtn, exitBtn1, exitBtn2, exitBtn3, exitBtn4, settingBtn, volumeBtn, creditsBtn, usernameBtn;
 
@@ -61,7 +62,6 @@ public class LandingPage extends JPanel implements ActionListener {
         setPreferredSize(new Dimension(960, 540));
         setBackground(Color.white);
         setupGame();
-        playBackgroundMusic("/assets/game_music/landingPage_music.wav");
         setImages();
     }
     
@@ -138,7 +138,7 @@ public class LandingPage extends JPanel implements ActionListener {
             usernameInput.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
             usernameInput.setForeground(Color.gray);
             usernameInput.setCaretColor(Color.WHITE);
-            usernameInput.setFont(new Font("monospaced", Font.BOLD, 20));
+            usernameInput.setFont(new Font("Serif", Font.BOLD, 20));
             usernameInput.setVisible(false);
 
             exitBtn1 = new JButton(new ImageIcon(exitIcnNml));
@@ -218,7 +218,7 @@ public class LandingPage extends JPanel implements ActionListener {
                 
                 if (fadingOut) {
                     
-                    alpha -= 0.05f;
+                    alpha -= fadeSpeed;
                     
                     if (alpha <= 0f) {
                         
@@ -305,12 +305,13 @@ public class LandingPage extends JPanel implements ActionListener {
 
                 System.out.println("Inserting: " + gp.playerID + "\n" + "Current Completion time: " + gp.dC.completion_time + "\n");
 
-                removeAll();
-                listener.startGame();
-                gp.startGame();
-
-                bgMusic.stop();
-                repaint();
+                fadeSpeed = 0.01f;
+                transitionTo("GAME", () -> {
+                    removeAll();
+                    listener.startGame();
+                    gp.startGame();
+                    repaint();
+                });
             });
 
             leaderboardBtn.addActionListener(e -> {
@@ -345,7 +346,6 @@ public class LandingPage extends JPanel implements ActionListener {
 
             exitBtn1.addActionListener(e -> {
                 
-                System.out.print("haha");
                 playSound("/assets/game_pages/mouseClick.wav");
                 System.exit(0);
             });
@@ -358,7 +358,6 @@ public class LandingPage extends JPanel implements ActionListener {
             aboutBtn.addActionListener(e -> {
                 
                 playSound("/assets/game_pages/mouseClick.wav");
-                System.out.print("about");
                 menuState = "ABOUT";
                 exitBtn2.setVisible(true);
                 repaint();
@@ -661,22 +660,6 @@ public class LandingPage extends JPanel implements ActionListener {
     
    
 
-    private void playBackgroundMusic(String path) {
-        
-        try {
-            
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(getClass().getResource(path));
-            bgMusic = AudioSystem.getClip();
-            bgMusic.open(audioIn);
-            gainControl = (FloatControl) bgMusic.getControl(FloatControl.Type.MASTER_GAIN);
-            bgMusic.loop(Clip.LOOP_CONTINUOUSLY);
-            bgMusic.start();
-            
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     private void playSound(String path) {
         
         try {
@@ -690,6 +673,7 @@ public class LandingPage extends JPanel implements ActionListener {
             e.printStackTrace();
         }
     }
+   
 
     private void hideAllButtons() {
         

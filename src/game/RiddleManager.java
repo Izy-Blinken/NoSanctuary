@@ -124,6 +124,5 @@ public class RiddleManager {
         
         portalSpawned = true;
         gp.objectM.revealPortal();
-        System.out.println(" All riddles solved! Portal spawned.");
     }
 }

@@ -71,11 +71,8 @@ public class WinScreen {
             
             if (id != -1) {
                     gp.dbConn.update(id, completionSeconds);
-                    System.out.println("DEBUG: Completion time = " + gp.dC.dayCount
-                            + " | Day Count = " + gp.dC.dayCount
-                            + " | PlayerID = " + gp.holder.getPlayerID()
-                            + " | Username = " + gp.holder.getUsername());
-                }
+                   
+            }
             
         } else {
             fadeComplete = true;
