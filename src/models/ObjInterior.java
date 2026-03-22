@@ -19,16 +19,16 @@ public class ObjInterior extends GameObject {
     public ObjAppleTable appleTable;
     public ObjInteriorItems items;
 
-    private static final int torchX = 75;
-    private static final int torchY = 248;
-    private static final int torch2X = 676;
-    private static final int torch2Y = 65;
-    private static final int torch3X = 946;
-    private static final int torch3Y = 584;
-    private static final int cabinetX = 806;
-    private static final int cabinetY = 60;
-    private static final int appleTableX = 185;
-    private static final int appleTableY = 574;
+    private static final int torchX = 90;
+    private static final int torchY = 65;
+    private static final int torch2X = 282;
+    private static final int torch2Y = 448;
+    private static final int torch3X = 954;
+    private static final int torch3Y = 400;
+    private static final int cabinetX = 816;
+    private static final int cabinetY = 52;
+    private static final int appleTableX = 826;
+    private static final int appleTableY = 228;
 
     public ObjInterior(panel gp) {
         
