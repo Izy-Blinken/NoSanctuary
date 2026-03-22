@@ -63,7 +63,7 @@ public class ObjTorch extends GameObject {
             
             BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/Torch.png"));
 
-            double scale = 2.5;
+            double scale = 1;
             
             frameRight = scaleImg(sheet.getSubimage(24, 10, 17, 45), scale);
             frameLeft = scaleImg(sheet.getSubimage(148, 72, 18, 47), scale);
