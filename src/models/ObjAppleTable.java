@@ -33,7 +33,7 @@ public class ObjAppleTable extends GameObject {
         try {
 
             BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/EX_INT PNG/interior.png"));
-            tableSprite = scaleImg(sheet.getSubimage(132, 58, 26, 32), 2.5);
+            tableSprite = scaleImg(sheet.getSubimage(132, 58, 26, 32), 3);
             image = tableSprite;
 
         } catch (Exception e) {
