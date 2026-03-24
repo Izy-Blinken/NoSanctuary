@@ -8,6 +8,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.io.IOException;
 import java.io.InputStream;
+import models.GameObject;
 
 public class panel extends JPanel implements Runnable, LandingPage.LandingPageListener {
 
@@ -555,7 +556,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         }
 
         player.update();
-        monster.update();
+        //monster.update();
         objectM.update();
 
         if (tileM.currentMap == 1) {
@@ -684,6 +685,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
             tileM.draw(g2);
             objectM.draw(g2);
+            
 
             if (tileM.currentMap == 1 || monster.forceEnter) {
                 monster.draw(g2);
@@ -731,6 +733,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     }
 
+    
+    
     // HP bar
     private void drawHPBar(Graphics2D g2) {
 

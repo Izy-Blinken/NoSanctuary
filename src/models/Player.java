@@ -101,17 +101,7 @@ public class Player extends Entity {
             
             if (gp.tileM.currentMap == 1) {
                 
-                if (!collisionOn){
-                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.objects);
-                }
                 
-                if (!collisionOn) {
-                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.objAppleTree);
-                }
-                
-                if (!collisionOn) {
-                    collisionOn = gp.cChecker.checkObject(this, gp.objectM.ObjHouse);
-                }
                 if (!collisionOn) {
                     collisionOn = gp.cChecker.checkObject(this, gp.objectM.objects);
                 }

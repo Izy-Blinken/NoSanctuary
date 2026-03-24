@@ -49,7 +49,6 @@ public class ObjectManager {
         woodItems = new GameObject[50];
         riddleObjects = new GameObject[3];
         extObjects = new GameObject[200];
-        extObjects = new GameObject[200];
         ObjUndergroundShelter = new GameObject[3];
         setObjects();
         spawnCollectibles();

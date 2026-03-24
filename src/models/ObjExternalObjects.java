@@ -131,89 +131,59 @@ public class ObjExternalObjects extends GameObject {
             }
 
             BufferedImage scaledRaw = scaled(raw, scale);
+            
+            if (objectImage == null) {
+                objectImage = scaledRaw;
+            }
 
             // Apply tint based on type
             switch (type) {
-
-                case "deadTree1":
-                case "deadTree2":
-                case "brokenTree":
-                    objectImage = tint(scaledRaw, new Color(25, 20, 10), 0.35f); // dark rot brown
-                    break;
-
-                case "thornBig":
-                case "thornMedium":
-                case "thornSmall":
-                    objectImage = tint(scaledRaw, new Color(20, 15, 10), 0.3f); // very dark, dead
-                    break;
-
+                
+                case "plantSmall":
+                case "plantMedium":
+                case "plantBig":
+                case "greenPlantSmall":
+                case "greenPlantMedium":
+                case "greenPlantBig":
                 case "ruinPebbles":
-                case "ruinWall":
-                case "ruinPillar":
-                case "ruinArch":
-                case "ruinFourPillar":
-                    objectImage = tint(scaledRaw, new Color(20, 25, 30), 0.3f); // grey stone
-                    break;
-
-                case "rockXS":
-                case "rockSmall":
-                case "rockMedium":
-                case "rockBig":
-                    objectImage = tint(scaledRaw, new Color(25, 22, 18), 0.25f); // dark stone
-                    break;
-
-                case "plantSmall":
-                case "plantMedium":
-                case "plantBig":
-                    objectImage = tint(scaledRaw, new Color(30, 25, 10), 0.3f); // yellow-brown
-                    break;
-
-                case "greenPlantSmall":
-                case "greenPlantMedium":
-                case "greenPlantBig":
-                    objectImage = tint(scaledRaw, new Color(20, 30, 15), 0.2f); // dark green
-                    break;
-
-                case "pileSkull":
-                case "leftGrave1":
-                case "leftGrave2":
-                case "rightGrave":
-                    objectImage = tint(scaledRaw, new Color(15, 12, 20), 0.35f); // purple-grey
-                    break;
-
-                default:
-                    objectImage = scaledRaw;
-                    break;
-            }
-
-            // Collision
-            switch (type) {
-
-                case "plantSmall":
-                case "plantMedium":
-                case "plantBig":
-                case "greenPlantSmall":
-                case "greenPlantMedium":
-                case "greenPlantBig":
                     collision = false;
                     break;
 
                 default:
                     collision = true;
-                    solidArea = new java.awt.Rectangle(
-                        objectImage.getWidth() / 4,  
-                        objectImage.getHeight() / 2,
-                        objectImage.getWidth() / 2,  
-                        objectImage.getHeight() / 4  
-                    );
+                    solidArea = getVisibleBounds(objectImage);
                     break;
             }
 
-            generateNightImage();
+                    generateNightImage();
 
-        } catch (IOException e) {
-            e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+    
+    private java.awt.Rectangle getVisibleBounds(BufferedImage img) {
+        
+        int minX = img.getWidth(), minY = img.getHeight();
+        int maxX = 0, maxY = 0;
+
+        for (int y = 0; y < img.getHeight(); y++) {
+            
+            for (int x = 0; x < img.getWidth(); x++) {
+                
+                int alpha = (img.getRGB(x, y) >> 24) & 0xff;
+                
+                if (alpha > 10) { // ignore near-transparent pixels
+                    
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
         }
+
+        return new java.awt.Rectangle(minX, minY, maxX - minX, maxY - minY);
     }
 
     public void draw(Graphics2D g2, int screenX, int screenY) {

@@ -55,8 +55,7 @@ public class CollisionChecker {
                     break;
             }
 
-            if (entityRightX > objLeftX && entityLeftX < objRightX
-                    && entityBottomY > objTopY && entityTopY < objBottomY) {
+            if (entityRightX > objLeftX && entityLeftX < objRightX && entityBottomY > objTopY && entityTopY < objBottomY) {
                 return true;
             }
         }
