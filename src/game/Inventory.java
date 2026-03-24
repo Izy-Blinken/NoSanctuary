@@ -127,15 +127,15 @@ public class Inventory {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
-        g2.setColor(active ? new Color(20, 35, 15, 230) : new Color(0, 0, 0, 200));
+        g2.setColor(active ? new Color(50, 48, 45, 230) : new Color(30, 28, 25, 200));
         g2.fillRect(x, y, w, h);
 
-        g2.setStroke(new BasicStroke(1.5f));
-        g2.setColor(new Color(35, 55, 30, 180));
+        g2.setColor(active ? new Color(160, 155, 148) : new Color(90, 85, 78));
+        g2.setStroke(new BasicStroke(1f));
         g2.drawRect(x, y, w, h);
 
         g2.setFont(getImFell(12f));
-        g2.setColor(active ? new Color(150, 190, 130) : new Color(80, 110, 65));
+        g2.setColor(active ? new Color(210, 205, 195) : new Color(140, 135, 128));
         int sw = g2.getFontMetrics().stringWidth(label);
         g2.drawString(label, x + (w - sw) / 2, y + h - 6);
 
@@ -261,51 +261,23 @@ public class Inventory {
 
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
-        // Black background
-        g2.setColor(new Color(2, 8, 2, 235));
+        // panel bg
+        g2.setColor(new Color(30, 28, 25, 225));
         g2.fillRect(px, py, pw, ph);
-
-        // Outer glow layers
-        g2.setStroke(new BasicStroke(10f));
-        g2.setColor(new Color(20, 35, 20, 40));
-        g2.drawRect(px - 5, py - 5, pw + 10, ph + 10);
-
-        g2.setStroke(new BasicStroke(7f));
-        g2.setColor(new Color(25, 42, 22, 70));
-        g2.drawRect(px - 3, py - 3, pw + 6, ph + 6);
-
-        g2.setStroke(new BasicStroke(4f));
-        g2.setColor(new Color(30, 50, 25, 100));
-        g2.drawRect(px - 1, py - 1, pw + 2, ph + 2);
-
-        // Main border
-        g2.setStroke(new BasicStroke(1.5f));
-        g2.setColor(new Color(35, 55, 30, 180));
-        g2.drawRect(px, py, pw, ph);
-
-        // Corner decorations
-        int cs = 14;
-        g2.setStroke(new BasicStroke(1.5f));
-        g2.setColor(new Color(35, 55, 30, 200));
-        g2.drawLine(px, py, px + cs, py);
-        g2.drawLine(px, py, px, py + cs);
-        g2.drawLine(px + pw - cs, py + ph, px + pw, py + ph);
-        g2.drawLine(px + pw, py + ph - cs, px + pw, py + ph);
 
         // Title
         g2.setFont(getImFell(20f));
-        g2.setColor(new Color(180, 200, 170));
+        g2.setColor(new Color(210, 205, 195));
         int tw = g2.getFontMetrics().stringWidth(title);
         g2.drawString(title, px + pw / 2 - tw / 2, py + 32);
 
         // Title underline
-        g2.setStroke(new BasicStroke(1f));
-        g2.setColor(new Color(30, 50, 25, 140));
+        g2.setColor(new Color(65, 60, 55));
         g2.drawLine(px + 30, py + 42, px + pw - 30, py + 42);
 
         // X button
         g2.setFont(getImFell(14f));
-        g2.setColor(new Color(100, 130, 80));
+        g2.setColor(new Color(140, 135, 128));
         g2.drawString("x", px + pw - 20, py + 22);
 
         g2.setStroke(new BasicStroke(1f));
