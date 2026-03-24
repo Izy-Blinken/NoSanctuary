@@ -259,7 +259,7 @@ public class ObjectManager {
         extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1552; extObjects[ei].worldY = 1499; ei++;
         extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 936; extObjects[ei].worldY = 1601; ei++;
         extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 996; extObjects[ei].worldY = 1448; ei++; // 2nd lowest
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1816; extObjects[ei].worldY = 1599; ei++;
+        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1500; extObjects[ei].worldY = 1024; ei++;
         extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1200; extObjects[ei].worldY = 1092; ei++;
         extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1113; extObjects[ei].worldY = 1598; ei++;//lowest
 
@@ -316,10 +316,10 @@ public class ObjectManager {
         // Underground shelter
         int[][] shelterSpawnSpots = {
             
-            {1236, 1824}, {520, 860}, {480, 1544},
+            {1236, 1824}, {520, 890}, {480, 1544},
             {2260, 1308}, {1492, 248}, {464, 248},
-            {2096, 588}, {1640, 1254}, {2324, 252},
-            {1196, 376}, {1960, 676}, {1252, 1196}
+            {2086, 608}, {1640, 1254}, {2324, 252},
+            {1196, 376}, {1960, 732}, {1252, 1196}
         };
 
         ArrayList<Integer> usedShelterIndices = new ArrayList<>();
