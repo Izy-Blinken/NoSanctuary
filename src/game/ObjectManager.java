@@ -228,12 +228,20 @@ public class ObjectManager {
         }
 
         // Apple trees 
-        objAppleTree[0] = new ObjAppleTree(gp, 2.7); objAppleTree[0].worldX = 496; objAppleTree[0].worldY = 748;
-        objAppleTree[1] = new ObjAppleTree(gp, 2.7); objAppleTree[1].worldX = 990; objAppleTree[1].worldY = 748;
-        objAppleTree[2] = new ObjAppleTree(gp, 2.7); objAppleTree[2].worldX = 520; objAppleTree[2].worldY = 1048;
-        objAppleTree[3] = new ObjAppleTree(gp, 2.7); objAppleTree[3].worldX = 1147; objAppleTree[3].worldY = 248;
-        objAppleTree[4] = new ObjAppleTree(gp, 2.7); objAppleTree[4].worldX = 1147; objAppleTree[4].worldY = 538;
+        objAppleTree[0] = new ObjAppleTree(gp, 2.7); objAppleTree[0].worldX = 496; objAppleTree[0].worldY = 748; //left side ng stone
+        objAppleTree[1] = new ObjAppleTree(gp, 2.7); objAppleTree[1].worldX = 990; objAppleTree[1].worldY = 748; //right side ng stones
+        objAppleTree[2] = new ObjAppleTree(gp, 2.7); objAppleTree[2].worldX = 520; objAppleTree[2].worldY = 1048; // left side other road
+        objAppleTree[3] = new ObjAppleTree(gp, 2.7); objAppleTree[3].worldX = 1147; objAppleTree[3].worldY = 248; //right side ng likod ng haws
+        objAppleTree[7] = new ObjAppleTree(gp, 2.7); objAppleTree[7].worldX = 1147; objAppleTree[7].worldY = 320; //right side 2nd sa likod ng haws
+        objAppleTree[8] = new ObjAppleTree(gp, 2.7); objAppleTree[8].worldX = 1147; objAppleTree[8].worldY = 374; //right side 3nd sa likod ng haws
+        objAppleTree[4] = new ObjAppleTree(gp, 2.7); objAppleTree[4].worldX = 1147; objAppleTree[4].worldY = 538; //right side ng house
+        objAppleTree[5] = new ObjAppleTree(gp, 2.7); objAppleTree[5].worldX = 1082; objAppleTree[5].worldY = 668; //right side 2nd after ng katabi ng stone
+        objAppleTree[6] = new ObjAppleTree(gp, 2.7); objAppleTree[6].worldX = 505; objAppleTree[6].worldY = 540; //left side 2nd after ng katabi ng stone
+        
 
+
+        
+        
         // House + stone
         houseStone = new ObjStone(gp, 1.3);
         houseStone.worldX = 620;
@@ -248,12 +256,12 @@ public class ObjectManager {
         // aayusin pa position ng ibang objects. pero yung stones and ruins okay na cguro.
 
         // Dead trees 
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 464; extObjects[ei].worldY = 1316; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1500; extObjects[ei].worldY = 1040; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 996; extObjects[ei].worldY = 1448; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 796; extObjects[ei].worldY = 1156; ei++;
+        extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1552; extObjects[ei].worldY = 1499; ei++;
+        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 936; extObjects[ei].worldY = 1601; ei++;
+        extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 996; extObjects[ei].worldY = 1448; ei++; // 2nd lowest
+        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1816; extObjects[ei].worldY = 1599; ei++;
         extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1200; extObjects[ei].worldY = 1092; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1113; extObjects[ei].worldY = 1598; ei++;
+        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1113; extObjects[ei].worldY = 1598; ei++;//lowest
 
         // Broken tree
         extObjects[ei] = new ObjExternalObjects(gp, "brokenTree", 2.5); extObjects[ei].worldX = 740; extObjects[ei].worldY = 1364; ei++;

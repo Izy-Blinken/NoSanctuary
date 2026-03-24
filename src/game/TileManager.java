@@ -19,9 +19,13 @@ public class TileManager {
     public TileManager(panel gp) {
         
         this.gp = gp;
+        
+        
         tile = new Tiles[50];
         nightTile = new Tiles[50];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
+        
+        
         getTileImage();
         loadMap();
     }
@@ -208,10 +212,12 @@ public class TileManager {
         loadMap();
     }
 
+
     public void draw(Graphics2D g2) {
         
         boolean isNight = gp.dC.currentState == dayCounter.dayNightState.Night;
         Tiles[] currentTile = isNight ? nightTile : tile;
+        
         
         for (int row = 0; row < gp.maxWorldRow; row++) {
             

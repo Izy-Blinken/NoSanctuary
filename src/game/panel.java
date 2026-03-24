@@ -548,7 +548,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         player.update();
 
         npc.update();
-        monster.update();
+        //monster.update();
         objectM.update();
 
         if (tileM.currentMap == 1) {
