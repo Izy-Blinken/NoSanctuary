@@ -2,8 +2,7 @@ package game;
 
 import database.DatabaseConn;
 import java.awt.BasicStroke;
-import models.Monster;
-import models.Player;
+import models.*;
 import java.awt.*;
 import javax.swing.*;
 import java.io.IOException;
@@ -30,6 +29,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     public Player player = new Player(this, keyH);
     public ObjectManager objectM = new ObjectManager(this);
     public Monster monster = new Monster(this);
+    public NPC npc = new NPC(this);
     public dayCounter dC = new dayCounter(this);
     public Inventory inventory = new Inventory(this);
     public playerDataHolder holder;
@@ -45,6 +45,9 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     // Typewriter state
     private String dialogueFullText = "";
+    private String dialogueFullTextMonster;
+    private String dialogueFullTextNPC;
+
     private int dialogueCharIndex = 0;
     private int dialogueTickCounter = 0;
     private static final int TYPEWRITER_DELAY = 3;
@@ -98,14 +101,18 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     public boolean gameWorldFadeIn = false;
     public float gameWorldAlpha = 1f;
-    
+
     public int interiorGraceTimer = 0;
 
     public String username;
     public int playerID;
     public String returnUsername;
 
-    //narration 
+    public boolean isNPCKnocking = false;
+    public boolean npcIsAlly = false;
+    public boolean showNPCDialogue = false; // FIX: was incorrectly initialized to true
+
+    //narration
     private static final String[] NARRATION_PAGES = {
         "You weren't supposed to survive the crash. The forest made sure of that — or so it thought. But here you are, still breathing, still bleeding, fingers clawing at the mud while something in the treeline watches you rise. It has been watching since before you even arrived.",
         "Three days. That is all you have before the darkness consumes what little remains of this place — and of you. Not because of the cold. Not because of hunger. Something is counting down alongside you, and it is far more patient than you will ever be.",
@@ -115,7 +122,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         "But you are still breathing. That means something — though you are not yet sure what. Maybe you are different. Maybe the thing outside is simply not done with you yet. Maybe it wants you to reach the portal first. Maybe it feeds on hope before it feeds on anything else.",
         "Find the portal before the third night ends. Gather what you can. Keep the torches burning. Keep the doors sealed. And if you hear knocking — do not mistake it for rescue. Nothing out there is coming to save you. It is only checking whether you are still afraid.",
         "They touch, they break, they steal. No one here is free. Here they come, they come for three. Until you stop the melody..."
-
     };
     private int narPageIndex = 0;
     private int narCharIndex = 0;
@@ -127,7 +133,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     private boolean knockPlayed = false;
 
     public long getGameStartTime() {
-
         return gameStartTime;
     }
 
@@ -194,7 +199,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 if (riddleUI.isOpen) {
                     riddleUI.handleClick(mx, my);
-
                     return;
                 }
 
@@ -211,11 +215,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                         String fullPage = NARRATION_PAGES[narPageIndex];
 
                         if (narCharIndex < fullPage.length()) {
-
-                            // First click reveals remaining text
                             narCharIndex = fullPage.length();
                             narrationText = fullPage;
-
                         } else {
                             advanceNarration();
                         }
@@ -250,20 +251,17 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     private void handleHUDClick(int mx, int my) {
 
-        // Bag button
         if (inventory.isBagBtnClicked(mx, my)) {
 
             inventory.showPanel = !inventory.showPanel;
 
             if (inventory.showPanel) {
-
                 inventory.showScroll = false;
                 showMenuPanel = false;
             }
             return;
         }
 
-        // Scroll button
         if (inventory.isScrollBtnClicked(mx, my)) {
 
             inventory.showScroll = !inventory.showScroll;
@@ -274,20 +272,17 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             return;
         }
 
-        // Menu button
         if (isMenuBtnClicked(mx, my)) {
 
             showMenuPanel = !showMenuPanel;
 
             if (showMenuPanel) {
-
                 inventory.showPanel = false;
                 inventory.showScroll = false;
             }
             return;
         }
 
-        // Inventory panel interactions
         if (inventory.showPanel) {
 
             if (inventory.isInventoryXClicked(mx, my)) {
@@ -298,21 +293,17 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             if (inventory.isEatClicked(mx, my)) {
 
                 if (inventory.eatApple()) {
-
                     player.hp = Math.min(player.maxHP, player.hp + 20);
                 }
                 return;
             }
         }
 
-        // Scroll panel close
         if (inventory.showScroll && inventory.isScrollXClicked(mx, my)) {
-
             inventory.showScroll = false;
             return;
         }
 
-        // Menu panel interactions
         if (showMenuPanel) {
 
             if (isMenuPanelXClicked(mx, my)) {
@@ -412,55 +403,38 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         keyH.update();
 
-        if (narrationFadeOut) {
-
-            narrationAlpha -= 0.007f;
-
-            if (narrationAlpha <= 0f) {
-
-                narrationAlpha = 0f;
-                narrationFadeOut = false;
-                showNarration = false;
-                gameWorldFadeIn = true;
-                gameWorldAlpha = 1f;
-            }
-
-            return;
-
-        }
-
-        if (gameWorldFadeIn) {
-
-            gameWorldAlpha -= 0.005f;
-
-            if (gameWorldAlpha <= 0f) {
-
-                gameWorldAlpha = 0f;
-                gameWorldFadeIn = false;
-            }
-        }
-
         if (narrationComplete) {
 
-            narrationAlpha += 0.004f;
+            narrationAlpha += 0.02f;
 
             if (narrationAlpha >= 1f) {
 
                 narrationAlpha = 1f;
                 narrationComplete = false;
-
                 narPageIndex = 0;
                 narCharIndex = 0;
-
                 narTickCounter = 0;
                 narrationText = "";
             }
             return;
         }
 
+        if (narrationFadeOut) {
+
+            narrationAlpha -= 0.02f;
+
+            if (narrationAlpha <= 0f) {
+
+                narrationAlpha = 0f;
+                narrationFadeOut = false;
+                showNarration = false;
+            }
+
+            return;
+        }
+
         if (showNarration) {
 
-            // Typewriter
             String fullPage = NARRATION_PAGES[narPageIndex];
 
             if (narCharIndex < fullPage.length()) {
@@ -474,7 +448,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                     narrationText = fullPage.substring(0, narCharIndex);
 
                     if (!typewriting.isRunning()) {
-
                         typewriting.loop();
                     }
                 }
@@ -483,7 +456,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 typewriting.stop();
             }
 
-            // Space / Enter: skip or advance
             if (keyH.skipPressed) {
 
                 keyH.skipPressed = false;
@@ -495,7 +467,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                     narrationText = fullPage;
 
                 } else {
-                    // Advance to next page or close
                     advanceNarration();
                 }
             }
@@ -507,7 +478,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
             if (gameState == GameState.WIN) {
                 winScreen.update();
-
             } else if (gameState == GameState.LOSE) {
                 loseScreen.update();
             }
@@ -518,7 +488,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
         if (showMonsterDialogue) {
 
-            if (dialogueCharIndex < dialogueFullText.length()) {
+            if (dialogueCharIndex < dialogueFullTextMonster.length()) {
 
                 dialogueTickCounter++;
 
@@ -526,7 +496,31 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                     dialogueTickCounter = 0;
                     dialogueCharIndex++;
-                    dialogueText = dialogueFullText.substring(0, dialogueCharIndex);
+                    dialogueText = dialogueFullTextMonster.substring(0, dialogueCharIndex);
+
+                    if (!typewriting.isRunning()) {
+                        typewriting.loop();
+                    }
+                }
+
+            } else {
+                typewriting.stop();
+            }
+
+            return;
+        }
+
+        if (showNPCDialogue) {
+
+            if (dialogueCharIndex < dialogueFullTextNPC.length()) {
+
+                dialogueTickCounter++;
+
+                if (dialogueTickCounter >= TYPEWRITER_DELAY) {
+
+                    dialogueTickCounter = 0;
+                    dialogueCharIndex++;
+                    dialogueText = dialogueFullTextNPC.substring(0, dialogueCharIndex);
 
                     if (!typewriting.isRunning()) {
                         typewriting.loop();
@@ -545,16 +539,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             musicBox.loop();
         }
 
-        //Riddle UI
+        // Riddle UI
         if (riddleUI.isOpen) {
             riddleUI.update();
         }
-        
-        if(interiorGraceTimer > 0){
-            interiorGraceTimer--;
-        }
 
         player.update();
+        npc.update();
         monster.update();
         objectM.update();
 
@@ -573,11 +564,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             interactionChecker.checkInteriorInteraction();
         }
 
-        // Monster knock dialogue
-        if (monster.state == Monster.State.KNOCKING && !showMonsterDialogue && !monsterDialogueResponded && monster.actionTimer > 0) {
+        if (monster.state == Monster.State.KNOCKING && !showMonsterDialogue && !monsterDialogueResponded
+                && monster.actionTimer > 0 && !npcIsAlly) {
 
             if (knockDelayTimer == 0 && !knockPlayed) {
-
+                isNPCKnocking = Math.random() < 0.5;
                 musicBox.stop();
                 knockDelayTimer = 4 * 60;
             }
@@ -592,36 +583,59 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 doorKnock.play();
                 knockPlayed = true;
                 knockDelayTimer = (3 * 60);
-            } else if (knockDelayTimer == 0 && knockPlayed && !showMonsterDialogue && !monsterDialogueResponded) {
 
-                showMonsterDialogue = true;
-                dialogueFullText = "Hello?! Is anyone in there?! Please, I need help!      \nSomething is out here with me!     \nPlease just open the door! I am just a person, I promise!";
-                dialogueText = "";
-                dialogueCharIndex = 0;
-                dialogueTickCounter = 0;
+            } else if (knockDelayTimer == 0 && knockPlayed && !showMonsterDialogue && !showNPCDialogue && !monsterDialogueResponded) {
 
-                onYesAction = () -> {
+                if (isNPCKnocking) {
 
-                    showMonsterDialogue = false;
-                    monsterDialogueResponded = true;
-                    hardKnock.play();
-                    musicBox.stop();
-                    tileM.switchMap(2);
-                    monster.forceEnter = true;
-                    monster.spawnInsideHouse();
-                };
+                    dialogueFullTextNPC = "Hello? Is anyone there?      \nI have supplies — food, wood. I just need shelter.\nI promise I am not one of them.";
+                    dialogueText = "";
+                    dialogueCharIndex = 0;
+                    dialogueTickCounter = 0;
+                    showNPCDialogue = true;
 
-                onNoAction = () -> {
+                    onYesAction = () -> {
+                        showNPCDialogue = false;
+                        monsterDialogueResponded = true;
+                        npcIsAlly = true;
+                        npc.enterHouse();
+                    };
 
-                    showMonsterDialogue = false;
-                    monsterDialogueResponded = true;
-                    knockPlayed = false;
-                    hardKnock.play();
-                    heartbeat.loop();
-                    musicBox.stop();
-                    player.heartbeatTimer = 3 * 70;
-                    musicBoxDelayTimer = hardKnock.getDurationTicks() + (4 * 60);
-                };
+                    onNoAction = () -> {
+                        showNPCDialogue = false;
+                        monsterDialogueResponded = true;
+                        knockPlayed = false;
+                    };
+
+                } else {
+
+                    dialogueFullTextMonster = "Hello?! Is anyone in there?! Pleasea needy help!      \nSomething is with here me!     \nPlease open just the door! I am person, I promeise!";
+                    dialogueText = "";
+                    dialogueCharIndex = 0;
+                    dialogueTickCounter = 0;
+                    showMonsterDialogue = true;
+
+                    onYesAction = () -> {
+                        showMonsterDialogue = false;
+                        monsterDialogueResponded = true;
+                        hardKnock.play();
+                        musicBox.stop();
+                        tileM.switchMap(2);
+                        monster.forceEnter = true;
+                        monster.spawnInsideHouse();
+                    };
+
+                    onNoAction = () -> {
+                        showMonsterDialogue = false;
+                        monsterDialogueResponded = true;
+                        knockPlayed = false;
+                        hardKnock.play();
+                        heartbeat.loop();
+                        musicBox.stop();
+                        player.heartbeatTimer = 3 * 70;
+                        musicBoxDelayTimer = hardKnock.getDurationTicks() + (4 * 60);
+                    };
+                }
             }
         }
 
@@ -637,7 +651,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             musicBox.stop();
 
             if (monster.forceEnter) {
-
                 monster.forceEnter = false;
                 monster.worldX = -1000;
                 monster.worldY = -1000;
@@ -665,7 +678,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             if (musicBoxDelayTimer == 0) {
 
                 if (isNight && !musicBox.isRunning()) {
-
                     musicBox.loop();
                 }
             }
@@ -688,7 +700,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             if (tileM.currentMap == 1 || monster.forceEnter) {
                 monster.draw(g2);
             }
-
+            npc.draw(g2);
             player.draw(g2);
             dC.draw(g2);
             dC.drawOverlay(g2);
@@ -705,11 +717,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         if (isGameOver) {
 
             if (gameState == GameState.WIN) {
-
                 winScreen.draw(g2);
-
             } else if (gameState == GameState.LOSE) {
-
                 loseScreen.draw(g2);
             }
         }
@@ -728,7 +737,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         }
 
         g2.dispose();
-
     }
 
     // HP bar
@@ -741,7 +749,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int x = Inventory.BTN_X;
         int y = 10;
 
-        // Background panel
         g2.setColor(new Color(30, 28, 25, 200));
         g2.fillRect(x, y - 4, barWidth + 14, barHeight + 8);
         g2.setColor(new Color(90, 85, 78));
@@ -749,7 +756,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         g2.drawLine(x, y - 4, x + barWidth + 14, y - 4);
         g2.drawLine(x, y + barHeight + 4, x + barWidth + 14, y + barHeight + 4);
 
-        // Bar track
         g2.setColor(new Color(20, 18, 15));
         g2.fillRect(x + 22, y, barWidth - 22, barHeight);
 
@@ -757,15 +763,10 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int currentWidth = (int) ((barWidth - 22) * hpPercent);
 
         if (player.hp > 60) {
-
             g2.setColor(new Color(45, 110, 55));
-
         } else if (player.hp > 30) {
-
             g2.setColor(new Color(140, 90, 20));
-
         } else {
-
             g2.setColor(new Color(120, 25, 25));
         }
 
@@ -775,12 +776,10 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         g2.setStroke(new BasicStroke(1f));
         g2.drawRect(x + 22, y, barWidth - 22, barHeight);
 
-        // + icon
         g2.setFont(getImFell(16f));
         g2.setColor(new Color(140, 135, 128));
         g2.drawString("+", x + 4, y + 16);
 
-        // Percentage text
         g2.setFont(getImFell(13f));
         g2.setColor(new Color(210, 205, 195));
 
@@ -859,7 +858,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     private boolean isMenuBtnClicked(int mx, int my) {
-
         return mx >= MENU_BTN_X && mx <= MENU_BTN_X + MENU_BTN_W && my >= MENU_BTN_Y && my <= MENU_BTN_Y + MENU_BTN_H;
     }
 
@@ -891,16 +889,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
     private void handleDialogueClick(int mx, int my) {
 
-        if (!showMonsterDialogue) {
+        if (!showMonsterDialogue && !showNPCDialogue) {
             return;
         }
 
-        // Show full text kapag nagclick while still typing
-        if (dialogueCharIndex < dialogueFullText.length()) {
+        String activeFullText = showMonsterDialogue ? dialogueFullTextMonster : dialogueFullTextNPC;
 
-            dialogueCharIndex = dialogueFullText.length();
-            dialogueText = dialogueFullText;
-
+        if (dialogueCharIndex < activeFullText.length()) {
+            dialogueCharIndex = activeFullText.length();
+            dialogueText = activeFullText;
             return;
         }
 
@@ -920,14 +917,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int noH = 32;
 
         if (mx >= yesX && mx <= yesX + yesW && my >= yesY && my <= yesY + yesH) {
-
             if (onYesAction != null) {
                 onYesAction.run();
             }
         }
 
         if (mx >= noX && mx <= noX + noW && my >= noY && my <= noY + noH) {
-
             if (onNoAction != null) {
                 onNoAction.run();
             }
@@ -946,7 +941,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             g2.setColor(Color.BLACK);
             g2.fillRect(0, 0, screenWidth, screenheight);
             g2.setComposite(orig2);
-
             return;
         }
 
@@ -959,11 +953,9 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int px = screenWidth / 2 - NARRATION_W / 2;
         int py = screenheight / 2 - NARRATION_H / 2;
 
-        // Black background
         g2.setColor(new Color(0, 0, 0, 240));
         g2.fillRect(px, py, NARRATION_W, NARRATION_H);
 
-        // Outer glow layers
         g2.setStroke(new BasicStroke(10f));
         g2.setColor(new Color(20, 35, 20, 40));
         g2.drawRect(px - 5, py - 5, NARRATION_W + 10, NARRATION_H + 10);
@@ -976,65 +968,51 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         g2.setColor(new Color(30, 50, 25, 100));
         g2.drawRect(px - 1, py - 1, NARRATION_W + 2, NARRATION_H + 2);
 
-        // Main border
         g2.setStroke(new BasicStroke(1.5f));
         g2.setColor(new Color(35, 55, 30, 180));
         g2.drawRect(px, py, NARRATION_W, NARRATION_H);
 
-        // Corner
         int cs = 14;
         g2.setStroke(new BasicStroke(1.5f));
         g2.setColor(new Color(35, 55, 30, 200));
-
-        // Top-left
         g2.drawLine(px, py, px + cs, py);
         g2.drawLine(px, py, px, py + cs);
-
-        // Bottom-right
         g2.drawLine(px + NARRATION_W - cs, py + NARRATION_H, px + NARRATION_W, py + NARRATION_H);
         g2.drawLine(px + NARRATION_W, py + NARRATION_H - cs, px + NARRATION_W, py + NARRATION_H);
 
-        // line under title
         g2.setStroke(new BasicStroke(1f));
         g2.setColor(new Color(30, 50, 25, 140));
         g2.drawLine(px + 20, py + 40, px + NARRATION_W - 20, py + 40);
 
-        //title 
         g2.setFont(getImFell(15f));
         g2.setColor(new Color(210, 205, 195));
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2.drawString("No Sanctuary", px + 20, py + 28);
 
-        // narration text
         g2.setFont(getImFell(15f));
         g2.setColor(new Color(168, 162, 150));
 
         int textStartY = py + 84;
         drawWrappedText(g2, narrationText, px + 28, textStartY, NARRATION_W - 56, 26);
 
-        // Bottom accent line
         g2.setStroke(new BasicStroke(1f));
         g2.setColor(new Color(30, 50, 25, 140));
         g2.drawLine(px + 20, py + NARRATION_H - 48, px + NARRATION_W - 20, py + NARRATION_H - 48);
 
-        // Footer
         int footerY = py + NARRATION_H - 22;
 
-        // Page indicator
         g2.setFont(getImFell(12f));
         String pageLabel = (narPageIndex + 1) + " / " + NARRATION_PAGES.length;
 
         g2.setColor(new Color(110, 105, 98));
         g2.drawString(pageLabel, px + 24, footerY);
 
-        // Skip hint
         String hint = "Space · Enter · Click to advance";
         int hintW = g2.getFontMetrics().stringWidth(hint);
 
         g2.setColor(new Color(90, 86, 80));
         g2.drawString(hint, px + NARRATION_W / 2 - hintW / 2, footerY);
 
-        // Blinking cursor
         String fullPage = NARRATION_PAGES[narPageIndex];
 
         if (narCharIndex < fullPage.length()) {
@@ -1054,15 +1032,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 for (String word : words) {
 
-                    String test = currentLine.isEmpty()
-                            ? word
-                            : currentLine + " " + word;
+                    String test = currentLine.isEmpty() ? word : currentLine + " " + word;
 
                     if (fm.stringWidth(test) > maxWidth) {
-
                         lineCount++;
                         currentLine = word;
-
                     } else {
                         currentLine = test;
                     }
@@ -1076,7 +1050,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             }
         }
 
-        // Continue button
         int btnW = 100;
         int btnX = px + NARRATION_W - btnW - 16;
         int btnY = py + NARRATION_H - 48;
@@ -1091,7 +1064,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         g2.drawString(btnLabel, btnX + btnW / 2 - lw / 2, btnY + 28);
 
         g2.setStroke(new BasicStroke(1f));
-
         g2.setComposite(orig);
     }
 
@@ -1138,15 +1110,10 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int currentWidth = (int) (barWidth * hpPercent);
 
         if (player.hp > 60) {
-
             g2.setColor(Color.GREEN);
-
         } else if (player.hp > 30) {
-
             g2.setColor(Color.ORANGE);
-
         } else {
-
             g2.setColor(Color.RED);
         }
 
@@ -1159,7 +1126,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         g2.drawString(player.hp + " % ", x + 70, y + 15);
     }
 
-    // Panel - single line
     private void drawPromptBox(Graphics2D g2, String text, int cx, int y, float fontSize) {
 
         g2.setFont(getImFell(fontSize));
@@ -1182,7 +1148,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         g2.setStroke(new BasicStroke(1f));
     }
 
-    // Panel with key box
     private void drawKeyPromptBox(Graphics2D g2, String key, String label, int cx, int y, float fontSize) {
 
         g2.setFont(getImFell(fontSize));
@@ -1197,16 +1162,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         int boxH = keyBoxSize + padY * 2;
         int boxX = cx - boxW / 2;
 
-        // Background
         g2.setColor(new Color(0, 0, 0, 220));
         g2.fillRect(boxX, y, boxW, boxH);
 
-        // Border
         g2.setStroke(new BasicStroke(1.5f));
         g2.setColor(new Color(35, 55, 30, 180));
         g2.drawRect(boxX, y, boxW, boxH);
 
-        // Key box
         int keyX = boxX + padX;
         int keyY = y + padY;
 
@@ -1220,7 +1182,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         g2.setFont(getImFell(fontSize));
         g2.drawString(key, keyX + (keyBoxSize - keyW) / 2, keyY + keyBoxSize - 4);
 
-        // Label
         g2.setColor(new Color(120, 160, 100));
         g2.drawString(label, keyX + keyBoxSize + gap, keyY + keyBoxSize - 4);
 
@@ -1228,14 +1189,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     private void drawHUD(Graphics2D g2) {
-        
-        // Countdown display
+
         if (dC.countdownActive) {
-            
+
             int seconds = (int) Math.ceil(dC.countdownTimer);
             String countdownText = "0 : " + (seconds < 10 ? "0" + seconds : seconds);
-            
-             // Last 15 Seconds label
+
             g2.setFont(getImFell(18f));
             String label = "Last 15 Seconds";
             int lw = g2.getFontMetrics().stringWidth(label);
@@ -1245,14 +1204,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             g2.setFont(getImFell(42f));
             int tw = g2.getFontMetrics().stringWidth(countdownText);
 
-            // Glow layers
             g2.setColor(new Color(139, 0, 0, 40));
             g2.drawString(countdownText, screenWidth / 2 - tw / 2 + 2, 80);
 
             g2.setColor(new Color(139, 0, 0, 80));
             g2.drawString(countdownText, screenWidth / 2 - tw / 2 + 1, 79);
 
-            // Main text
             g2.setColor(new Color(180, 0, 0));
             g2.drawString(countdownText, screenWidth / 2 - tw / 2, 78);
         }
@@ -1266,10 +1223,8 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
 
                 if (house.isDoorOpen) {
-
                     drawKeyPromptBox(g2, "E", "Enter", cx - 80, screenheight - 70, 15f);
                     drawKeyPromptBox(g2, "F", "Close Door", cx + 60, screenheight - 70, 15f);
-
                 } else {
                     drawKeyPromptBox(g2, "E", "Open Door", cx, screenheight - 70, 15f);
                 }
@@ -1296,28 +1251,22 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             return;
         }
 
-        // Exit door
         if (interactionChecker.showExitPrompt) {
 
             models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
 
             if (house.isDoorOpen) {
-
                 drawKeyPromptBox(g2, "E", "Exit", cx - 80, screenheight - 70, 15f);
                 drawKeyPromptBox(g2, "F", "Close Door", cx + 60, screenheight - 70, 15f);
-
             } else {
                 drawKeyPromptBox(g2, "F", "Open Door", cx, screenheight - 70, 15f);
             }
         }
 
-        // Window
         if (interactionChecker.showWindowPrompt) {
-
             drawKeyPromptBox(g2, "E", "Open / Close Window", cx, screenheight - 70, 15f);
         }
 
-        // Torch
         if (interactionChecker.showTorchPrompt) {
 
             models.ObjTorch torch = objectM.interior.torch;
@@ -1326,7 +1275,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                     : "Torch is OUT";
             Color statusColor = torch.isLit ? new Color(180, 140, 60) : new Color(120, 80, 80);
 
-            // Torch status box
             g2.setFont(getImFell(13f));
             int statusW = g2.getFontMetrics().stringWidth(statusText);
             int sPadX = 14;
@@ -1348,41 +1296,33 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         }
 
         if (interactionChecker.hasTorchFeedback()) {
-
             drawPromptBox(g2, interactionChecker.torchFeedback, cx, screenheight - 140, 13f);
         }
 
-        // Cabinet
         if (interactionChecker.showCabinetPrompt && !objectM.interior.cabinet.isOpen) {
-
             drawKeyPromptBox(g2, "E", "Open Cabinet", cx, screenheight - 70, 15f);
         }
 
         if (interactionChecker.hasCabinetFeedback()) {
-
             drawPromptBox(g2, interactionChecker.cabinetFeedback, cx, screenheight - 140, 13f);
         }
 
-        // Apple table
         if (interactionChecker.showAppleTablePrompt && !objectM.interior.appleTable.isOpen) {
-
             drawKeyPromptBox(g2, "E", "Open Table (Apple)", cx, screenheight - 70, 15f);
         }
 
         if (interactionChecker.hasAppleTableFeedback()) {
-
             drawPromptBox(g2, interactionChecker.appleTableFeedback, cx, screenheight - 140, 13f);
         }
 
-        // Darkness overlay
         boolean isNight = dC.currentState == dayCounter.dayNightState.Night;
 
         if (isNight && !objectM.interior.torch.isLit) {
-
             g2.setColor(new Color(0, 0, 8, 130));
             g2.fillRect(0, 0, screenWidth, screenheight);
         }
 
+        // Monster dialogue box
         if (showMonsterDialogue) {
 
             int w = 460;
@@ -1390,11 +1330,9 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             int x = screenWidth / 2 - w / 2;
             int y = screenheight / 2 - h / 2;
 
-            // Black background
             g2.setColor(new Color(0, 0, 0, 240));
             g2.fillRect(x, y, w, h);
 
-            // Outer glow layers
             g2.setStroke(new BasicStroke(10f));
             g2.setColor(new Color(20, 35, 20, 40));
             g2.drawRect(x - 5, y - 5, w + 10, h + 10);
@@ -1407,12 +1345,10 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             g2.setColor(new Color(30, 50, 25, 100));
             g2.drawRect(x - 1, y - 1, w + 2, h + 2);
 
-            // Main border
             g2.setStroke(new BasicStroke(1.5f));
             g2.setColor(new Color(35, 55, 30, 180));
             g2.drawRect(x, y, w, h);
 
-            // Corner
             int cs = 14;
             g2.setStroke(new BasicStroke(1.5f));
             g2.setColor(new Color(35, 55, 30, 200));
@@ -1421,17 +1357,14 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             g2.drawLine(x + w - cs, y + h, x + w, y + h);
             g2.drawLine(x + w, y + h - cs, x + w, y + h);
 
-            // Label
             g2.setFont(getImFell(12f));
             g2.setColor(new Color(100, 130, 80));
             g2.drawString("Outside :", x + 16, y + 22);
 
-            // Divider
             g2.setStroke(new BasicStroke(1f));
             g2.setColor(new Color(30, 50, 25, 140));
             g2.drawLine(x + 10, y + 30, x + w - 10, y + 30);
 
-            // Dialogue text (typewriter)
             g2.setFont(getImFell(15f));
             g2.setColor(new Color(195, 182, 155));
             FontMetrics dlgFm = g2.getFontMetrics();
@@ -1441,37 +1374,107 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             int textStartY = y + 60;
 
             String[] lines = dialogueText.split("\n", -1);
-
             for (int i = 0; i < lines.length; i++) {
-
                 g2.drawString(lines[i], textStartX, textStartY + (i * lineHeight));
             }
 
-            if (dialogueCharIndex < dialogueFullText.length()) {
-
+            if (dialogueCharIndex < dialogueFullTextMonster.length()) {
                 long blink = (System.currentTimeMillis() / 400) % 2;
-
                 if (blink == 0) {
-
                     String lastLine = lines[lines.length - 1];
                     int cursorX = textStartX + dlgFm.stringWidth(lastLine);
                     int cursorY = textStartY + ((lines.length - 1) * lineHeight);
-
                     g2.setColor(new Color(150, 130, 100));
                     g2.fillRect(cursorX + 2, cursorY - 14, 2, 16);
                 }
             }
 
-            // YES / NO btn
-            boolean typingDone = dialogueCharIndex >= dialogueFullText.length();
+            boolean typingDone = dialogueCharIndex >= dialogueFullTextMonster.length();
             int btnAlpha = typingDone ? 220 : 80;
 
-            // YES button
             g2.setFont(getImFell(14f));
             g2.setColor(new Color(140, 170, 110, btnAlpha));
             g2.drawString("Yes", x + 103, y + 166);
 
-            // NO button
+            g2.setColor(new Color(180, 100, 90, btnAlpha));
+            g2.drawString("No", x + 336, y + 166);
+
+            g2.setStroke(new BasicStroke(1f));
+        }
+
+        if (showNPCDialogue) {
+
+            int w = 460;
+            int h = 180;
+            int x = screenWidth / 2 - w / 2;
+            int y = screenheight / 2 - h / 2;
+
+            g2.setColor(new Color(0, 0, 0, 240));
+            g2.fillRect(x, y, w, h);
+
+            g2.setStroke(new BasicStroke(10f));
+            g2.setColor(new Color(20, 35, 20, 40));
+            g2.drawRect(x - 5, y - 5, w + 10, h + 10);
+
+            g2.setStroke(new BasicStroke(7f));
+            g2.setColor(new Color(25, 42, 22, 70));
+            g2.drawRect(x - 3, y - 3, w + 6, h + 6);
+
+            g2.setStroke(new BasicStroke(4f));
+            g2.setColor(new Color(30, 50, 25, 100));
+            g2.drawRect(x - 1, y - 1, w + 2, h + 2);
+
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.setColor(new Color(35, 55, 30, 180));
+            g2.drawRect(x, y, w, h);
+
+            int cs = 14;
+            g2.setStroke(new BasicStroke(1.5f));
+            g2.setColor(new Color(35, 55, 30, 200));
+            g2.drawLine(x, y, x + cs, y);
+            g2.drawLine(x, y, x, y + cs);
+            g2.drawLine(x + w - cs, y + h, x + w, y + h);
+            g2.drawLine(x + w, y + h - cs, x + w, y + h);
+
+            g2.setFont(getImFell(12f));
+            g2.setColor(new Color(100, 130, 80));
+            g2.drawString("Outside (stranger) :", x + 16, y + 22);
+
+            g2.setStroke(new BasicStroke(1f));
+            g2.setColor(new Color(30, 50, 25, 140));
+            g2.drawLine(x + 10, y + 30, x + w - 10, y + 30);
+
+            g2.setFont(getImFell(15f));
+            g2.setColor(new Color(195, 182, 155));
+            FontMetrics dlgFm = g2.getFontMetrics();
+
+            int lineHeight = 22;
+            int textStartX = x + 16;
+            int textStartY = y + 60;
+
+            String[] lines = dialogueText.split("\n", -1);
+            for (int i = 0; i < lines.length; i++) {
+                g2.drawString(lines[i], textStartX, textStartY + (i * lineHeight));
+            }
+
+            if (dialogueCharIndex < dialogueFullTextNPC.length()) {
+                long blink = (System.currentTimeMillis() / 400) % 2;
+                if (blink == 0) {
+                    String lastLine = lines[lines.length - 1];
+                    int cursorX = textStartX + dlgFm.stringWidth(lastLine);
+                    int cursorY = textStartY + ((lines.length - 1) * lineHeight);
+                    g2.setColor(new Color(150, 130, 100));
+                    g2.fillRect(cursorX + 2, cursorY - 14, 2, 16);
+                }
+            }
+
+            boolean typingDone = dialogueCharIndex >= dialogueFullTextNPC.length();
+            int btnAlpha = typingDone ? 220 : 80;
+
+            g2.setFont(getImFell(14f));
+            g2.setColor(new Color(140, 170, 110, btnAlpha));
+            g2.drawString("Yes", x + 103, y + 166);
+
             g2.setColor(new Color(180, 100, 90, btnAlpha));
             g2.drawString("No", x + 336, y + 166);
 
@@ -1485,7 +1488,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         if (narPageIndex >= NARRATION_PAGES.length) {
             narPageIndex = NARRATION_PAGES.length - 1;
             narrationFadeOut = true;
-
         } else {
             narCharIndex = 0;
             narTickCounter = 0;
@@ -1494,7 +1496,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     public void switchToInterior() {
-
         tileM.switchMap(2);
         player.worldX = 160;
         player.worldY = 144;
@@ -1502,7 +1503,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     }
 
     public void switchToExterior() {
-
         tileM.switchMap(1);
         player.worldX = 872;
         player.worldY = 700;
@@ -1528,6 +1528,5 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         narrationComplete = true;
         narrationFadeOut = false;
         dC.startTime = System.nanoTime();
-
     }
 }
