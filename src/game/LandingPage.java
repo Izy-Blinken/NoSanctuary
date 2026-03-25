@@ -10,9 +10,6 @@ import java.beans.Statement;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.imageio.ImageIO;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 
 public class LandingPage extends JPanel implements ActionListener {
@@ -237,7 +234,7 @@ public class LandingPage extends JPanel implements ActionListener {
                     
                 } else if (fadingIn) {
                     
-                    alpha += (isFirstLoad ? 0.011f : 0.05f);
+                    alpha += (isFirstLoad ? 0.004f : 0.05f);
                     
                     if (alpha >= 1f) {
                         

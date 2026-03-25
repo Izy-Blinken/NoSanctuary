@@ -147,7 +147,7 @@ public class Monster extends Entity {
         int houseY = (gp.objectM.ObjHouse[0] != null) ? gp.objectM.ObjHouse[0].worldY + 200 : 1050;
         double distToHouse = Math.sqrt(Math.pow(houseX - worldX, 2) + Math.pow(houseY - worldY, 2));
         
-        if (!playerOutside && !playerSafe && !forceEnter && gp.interiorGraceTimer <= 0) {
+        if ((!playerOutside && !playerSafe || !playerOutside && gp.hasOpenEntry() && distToHouse < KNOCK_RANGE) && !forceEnter && gp.interiorGraceTimer <= 0) {
             forceEnter = true;
             spawnInsideHouse();
         }
@@ -270,8 +270,7 @@ public class Monster extends Entity {
         int screenX = worldX - gp.player.worldX + gp.player.screenX;
         int screenY = worldY - gp.player.worldY + gp.player.screenY;
 
-        if (screenX < -96 || screenX > gp.screenWidth + 96
-         || screenY < -96 || screenY > gp.screenheight + 96){
+        if (screenX < -96 || screenX > gp.screenWidth + 96 || screenY < -96 || screenY > gp.screenheight + 96){
             
             return;
         }

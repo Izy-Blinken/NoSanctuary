@@ -1522,6 +1522,17 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
         return !house.isDoorOpen && !house.isWindow1Open && !house.isWindow2Open && !house.isWindow3Open;
     }
+    
+    public boolean hasOpenEntry() {
+        
+        if (objectM.ObjHouse[0] == null){
+            return false;
+        }
+        
+        models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
+        
+        return house.isDoorOpen || house.isWindow1Open || house.isWindow2Open || house.isWindow3Open;
+    }
 
     @Override
     public void startGame() {
