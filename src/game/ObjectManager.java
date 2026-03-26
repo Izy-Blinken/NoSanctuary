@@ -465,6 +465,32 @@ public class ObjectManager {
             if (woodItems[i] != null) woodItems[i].collected = false;
         }
     }
+    
+    public void respawnByDay(int day) {
+
+        // Restore all first
+        respawnResources();
+
+        // Then hide a portion based on day
+        float hideChance;
+        if (day == 2)      hideChance = 0.40f; // 40% hidden on Day 2
+        else if (day >= 3) hideChance = 0.70f; // 70% hidden on Day 3
+        else               return;             // Day 1 = full resources
+
+        java.util.Random rand = new java.util.Random();
+
+        for (int i = 0; i < appleItems.length; i++) {
+            if (appleItems[i] != null && rand.nextFloat() < hideChance) {
+                appleItems[i].collected = true;
+            }
+        }
+
+        for (int i = 0; i < woodItems.length; i++) {
+            if (woodItems[i] != null && rand.nextFloat() < hideChance) {
+                woodItems[i].collected = true;
+            }
+        }
+    }
 
     public void draw(Graphics2D g2) {
 
