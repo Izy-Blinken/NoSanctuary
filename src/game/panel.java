@@ -29,8 +29,13 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     public CollisionChecker cChecker = new CollisionChecker(this);
     public Player player = new Player(this, keyH);
     public ObjectManager objectM = new ObjectManager(this);
+
     public Monster monster = new Monster(this);
+    public DifficultyManager diffM = new DifficultyManager(this);
+    public Monster monster2 = new Monster(this);
+    public Monster monster3 = new Monster(this);
     public NPC npc = new NPC(this);
+
     public dayCounter dC = new dayCounter(this);
     public Inventory inventory = new Inventory(this);
     public playerDataHolder holder;
@@ -104,6 +109,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
     public float gameWorldAlpha = 1f;
 
     public int interiorGraceTimer = 0;
+
+    // secondary monsters never knock — primary only
+    {
+        monster2.isPrimary = false;
+        monster3.isPrimary = false;
+    }
 
     public String username;
     public int playerID;
@@ -536,7 +547,17 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         }
 
         if (isNight && !wasNight) {
+            int monsterCount = diffM.getMonsterCount();
+            monster.applyDifficulty();
             monster.spawnNearEdge();
+            if (monsterCount >= 2) {
+                monster2.applyDifficulty();
+                monster2.spawnFromRight();
+            }
+            if (monsterCount >= 3) {
+                monster3.applyDifficulty();
+                monster3.spawnFromTop();
+            }
             musicBox.loop();
         }
 
@@ -545,10 +566,15 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             riddleUI.update();
         }
 
+        if (interiorGraceTimer > 0) interiorGraceTimer--;
+        
+
         player.update();
 
         npc.update();
         monster.update();
+        monster2.update();
+        monster3.update();
         objectM.update();
 
         if (tileM.currentMap == 1) {
@@ -590,7 +616,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 if (isNPCKnocking) {
 
-                    dialogueFullTextNPC = "Hello? Is anyone there?      \nI have supplies — food, wood. I just need shelter.\nI promise I am not one of them.";
+                    dialogueFullTextNPC = diffM.getNPCKnockDialogue();
                     dialogueText = "";
                     dialogueCharIndex = 0;
                     dialogueTickCounter = 0;
@@ -611,7 +637,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
                 } else {
 
-                    dialogueFullTextMonster = "Hello?! Is anyone in there?! Pleasea needy help!      \nSomething is with here me!     \nPlease open just the door! I am person, I promeise!";
+                    dialogueFullTextMonster = diffM.getMonsterKnockDialogue();
                     dialogueText = "";
                     dialogueCharIndex = 0;
                     dialogueTickCounter = 0;
@@ -658,6 +684,12 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
                 monster.worldY = -1000;
                 monster.state = Monster.State.IDLE;
             }
+            monster2.worldX = -1000;
+            monster2.worldY = -1000;
+            monster2.state = Monster.State.IDLE;
+            monster3.worldX = -1000;
+            monster3.worldY = -1000;
+            monster3.state = Monster.State.IDLE;
         }
 
         dC.update();
@@ -698,10 +730,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
 
             tileM.draw(g2);
             objectM.draw(g2);
-            
 
             if (tileM.currentMap == 1 || monster.forceEnter) {
                 monster.draw(g2);
+                monster2.draw(g2);
+                monster3.draw(g2);
             }
             npc.draw(g2);
             player.draw(g2);
@@ -742,8 +775,6 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         g2.dispose();
     }
 
-    
-    
     // HP bar
     private void drawHPBar(Graphics2D g2) {
 
@@ -1522,16 +1553,11 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
         models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
         return !house.isDoorOpen && !house.isWindow1Open && !house.isWindow2Open && !house.isWindow3Open;
     }
-    
+
     public boolean hasOpenEntry() {
-        
-        if (objectM.ObjHouse[0] == null){
-            return false;
-        }
-        
         models.ObjHouse house = (models.ObjHouse) objectM.ObjHouse[0];
-        
-        return house.isDoorOpen || house.isWindow1Open || house.isWindow2Open || house.isWindow3Open;
+        return house.isDoorOpen || house.isWindow1Open
+                || house.isWindow2Open || house.isWindow3Open;
     }
 
     @Override
