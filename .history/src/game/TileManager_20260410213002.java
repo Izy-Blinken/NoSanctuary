@@ -15,12 +15,14 @@ public class TileManager {
     Tiles[] tile;
     Tiles[] nightTile;
     public int mapTileNum[][];
+    
+    private BufferedImage level2MapImage;
+    private BufferedImage level3MapImage;
+    public int currentLevel = 3;
 
     public TileManager(panel gp) {
         
         this.gp = gp;
-        
-        
         tile = new Tiles[50];
         nightTile = new Tiles[50];
         mapTileNum = new int[gp.maxWorldCol][gp.maxWorldRow];
@@ -28,6 +30,15 @@ public class TileManager {
         
         getTileImage();
         loadMap();
+        try {
+            level2MapImage = ImageIO.read(getClass().getResourceAsStream(
+                "/assets/map2/map_2/map2Ground.png"));
+            level3MapImage = ImageIO.read(getClass().getResourceAsStream(
+                "/assets/map3/map_3/map3Ground.png"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
     }
 
     public BufferedImage getRotatedImage(BufferedImage original, int degrees) {
@@ -152,7 +163,6 @@ public class TileManager {
     }
 
     public int currentMap = 1;
-    public int currentLevel = 3;
 
     public void loadMap() {
         
@@ -165,18 +175,10 @@ public class TileManager {
         }
         
         try {
-           String mapFile;
-            if (currentMap == 1 && currentLevel == 3) {
-                mapFile = "/assets/no_sanctuary_map/map1_level1.txt";
-            } else if (currentMap == 1 && currentLevel == 2) {
-                mapFile = "/assets/no_sanctuary_map/map2_level2.txt";
-            } else if (currentMap == 1 && currentLevel == 1) {
-                mapFile = "/assets/no_sanctuary_map/map3_level3.txt";
-            } else if (currentMap == 2) {
-                mapFile = "/assets/no_sanctuary_map/lvl_1_int.txt";
-            } else {
-                mapFile = "/assets/no_sanctuary_map/map1_level1.txt";
-            }
+            String mapFile = currentMap == 1
+                    ? "/assets/no_sanctuary_map/map1_level1.txt"
+                    : "/assets/no_sanctuary_map/lvl_1_int.txt";
+            
             InputStream is = getClass().getResourceAsStream(mapFile);
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             
@@ -220,16 +222,26 @@ public class TileManager {
         currentMap = mapNum;
         loadMap();
     }
-
+    
     public void switchLevel(int level) {
         currentLevel = level;
     }
+
 
     public void draw(Graphics2D g2) {
         
         boolean isNight = gp.dC.currentState == dayCounter.dayNightState.Night;
         Tiles[] currentTile = isNight ? nightTile : tile;
         
+        
+        BufferedImage mapBg = (currentLevel == 2) ? level2MapImage : level3MapImage;
+        if (mapBg != null) {
+            int drawX = -gp.player.worldX + gp.player.screenX;
+            int drawY = -gp.player.worldY + gp.player.screenY;
+            g2.drawImage(mapBg, drawX, drawY, 
+                gp.maxWorldCol * gp.tileSize, 
+                gp.maxWorldRow * gp.tileSize, null);
+        }
         
         for (int row = 0; row < gp.maxWorldRow; row++) {
             

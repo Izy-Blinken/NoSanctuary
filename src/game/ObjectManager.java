@@ -19,6 +19,9 @@ import models.ObjWoodItem;
 
 public class ObjectManager {
 
+    public static final int[] SPAWN_X = {0, 872, 872, 872};
+    public static final int[] SPAWN_Y = {0, 700, 700, 700};
+    
     panel gp;
     public GameObject[] objects;
     public GameObject[] objAppleTree;
@@ -37,7 +40,6 @@ public class ObjectManager {
     public boolean portalVisible = false;
 
     public ObjectManager(panel gp) {
-
         this.gp = gp;
         objects = new GameObject[5900];
         objAppleTree = new GameObject[100];
@@ -59,21 +61,20 @@ public class ObjectManager {
     }
 
     public void update() {
-
         if (gp.tileM.currentMap == 2) {
             interior.update();
         }
-
         if (gp.tileM.currentMap == 1 && portalVisible) {
             portal.update();
         }
     }
 
     public void setObjects() {
-
+        portalVisible = false;
         java.util.Random rand = new java.util.Random();
+        int level = gp.tileM.currentLevel;
 
-        // Top tree rows
+        // BOUNDARY TREES — top rows (all levels)
         int index = 0;
 
         int[][] posX = {
@@ -93,9 +94,7 @@ public class ObjectManager {
         };
 
         for (int row = 0; row < posX.length; row++) {
-
             for (int col = 0; col < posX[row].length; col++) {
-
                 objects[index] = new ObjTree(gp, 1);
                 objects[index].worldX = posX[row][col];
                 objects[index].worldY = posY[row][col];
@@ -103,7 +102,7 @@ public class ObjectManager {
             }
         }
 
-        // Left tree wall
+        // Left tree wall (all levels)
         int indexLeft = 300;
         int startX = -100;
         int startY = 119;
@@ -113,31 +112,29 @@ public class ObjectManager {
         int spacingY = 60;
 
         for (int row = 0; row < rows; row++) {
-
+            
             for (int col = 0; col < cols; col++) {
-
+                
                 int randomOffsetX = rand.nextInt(40) - 15;
                 int randomOffsetY = rand.nextInt(30) - 18;
-
+                
                 objects[indexLeft] = new ObjTree(gp, 1);
                 objects[indexLeft].worldX = startX + (col * spacingX) + randomOffsetX;
                 objects[indexLeft].worldY = startY + (row * spacingY) + randomOffsetY;
+                
                 indexLeft++;
             }
         }
 
-        // Right tree wall
+        // Right tree wall (all levels)
         int indexRight = indexLeft;
         int rightStartX = 2800;
         int rightStartY = 119;
 
         for (int row = 0; row < rows; row++) {
-
             for (int col = 0; col < cols; col++) {
-
                 int randomOffsetX = rand.nextInt(40) - 15;
                 int randomOffsetY = rand.nextInt(30) - 18;
-
                 objects[indexRight] = new ObjTree(gp, 1);
                 objects[indexRight].worldX = rightStartX - (col * spacingX) + randomOffsetX;
                 objects[indexRight].worldY = rightStartY + (row * spacingY) + randomOffsetY;
@@ -145,9 +142,8 @@ public class ObjectManager {
             }
         }
 
-        // Bottom tree rows
+        // Bottom tree rows (all levels)
         int index2 = 150;
-
         int[][] coords = {
             {0,1935},{87,1909},{200,1914},{299,1907},{392,1910},
             {474,1907},{572,1934},{680,1934},{783,1932},{870,1920},
@@ -182,16 +178,14 @@ public class ObjectManager {
         };
 
         for (int i = 0; i < coords.length; i++) {
-
             objects[index2] = new ObjTree(gp, 1);
             objects[index2].worldX = coords[i][0];
             objects[index2].worldY = coords[i][1];
             index2++;
         }
 
-        // Tree tops left
+        // Tree tops left (all levels)
         int index3 = 0;
-
         int[][] coordsTop = {
             {-10,1935},{77,1909},{180,1914},{289,1907},{372,1910},
             {-10,1979},{71,1956},{183,1982},{276,1962},{359,1964},
@@ -199,18 +193,15 @@ public class ObjectManager {
             {-10,2071},{72,2066},{170,2068},{279,2057},{364,2064},
             {-19,2112},{94,2098},{187,2112},{289,2112},{367,2112}
         };
-
         for (int i = 0; i < coordsTop.length; i++) {
-
             ObjTreeTop[index3] = new ObjTreeTop(gp, 1.6);
             ObjTreeTop[index3].worldX = coordsTop[i][0] - 30;
             ObjTreeTop[index3].worldY = coordsTop[i][1] - 10;
             index3++;
         }
 
-        // Tree tops right
+        // Tree tops right (all levels)
         int index4 = 0;
-
         int[][] coordsTopRight = {
             {2415,1928},{2594,1911},{2594,1929},{2689,1918},{2784,1914},
             {2399,1955},{2600,1966},{2612,1967},{2698,1968},{2781,1968},
@@ -218,102 +209,147 @@ public class ObjectManager {
             {2405,2051},{2492,2075},{2611,2053},{2696,2053},{2779,2051},
             {2502,2112},{2512,2112},{2607,2105},{2700,2112},{2781,2109}
         };
-
         for (int i = 0; i < coordsTopRight.length; i++) {
-
             ObjTreeTopBR[index4] = new ObjTreeTopBR(gp, 1.6);
             ObjTreeTopBR[index4].worldX = coordsTopRight[i][0] - 30;
             ObjTreeTopBR[index4].worldY = coordsTopRight[i][1] - 10;
             index4++;
         }
 
-        // Apple trees 
-        objAppleTree[0] = new ObjAppleTree(gp, 2.7); objAppleTree[0].worldX = 496; objAppleTree[0].worldY = 748; //left side ng stone
-        objAppleTree[1] = new ObjAppleTree(gp, 2.7); objAppleTree[1].worldX = 990; objAppleTree[1].worldY = 748; //right side ng stones
-        objAppleTree[2] = new ObjAppleTree(gp, 2.7); objAppleTree[2].worldX = 520; objAppleTree[2].worldY = 1048; // left side other road
-        objAppleTree[3] = new ObjAppleTree(gp, 2.7); objAppleTree[3].worldX = 1147; objAppleTree[3].worldY = 248; //right side ng likod ng haws
-        objAppleTree[7] = new ObjAppleTree(gp, 2.7); objAppleTree[7].worldX = 1147; objAppleTree[7].worldY = 320; //right side 2nd sa likod ng haws
-        objAppleTree[8] = new ObjAppleTree(gp, 2.7); objAppleTree[8].worldX = 1147; objAppleTree[8].worldY = 374; //right side 3nd sa likod ng haws
-        objAppleTree[4] = new ObjAppleTree(gp, 2.7); objAppleTree[4].worldX = 1147; objAppleTree[4].worldY = 538; //right side ng house
-        objAppleTree[5] = new ObjAppleTree(gp, 2.7); objAppleTree[5].worldX = 1082; objAppleTree[5].worldY = 668; //right side 2nd after ng katabi ng stone
-        objAppleTree[6] = new ObjAppleTree(gp, 2.7); objAppleTree[6].worldX = 505; objAppleTree[6].worldY = 540; //left side 2nd after ng katabi ng stone
+        // APPLE TREES — per level
+        if (level == 3) {
+            objAppleTree[0] = new ObjAppleTree(gp, 2.7); objAppleTree[0].worldX = 496;  objAppleTree[0].worldY = 748;
+            objAppleTree[1] = new ObjAppleTree(gp, 2.7); objAppleTree[1].worldX = 990;  objAppleTree[1].worldY = 748;
+            objAppleTree[2] = new ObjAppleTree(gp, 2.7); objAppleTree[2].worldX = 520;  objAppleTree[2].worldY = 1048;
+            objAppleTree[3] = new ObjAppleTree(gp, 2.7); objAppleTree[3].worldX = 1147; objAppleTree[3].worldY = 248;
+            objAppleTree[4] = new ObjAppleTree(gp, 2.7); objAppleTree[4].worldX = 1147; objAppleTree[4].worldY = 538;
+            objAppleTree[5] = new ObjAppleTree(gp, 2.7); objAppleTree[5].worldX = 1082; objAppleTree[5].worldY = 668;
+            objAppleTree[6] = new ObjAppleTree(gp, 2.7); objAppleTree[6].worldX = 505;  objAppleTree[6].worldY = 540;
+            objAppleTree[7] = new ObjAppleTree(gp, 2.7); objAppleTree[7].worldX = 1147; objAppleTree[7].worldY = 320;
+            objAppleTree[8] = new ObjAppleTree(gp, 2.7); objAppleTree[8].worldX = 1147; objAppleTree[8].worldY = 374;
         
+       } else if (level == 2) {
+            objAppleTree[0] = new ObjAppleTree(gp, 2.7); objAppleTree[0].worldX = 350;  objAppleTree[0].worldY = 600;
+            objAppleTree[1] = new ObjAppleTree(gp, 2.7); objAppleTree[1].worldX = 2400; objAppleTree[1].worldY = 350;
+            objAppleTree[2] = new ObjAppleTree(gp, 2.7); objAppleTree[2].worldX = 2350; objAppleTree[2].worldY = 1600;
+            objAppleTree[3] = new ObjAppleTree(gp, 2.7); objAppleTree[3].worldX = 700;  objAppleTree[3].worldY = 1700;
 
-
+       } else {
+            objAppleTree[0] = new ObjAppleTree(gp, 2.7); objAppleTree[0].worldX = 900;  objAppleTree[0].worldY = 2300;
+            objAppleTree[1] = new ObjAppleTree(gp, 2.7); objAppleTree[1].worldX = 2500; objAppleTree[1].worldY = 1600;
+       }
         
-        
-        // House + stone
-        houseStone = new ObjStone(gp, 1.3);
-        houseStone.worldX = 620;
-        houseStone.worldY = 535;
+        // HOUSE + STONE — per level
+        if (level == 3) {
+            houseStone = new ObjStone(gp, 1.3);
+            houseStone.worldX = 620; houseStone.worldY = 535;
+            ObjHouse[0] = new ObjHouse(gp, 2.5);
+            ObjHouse[0].worldX = 644; ObjHouse[0].worldY = 530;
+        } else if (level == 2) {
+            houseStone = new ObjStone(gp, 1.3);
+            houseStone.worldX = 1820; houseStone.worldY = 935;
+            ObjHouse[0] = new ObjHouse(gp, 2.5);
+            ObjHouse[0].worldX = 1844; ObjHouse[0].worldY = 930;
+        } else { // level 1
+            houseStone = new ObjStone(gp, 1.3);
+            houseStone.worldX = 1420; houseStone.worldY = 335;
+            ObjHouse[0] = new ObjHouse(gp, 2.5);
+            ObjHouse[0].worldX = 1444; ObjHouse[0].worldY = 330;
+        }
 
-        ObjHouse[0] = new ObjHouse(gp, 2.5);
-        ObjHouse[0].worldX = 644;
-        ObjHouse[0].worldY = 530;
-
+        // EXT OBJECTS — per level
         int ei = 0;
-        
-        // aayusin pa position ng ibang objects. pero yung stones and ruins okay na cguro.
 
-        // Dead trees 
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1552; extObjects[ei].worldY = 1499; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 936; extObjects[ei].worldY = 1601; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 996; extObjects[ei].worldY = 1448; ei++; // 2nd lowest
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1500; extObjects[ei].worldY = 1024; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1200; extObjects[ei].worldY = 1092; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1113; extObjects[ei].worldY = 1598; ei++;//lowest
+        if (level == 3) {
+            // Dead trees
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1552; extObjects[ei].worldY = 1499; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 936;  extObjects[ei].worldY = 1601; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 996;  extObjects[ei].worldY = 1448; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1500; extObjects[ei].worldY = 1024; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1200; extObjects[ei].worldY = 1092; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1113; extObjects[ei].worldY = 1598; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "brokenTree", 2.5); extObjects[ei].worldX = 740;  extObjects[ei].worldY = 1364; ei++;
+            // Ruins
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinFourPillar", 2.5); extObjects[ei].worldX = 1688; extObjects[ei].worldY = 324;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinFourPillar", 2.5); extObjects[ei].worldX = 1924; extObjects[ei].worldY = 364;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinArch", 2.5); extObjects[ei].worldX = 1836; extObjects[ei].worldY = 550;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinWall",  2.5); extObjects[ei].worldX = 1840; extObjects[ei].worldY = 788;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPillar", 2.5); extObjects[ei].worldX = 1712; extObjects[ei].worldY = 752;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPillar", 2.5); extObjects[ei].worldX = 2100; extObjects[ei].worldY = 672;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 1804; extObjects[ei].worldY = 596;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 1820; extObjects[ei].worldY = 708;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 1872; extObjects[ei].worldY = 616;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 2064; extObjects[ei].worldY = 768;  ei++;
+            // Rocks
+            extObjects[ei] = new ObjExternalObjects(gp, "rockBig",    2.5); extObjects[ei].worldX = 1550; extObjects[ei].worldY = 1300; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockMedium", 2.5); extObjects[ei].worldX = 800;  extObjects[ei].worldY = 1700; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockSmall",  2.5); extObjects[ei].worldX = 1229; extObjects[ei].worldY = 886;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockXS",     2.5); extObjects[ei].worldX = 1200; extObjects[ei].worldY = 800;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockMedium", 2.5); extObjects[ei].worldX = 2204; extObjects[ei].worldY = 1204; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockSmall",  2.5); extObjects[ei].worldX = 1800; extObjects[ei].worldY = 1500; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockXS",     2.5); extObjects[ei].worldX = 700;  extObjects[ei].worldY = 400;  ei++;
+            // Thorns
+            extObjects[ei] = new ObjExternalObjects(gp, "thornBig",    2.5); extObjects[ei].worldX = 788;  extObjects[ei].worldY = 380;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornMedium", 2.5); extObjects[ei].worldX = 1100; extObjects[ei].worldY = 1600; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornSmall",  2.5); extObjects[ei].worldX = 2500; extObjects[ei].worldY = 800;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornBig",    2.5); extObjects[ei].worldX = 400;  extObjects[ei].worldY = 1700; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornSmall",  2.5); extObjects[ei].worldX = 1400; extObjects[ei].worldY = 300;  ei++;
+            // Graves
+            extObjects[ei] = new ObjExternalObjects(gp, "leftGrave1", 2.5); extObjects[ei].worldX = 464; extObjects[ei].worldY = 276;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "leftGrave2", 2.5); extObjects[ei].worldX = 444; extObjects[ei].worldY = 336;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "leftGrave2", 2.5); extObjects[ei].worldX = 565; extObjects[ei].worldY = 260;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rightGrave", 2.5); extObjects[ei].worldX = 460; extObjects[ei].worldY = 1500; ei++;
+            // Plants
+            extObjects[ei] = new ObjExternalObjects(gp, "plantBig",    2.5); extObjects[ei].worldX = 550;  extObjects[ei].worldY = 300;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "plantMedium", 2.5); extObjects[ei].worldX = 1300; extObjects[ei].worldY = 1500; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "plantSmall",  2.5); extObjects[ei].worldX = 2200; extObjects[ei].worldY = 1300; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "plantMedium", 2.5); extObjects[ei].worldX = 800;  extObjects[ei].worldY = 1800; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "greenPlantBig",    2.5); extObjects[ei].worldX = 1500; extObjects[ei].worldY = 1700; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "greenPlantMedium", 2.5); extObjects[ei].worldX = 600;  extObjects[ei].worldY = 1750; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "greenPlantSmall",  2.5); extObjects[ei].worldX = 2100; extObjects[ei].worldY = 1500; ei++;
 
-        // Broken tree
-        extObjects[ei] = new ObjExternalObjects(gp, "brokenTree", 2.5); extObjects[ei].worldX = 740; extObjects[ei].worldY = 1364; ei++;
+        } else if (level == 2) {
+            // Sparser — different layout to feel distinct
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 400;  extObjects[ei].worldY = 700;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 2200; extObjects[ei].worldY = 500;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 1400; extObjects[ei].worldY = 1400; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "brokenTree", 2.5); extObjects[ei].worldX = 900;  extObjects[ei].worldY = 1200; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "brokenTree", 2.5); extObjects[ei].worldX = 2000; extObjects[ei].worldY = 1300; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinArch", 2.5); extObjects[ei].worldX = 600;  extObjects[ei].worldY = 350;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinWall", 2.5); extObjects[ei].worldX = 2300; extObjects[ei].worldY = 900;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPillar", 2.5); extObjects[ei].worldX = 1600; extObjects[ei].worldY = 600;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 1100; extObjects[ei].worldY = 800;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockBig", 2.5); extObjects[ei].worldX = 750;  extObjects[ei].worldY = 1600; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockMedium", 2.5); extObjects[ei].worldX = 2100; extObjects[ei].worldY = 1500; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockSmall", 2.5); extObjects[ei].worldX = 1350; extObjects[ei].worldY = 300;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornBig", 2.5); extObjects[ei].worldX = 300;  extObjects[ei].worldY = 1400; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornMedium", 2.5); extObjects[ei].worldX = 2400; extObjects[ei].worldY = 1200; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornSmall", 2.5); extObjects[ei].worldX = 1700; extObjects[ei].worldY = 1700; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "leftGrave1", 2.5); extObjects[ei].worldX = 1950; extObjects[ei].worldY = 250;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rightGrave", 2.5); extObjects[ei].worldX = 2000; extObjects[ei].worldY = 310;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "plantBig", 2.5); extObjects[ei].worldX = 500;  extObjects[ei].worldY = 1100; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "greenPlantMedium", 2.5); extObjects[ei].worldX = 1200; extObjects[ei].worldY = 1700; ei++;
 
-        
-        // Ruins
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinFourPillar", 2.5); extObjects[ei].worldX = 1688; extObjects[ei].worldY = 324; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinFourPillar", 2.5); extObjects[ei].worldX = 1924; extObjects[ei].worldY = 364; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinArch", 2.5); extObjects[ei].worldX = 1836; extObjects[ei].worldY = 550; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinWall", 2.5); extObjects[ei].worldX = 1840; extObjects[ei].worldY = 788; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinPillar", 2.5); extObjects[ei].worldX = 1712; extObjects[ei].worldY = 752; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinPillar", 2.5); extObjects[ei].worldX = 2100; extObjects[ei].worldY = 672; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 1804; extObjects[ei].worldY = 596; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 1820; extObjects[ei].worldY = 708; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 1872; extObjects[ei].worldY = 616; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 2064; extObjects[ei].worldY = 768; ei++;
+        } else { // level 1 — most hostile, fewest decorations
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 550;  extObjects[ei].worldY = 500;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree2", 2.5); extObjects[ei].worldX = 1900; extObjects[ei].worldY = 700;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "deadTree1", 2.5); extObjects[ei].worldX = 2300; extObjects[ei].worldY = 1300; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "brokenTree", 2.5); extObjects[ei].worldX = 1100; extObjects[ei].worldY = 1500; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinWall", 2.5); extObjects[ei].worldX = 400;  extObjects[ei].worldY = 1400; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPillar", 2.5); extObjects[ei].worldX = 2400; extObjects[ei].worldY = 1600; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "ruinPebbles", 2.5); extObjects[ei].worldX = 1500; extObjects[ei].worldY = 1100; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockBig", 2.5); extObjects[ei].worldX = 1700; extObjects[ei].worldY = 1600; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rockMedium", 2.5); extObjects[ei].worldX = 400;  extObjects[ei].worldY = 1700; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornBig", 2.5); extObjects[ei].worldX = 650;  extObjects[ei].worldY = 300;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornBig", 2.5); extObjects[ei].worldX = 2200; extObjects[ei].worldY = 1600; ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "thornMedium", 2.5); extObjects[ei].worldX = 1300; extObjects[ei].worldY = 700;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "leftGrave1", 2.5); extObjects[ei].worldX = 350;  extObjects[ei].worldY = 600;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "leftGrave2", 2.5); extObjects[ei].worldX = 400;  extObjects[ei].worldY = 660;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rightGrave", 2.5); extObjects[ei].worldX = 450;  extObjects[ei].worldY = 600;  ei++;
+            extObjects[ei] = new ObjExternalObjects(gp, "rightGrave", 2.5); extObjects[ei].worldX = 1600; extObjects[ei].worldY = 400;  ei++;
+        }
 
-        // Rocks 
-        extObjects[ei] = new ObjExternalObjects(gp, "rockBig", 2.5); extObjects[ei].worldX = 1550; extObjects[ei].worldY = 1300; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "rockMedium", 2.5); extObjects[ei].worldX = 800; extObjects[ei].worldY = 1700; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "rockSmall", 2.5); extObjects[ei].worldX = 1229; extObjects[ei].worldY = 886; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "rockXS", 2.5); extObjects[ei].worldX = 1200; extObjects[ei].worldY = 800; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "rockMedium", 2.5); extObjects[ei].worldX = 2204; extObjects[ei].worldY = 1204; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "rockSmall", 2.5); extObjects[ei].worldX = 1800; extObjects[ei].worldY = 1500; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "rockXS", 2.5); extObjects[ei].worldX = 700; extObjects[ei].worldY = 400; ei++;
-
-        // Thorns
-        extObjects[ei] = new ObjExternalObjects(gp, "thornBig", 2.5); extObjects[ei].worldX = 788; extObjects[ei].worldY = 380; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "thornMedium", 2.5); extObjects[ei].worldX = 1100; extObjects[ei].worldY = 1600; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "thornSmall", 2.5); extObjects[ei].worldX = 2500; extObjects[ei].worldY = 800; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "thornBig", 2.5); extObjects[ei].worldX = 400; extObjects[ei].worldY = 1700; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "thornSmall", 2.5); extObjects[ei].worldX = 1400; extObjects[ei].worldY = 300; ei++;
-
-        // Graves
-        extObjects[ei] = new ObjExternalObjects(gp, "leftGrave1", 2.5); extObjects[ei].worldX = 464; extObjects[ei].worldY = 276; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "leftGrave2", 2.5); extObjects[ei].worldX = 444; extObjects[ei].worldY = 336; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "leftGrave2", 2.5); extObjects[ei].worldX = 565; extObjects[ei].worldY = 260; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "rightGrave", 2.5); extObjects[ei].worldX = 460; extObjects[ei].worldY = 1500; ei++;
-        //extObjects[ei] = new ObjExternalObjects(gp, "pileSkull", 2.5); extObjects[ei].worldX = 380; extObjects[ei].worldY = 1600; ei++;
-
-        // Plants 
-        extObjects[ei] = new ObjExternalObjects(gp, "plantBig", 2.5); extObjects[ei].worldX = 550; extObjects[ei].worldY = 300; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "plantMedium", 2.5); extObjects[ei].worldX = 1300; extObjects[ei].worldY = 1500; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "plantSmall", 2.5); extObjects[ei].worldX = 2200; extObjects[ei].worldY = 1300; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "plantMedium", 2.5); extObjects[ei].worldX = 800; extObjects[ei].worldY = 1800; ei++;
-
-        // Green plants
-        extObjects[ei] = new ObjExternalObjects(gp, "greenPlantBig", 2.5); extObjects[ei].worldX = 1500; extObjects[ei].worldY = 1700; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "greenPlantMedium", 2.5); extObjects[ei].worldX = 600; extObjects[ei].worldY = 1750; ei++;
-        extObjects[ei] = new ObjExternalObjects(gp, "greenPlantSmall", 2.5); extObjects[ei].worldX = 2100; extObjects[ei].worldY = 1500; ei++;
-
-        // Underground shelter
+        // UNDERGROUND SHELTERS 
         int[][] shelterSpawnSpots = {
             
             {1236, 1824}, {520, 890}, {480, 1544},
@@ -321,117 +357,97 @@ public class ObjectManager {
             {2086, 608}, {1640, 1254}, {2324, 252},
             {1196, 376}, {1960, 732}, {1252, 1196}
         };
-
+        
         ArrayList<Integer> usedShelterIndices = new ArrayList<>();
-
+        
+        
         for (int i = 0; i < 3; i++) {
             
             int spotIndex;
             int attempts = 0;
-
+            
             do {
                 
                 spotIndex = rand.nextInt(shelterSpawnSpots.length);
                 attempts++;
-
                 if (attempts > 100) break;
-
+                
             } while (usedShelterIndices.contains(spotIndex));
-
+            
             usedShelterIndices.add(spotIndex);
+            
             int[] spot = shelterSpawnSpots[spotIndex];
-
             ObjUndergroundShelter[i] = new models.ObjUndergroundShelter(gp);
             ObjUndergroundShelter[i].worldX = spot[0];
             ObjUndergroundShelter[i].worldY = spot[1];
         }
-        
-        
-        // Riddles
+
+        // RIDDLES 
         int[][] riddleSpawnSpots = {
             
-            {1500, 650}, 
-            {920, 1150},
-            {1476, 1333}, 
-            {1070, 1200},
-            {1070, 1470}, 
-            
-            // Ruins area
-            {1550, 350}, //west
-            {1800, 480}, //south
-            {1650, 720}, //soutwest
-            {1950, 720}, // near pillar
-            
-            // Right side woods
-            {2150, 350}, //east
-            {2340, 500}, //far-east
-            {2250, 850}, //southeast
-            
-            // Lower areas
-            {750, 1250}, //south
-            {1100, 1350}, // Southeast 
-            {550, 1550}, //southwest
-            
-            {620, 300}, 
-            {970, 950}, 
-            {850, 1320} 
+            {1500, 650}, {920, 1150}, {1476, 1333}, {1070, 1200}, {1070, 1470},
+            {1550, 350}, {1800, 480}, {1650, 720}, {1950, 720},
+            {2150, 350}, {2340, 500}, {2250, 850},
+            {750, 1250}, {1100, 1350}, {550, 1550},
+            {620, 300}, {970, 950}, {850, 1320}
         };
-
-        // randomly select 3 spots sa fixed locations
-        ArrayList<Integer> usedIndices = new ArrayList<>();
         
+        ArrayList<Integer> usedIndices = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
+            
             int spotIndex;
             int attempts = 0;
             
             do {
                 spotIndex = rand.nextInt(riddleSpawnSpots.length);
                 attempts++;
-                
-                if (attempts > 100) break;
+                if (attempts > 100) {
+                    break;
+                }
                 
             } while (usedIndices.contains(spotIndex));
             
             usedIndices.add(spotIndex);
+            
             int[] spot = riddleSpawnSpots[spotIndex];
             
             riddleObjects[i] = new ObjRiddle(gp, i);
             riddleObjects[i].worldX = spot[0];
             riddleObjects[i].worldY = spot[1];
-            
         }
 
-        // Portal
-        int px, py;
-        int portalAttempts = 0;
-
-        do {
-
-            px = 1600 + rand.nextInt(1000);
-            py = 200 + rand.nextInt(600);
-            portalAttempts++;
-
-        } while (portalAttempts < 20 && Math.abs(px - 644) < 300 && Math.abs(py - 530) < 250);
-
-        portal = new ObjPortal(px, py);
+        // PORTAL
+        if (level == 3) {
+            portal = new ObjPortal(560, 820);
+        } else if (level == 2) {
+            portal = new ObjPortal(660, 420);
+        } else {
+            portal = new ObjPortal(420, 680);
+        }
     }
 
     public void spawnCollectibles() {
-
+        
         java.util.Random rand = new java.util.Random();
-
         int appleIndex = 0;
         int[] offsets = {-30, 0, 30};
 
         for (int t = 0; t < objAppleTree.length; t++) {
-
-            if (objAppleTree[t] == null) continue;
-            if (appleIndex >= appleItems.length) break;
-
+            
+            if (objAppleTree[t] == null) {
+                continue;
+            }
+            
+            if (appleIndex >= appleItems.length) {
+                break;
+            }
+            
             for (int a = 0; a < 2; a++) {
-
-                if (appleIndex >= appleItems.length) break;
-
+                
+                if (appleIndex >= appleItems.length) {
+                    break;
+                }
+                
                 appleItems[appleIndex] = new ObjAppleItem(gp);
                 appleItems[appleIndex].worldX = objAppleTree[t].worldX + offsets[rand.nextInt(offsets.length)] + rand.nextInt(20) - 10;
                 appleItems[appleIndex].worldY = objAppleTree[t].worldY + 80 + rand.nextInt(20);
@@ -439,14 +455,30 @@ public class ObjectManager {
             }
         }
 
-        int[][] woodPositions = {
-            {400, 400}, {800, 800}, {1200, 600}, {1600, 900}, {2200, 400},
-            {500, 1100}, {1000, 1400}, {1800, 1100}, {2400, 800}, {300, 700},
-            {1400, 400}, {900, 500}, {1700, 1500}, {600, 900}, {2100, 1000}
-        };
+        int[][] woodPositions;
+        if (gp.tileM.currentLevel == 3) {
+            
+            woodPositions = new int[][]{
+                {400,400},{800,800},{1200,600},{1600,900},{2200,400},
+                {500,1100},{1000,1400},{1800,1100},{2400,800},{300,700},
+                {1400,400},{900,500},{1700,1500},{600,900},{2100,1000}
+            };
+            
+        } else if (gp.tileM.currentLevel == 2) {
+            woodPositions = new int[][]{
+                {2300,1600},{150,1700},{2500,300},{200,300},
+                {2100,1000},{100,1000},{1800,1800},{1200,1800}
+            };
+            
+        } else {
+            // level 1 — fewest wood
+            woodPositions = new int[][]{
+                {2400,1700},{200,1600},{2600,400},{100,400}
+            };
+        }
 
         for (int i = 0; i < woodPositions.length && i < woodItems.length; i++) {
-
+            
             woodItems[i] = new ObjWoodItem(gp);
             woodItems[i].worldX = woodPositions[i][0] + rand.nextInt(60) - 30;
             woodItems[i].worldY = woodPositions[i][1] + rand.nextInt(60) - 30;
@@ -454,188 +486,206 @@ public class ObjectManager {
     }
 
     public void respawnResources() {
-
+        
         for (int i = 0; i < appleItems.length; i++) {
-
-            if (appleItems[i] != null) appleItems[i].collected = false;
+            if (appleItems[i] != null) {
+                appleItems[i].collected = false;
+            }
         }
-
         for (int i = 0; i < woodItems.length; i++) {
-
-            if (woodItems[i] != null) woodItems[i].collected = false;
+            if (woodItems[i] != null) {
+                woodItems[i].collected = false;
+            }
         }
     }
-    
+
     public void respawnByDay(int day) {
-
-        // Restore all first
+        
         respawnResources();
-
-        // Then hide a portion based on day
         float hideChance;
-        if (day == 2)      hideChance = 0.40f; // 40% hidden on Day 2
-        else if (day >= 3) hideChance = 0.70f; // 70% hidden on Day 3
-        else               return;             // Day 1 = full resources
-
+        
+        if (day == 2) {
+            hideChance = 0.40f;
+        }
+        else if (day >= 3) {
+            hideChance = 0.70f;
+        }
+        else {
+            return;
+        }
+        
         java.util.Random rand = new java.util.Random();
-
         for (int i = 0; i < appleItems.length; i++) {
             if (appleItems[i] != null && rand.nextFloat() < hideChance) {
                 appleItems[i].collected = true;
             }
         }
-
+        
         for (int i = 0; i < woodItems.length; i++) {
             if (woodItems[i] != null && rand.nextFloat() < hideChance) {
                 woodItems[i].collected = true;
             }
         }
+        
     }
 
     public void draw(Graphics2D g2) {
-
+        
         boolean isNight = gp.dC.currentState == dayCounter.dayNightState.Night;
 
         if (gp.tileM.currentMap == 1) {
 
             for (int i = 0; i < objects.length; i++) {
-
-                if (objects[i] == null) continue;
-
+                
+                if (objects[i] == null) {
+                    continue;
+                }
+                
                 int screenX = objects[i].worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = objects[i].worldY - gp.player.worldY + gp.player.screenY;
-
+                
                 BufferedImage img = (isNight && objects[i].nightImage != null) ? objects[i].nightImage : objects[i].image;
                 g2.drawImage(img, screenX, screenY, null);
             }
 
             for (int i = 0; i < objAppleTree.length; i++) {
-
-                if (objAppleTree[i] == null) continue;
-
+                
+                if (objAppleTree[i] == null) {
+                    continue;
+                }
+                
                 int screenX = objAppleTree[i].worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = objAppleTree[i].worldY - gp.player.worldY + gp.player.screenY;
-
                 BufferedImage img = (isNight && objAppleTree[i].nightImage != null) ? objAppleTree[i].nightImage : objAppleTree[i].image;
                 g2.drawImage(img, screenX, screenY, null);
             }
 
             for (int i = 0; i < extObjects.length; i++) {
-
-                if (extObjects[i] == null) continue;
-
+                
+                if (extObjects[i] == null) {
+                    continue;
+                }
+                
                 int screenX = extObjects[i].worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = extObjects[i].worldY - gp.player.worldY + gp.player.screenY;
-
                 ((ObjExternalObjects) extObjects[i]).draw(g2, screenX, screenY);
             }
 
             if (houseStone != null) {
-
+                
                 int screenX = houseStone.worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = houseStone.worldY - gp.player.worldY + gp.player.screenY;
-
+                
                 BufferedImage img = (isNight && houseStone.nightImage != null) ? houseStone.nightImage : houseStone.image;
                 g2.drawImage(img, screenX, screenY, null);
             }
 
             for (int i = 0; i < ObjHouse.length; i++) {
-
-                if (ObjHouse[i] == null) continue;
-
+                
+                if (ObjHouse[i] == null) {
+                    continue;
+                }
+                
                 int screenX = ObjHouse[i].worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = ObjHouse[i].worldY - gp.player.worldY + gp.player.screenY;
-
                 ((ObjHouse) ObjHouse[i]).draw(g2, screenX, screenY);
             }
 
             for (int i = 0; i < ObjTreeTop.length; i++) {
-
-                if (ObjTreeTop[i] == null) continue;
-
+                
+                if (ObjTreeTop[i] == null) {
+                    continue;
+                }
+                
                 int screenX = ObjTreeTop[i].worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = ObjTreeTop[i].worldY - gp.player.worldY + gp.player.screenY;
-
+                
                 g2.drawImage(ObjTreeTop[i].image, screenX, screenY, null);
             }
 
             for (int i = 0; i < ObjTreeTopBR.length; i++) {
-
-                if (ObjTreeTopBR[i] == null) continue;
-
+                
+                if (ObjTreeTopBR[i] == null) {
+                    continue;
+                }
+                
                 int screenX = ObjTreeTopBR[i].worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = ObjTreeTopBR[i].worldY - gp.player.worldY + gp.player.screenY;
-
                 g2.drawImage(ObjTreeTopBR[i].image, screenX, screenY, null);
             }
 
             for (int i = 0; i < appleItems.length; i++) {
-
-                if (appleItems[i] == null) continue;
-                if (appleItems[i].collected) continue;
-
+                
+                if (appleItems[i] == null || appleItems[i].collected) {
+                    continue;
+                }
+                
                 int screenX = appleItems[i].worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = appleItems[i].worldY - gp.player.worldY + gp.player.screenY;
-
+                
                 BufferedImage img = (isNight && appleItems[i].nightImage != null) ? appleItems[i].nightImage : appleItems[i].image;
                 g2.drawImage(img, screenX, screenY, null);
             }
 
+            
             for (int i = 0; i < woodItems.length; i++) {
-
-                if (woodItems[i] == null) continue;
-                if (woodItems[i].collected) continue;
-
+                
+                if (woodItems[i] == null || woodItems[i].collected) {
+                    continue;
+                }
+                
                 int screenX = woodItems[i].worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = woodItems[i].worldY - gp.player.worldY + gp.player.screenY;
-
+                
                 BufferedImage img = (isNight && woodItems[i].nightImage != null) ? woodItems[i].nightImage : woodItems[i].image;
                 g2.drawImage(img, screenX, screenY, null);
             }
 
             for (int i = 0; i < riddleObjects.length; i++) {
-
-                if (riddleObjects[i] == null) continue;
-
+                
+                if (riddleObjects[i] == null) {
+                    continue;
+                }
+                
                 ObjRiddle rt = (ObjRiddle) riddleObjects[i];
-
+                if (rt.riddleIndex == 2 && !gp.riddleM.isThirdRiddleUnlocked()) {
+                    continue;
+                }
+                
                 int screenX = rt.worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = rt.worldY - gp.player.worldY + gp.player.screenY;
-
                 BufferedImage img = (isNight && rt.nightImage != null) ? rt.nightImage : rt.image;
+                
                 g2.drawImage(img, screenX, screenY, null);
-
+                
                 if (gp.riddleM.getRiddle(rt.riddleIndex) != null && gp.riddleM.getRiddle(rt.riddleIndex).solved) {
-
                     g2.setColor(new java.awt.Color(80, 200, 90, 160));
                     g2.fillOval(screenX + 14, screenY - 6, 12, 12);
                 }
             }
 
             if (portalVisible) {
-
+                
                 int screenX = portal.worldX - gp.player.worldX + gp.player.screenX;
                 int screenY = portal.worldY - gp.player.worldY + gp.player.screenY;
-
+                
                 portal.draw(g2, screenX, screenY);
             }
-            
+
             for (int i = 0; i < ObjUndergroundShelter.length; i++) {
                 
-            if (ObjUndergroundShelter[i] == null){
-                continue;
+                if (ObjUndergroundShelter[i] == null) {
+                    continue;
+                }
+                
+                int screenX = ObjUndergroundShelter[i].worldX - gp.player.worldX + gp.player.screenX;
+                int screenY = ObjUndergroundShelter[i].worldY - gp.player.worldY + gp.player.screenY;
+                
+                ((models.ObjUndergroundShelter) ObjUndergroundShelter[i]).draw(g2, screenX, screenY);
             }
-
-            int screenX = ObjUndergroundShelter[i].worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = ObjUndergroundShelter[i].worldY - gp.player.worldY + gp.player.screenY;
-
-            ((models.ObjUndergroundShelter) ObjUndergroundShelter[i]).draw(g2, screenX, screenY);
-        }
-
         }
 
         if (gp.tileM.currentMap == 2) {
-
             interior.draw(g2, 0, 0, (models.ObjHouse) ObjHouse[0]);
         }
     }

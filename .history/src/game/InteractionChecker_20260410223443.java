@@ -239,17 +239,23 @@ public class InteractionChecker {
             showPortalPrompt = true;
 
             if (interactJustPressed) {
-                gp.keyH.interactPressed = false;
 
-                if (gp.tileM.currentLevel == 3) {
+                gp.keyH.interactPressed = false;
+                int currentLevel = gp.diffM.level;
+
+                if (currentLevel == 3) {
                     gp.switchToLevel2();
-                } else if (gp.tileM.currentLevel == 2) {
+
+                } else if (currentLevel == 2) {
                     gp.switchToLevel1();
+
                 } else {
+                    // Level 1 portal → WIN
                     gp.musicLose.stop();
                     gp.musicWin.stop();
                     gp.heartbeat.stop();
                     gp.playerFootsteps.stop();
+
                     long elapsed = (System.currentTimeMillis() - gp.getGameStartTime()) / 1000;
                     gp.winScreen.completionSeconds = (int) elapsed;
                     gp.winScreen.reset();

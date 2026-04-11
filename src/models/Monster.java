@@ -65,18 +65,12 @@ public class Monster extends Entity {
         loadSprites();
     }
 
-    // ---------------------------------------------------------------
-    // Apply difficulty speed from DifficultyManager at spawn time
-    // ---------------------------------------------------------------
     public void applyDifficulty() {
         if (gp.diffM != null) {
             speed = gp.diffM.getMonsterSpeed();
         }
     }
 
-    // ---------------------------------------------------------------
-    // Spawn helpers
-    // ---------------------------------------------------------------
     public void spawnNearEdge() {
         worldX = 200;
         worldY = gp.player.worldY;
@@ -103,22 +97,23 @@ public class Monster extends Entity {
         animCounter = 0;
     }
 
-    // ---------------------------------------------------------------
     private void loadSprites() {
         try {
-            BufferedImage sheet = ImageIO.read(
-                getClass().getResourceAsStream(
-                    "/assets/Charac/edp character/monster5_universal.png"));
+            BufferedImage sheet = ImageIO.read(getClass().getResourceAsStream("/assets/Charac/edp character/monster5_universal.png"));
 
             int[] walkRows  = {8, 9, 10, 11};
             int[] slashRows = {12, 13, 14, 15};
 
             for (int d = 0; d < DIRS; d++) {
-                for (int f = 0; f < WALK_FRAMES; f++)
+                
+                for (int f = 0; f < WALK_FRAMES; f++) {
                     walkFrames[d][f]  = sheet.getSubimage(f * 64, walkRows[d]  * 64, 64, 64);
-                for (int f = 0; f < SLASH_FRAMES; f++)
+                }
+                for (int f = 0; f < SLASH_FRAMES; f++) {
                     slashFrames[d][f] = sheet.getSubimage(f * 64, slashRows[d] * 64, 64, 64);
+                }
             }
+            
         } catch (IOException | IllegalArgumentException e) {
             System.err.println("Monster sprite load failed: " + e.getMessage());
             for (int d = 0; d < DIRS; d++) {
@@ -132,11 +127,10 @@ public class Monster extends Entity {
         return new BufferedImage(64, 64, BufferedImage.TYPE_INT_ARGB);
     }
 
-    // ---------------------------------------------------------------
     public void update() {
 
         if (damageCooldown > 0) damageCooldown--;
-        if (actionTimer    > 0) actionTimer--;
+        if (actionTimer > 0) actionTimer--;
 
         boolean isNight = (gp.dC.currentState == game.dayCounter.dayNightState.Night);
 
@@ -147,7 +141,7 @@ public class Monster extends Entity {
             return;
         }
 
-        boolean playerSafe    = gp.isPlayerSafe();
+        boolean playerSafe = gp.isPlayerSafe();
         boolean playerOutside = (gp.tileM.currentMap == 1);
 
         double distToPlayer = Double.MAX_VALUE;
@@ -253,7 +247,6 @@ public class Monster extends Entity {
         }
     }
 
-    // ---------------------------------------------------------------
     private void faceToward(int tx, int ty) {
         int dx = tx - worldX, dy = ty - worldY;
         currentDir = (Math.abs(dx) > Math.abs(dy))
@@ -271,7 +264,6 @@ public class Monster extends Entity {
         faceToward(tx, ty);
     }
 
-    // ---------------------------------------------------------------
     public void draw(Graphics2D g2) {
         if (state == State.IDLE) return;
 
