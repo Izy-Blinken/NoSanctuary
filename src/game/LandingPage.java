@@ -20,9 +20,6 @@ public class LandingPage extends JPanel implements ActionListener {
 
     public JTextField usernameInput;
 
-    private JSlider volumeSlider;//sound
-    private FloatControl gainControl;//sound
-
     private String menuState = "MAIN";
 
     public float alpha = 0f;
@@ -37,7 +34,7 @@ public class LandingPage extends JPanel implements ActionListener {
 
     private float fadeSpeed = 0.05f;
 
-    private JButton startBtn, enterBtn, leaderboardBtn, aboutBtn, exitBtn1, exitBtn2, exitBtn3, exitBtn4, settingBtn, volumeBtn, creditsBtn, usernameBtn;
+    private JButton startBtn, enterBtn, leaderboardBtn, aboutBtn, exitBtn1, exitBtn2, exitBtn3, exitBtn4, settingBtn, creditsBtn, usernameBtn;
 
     public LandingPage(panel gp, LandingPageListener listener) {
 
@@ -99,9 +96,6 @@ public class LandingPage extends JPanel implements ActionListener {
 
             BufferedImage leaderboardIcnNml = Icn.getSubimage(259, 346, 149, 18);
             BufferedImage leaderboardIcnHvr = Icn.getSubimage(710, 260, 152, 19);
-
-            BufferedImage volumeIcnNml = Icn.getSubimage(291, 61, 81, 20);
-            BufferedImage volumeIcnHvr = Icn.getSubimage(505, 60, 85, 21);
 
             BufferedImage aboutIcnNml = Icn.getSubimage(300, 126, 73, 20);
             BufferedImage aboutIcnHvr = Icn.getSubimage(515, 165, 73, 20);
@@ -174,12 +168,6 @@ public class LandingPage extends JPanel implements ActionListener {
             leaderboardBtn.setFocusPainted(false);
             leaderboardBtn.setVisible(false);
 
-            volumeBtn = new JButton(new ImageIcon(volumeIcnNml));
-            volumeBtn.setBorderPainted(false);
-            volumeBtn.setContentAreaFilled(false);
-            volumeBtn.setFocusPainted(false);
-            volumeBtn.setVisible(false);
-
             aboutBtn = new JButton(new ImageIcon(aboutIcnNml));
             aboutBtn.setBorderPainted(false);
             aboutBtn.setContentAreaFilled(false);
@@ -198,18 +186,12 @@ public class LandingPage extends JPanel implements ActionListener {
             leaderboardBtn.setBounds(403, 347, 150, 50);
             settingBtn.setBounds(403, 392, 150, 50);
 
-            volumeBtn.setBounds(90, 164, 150, 50);
             aboutBtn.setBounds(95, 230, 150, 50);
             creditsBtn.setBounds(123, 293, 90, 50);
             exitBtn1.setBounds(402, 442, 150, 50);
             exitBtn2.setBounds(142, 360, 50, 50);
             exitBtn3.setBounds(460, 450, 50, 50);
             exitBtn4.setBounds(455, 340, 50, 50);
-
-            volumeSlider = new JSlider(0, 100, 50);
-            volumeSlider.setBounds(90, 200, 200, 40);
-            volumeSlider.setVisible(false);
-            volumeSlider.setOpaque(false);
 
             fadeTimer = new javax.swing.Timer(16, e -> {
 
@@ -296,7 +278,7 @@ public class LandingPage extends JPanel implements ActionListener {
                 gp.username = username;
                 gp.holder.setUsername(username);
 
-                 // debugging lang haha
+                // debugging lang haha
                 System.out.println("Username stored in holder: " + gp.holder.getUsername());
 
                 fadeSpeed = 0.01f;
@@ -331,7 +313,6 @@ public class LandingPage extends JPanel implements ActionListener {
                     leaderboardBtn.setVisible(false);
                     settingBtn.setVisible(false);
                     exitBtn1.setVisible(false);
-                    volumeBtn.setVisible(true);
                     aboutBtn.setVisible(true);
                     creditsBtn.setVisible(true);
                     exitBtn2.setVisible(true);
@@ -347,11 +328,6 @@ public class LandingPage extends JPanel implements ActionListener {
                     System.exit(0);
                 }
 
-            });
-
-            volumeBtn.addActionListener(e -> {
-
-                playSound("/assets/game_pages/mouseClick.wav");
             });
 
             aboutBtn.addActionListener(e -> {
@@ -378,7 +354,6 @@ public class LandingPage extends JPanel implements ActionListener {
                     leaderboardBtn.setVisible(true);
                     settingBtn.setVisible(true);
                     exitBtn1.setVisible(true);
-                    volumeBtn.setVisible(false);
                     aboutBtn.setVisible(false);
                     creditsBtn.setVisible(false);
                     exitBtn2.setVisible(false);
@@ -486,20 +461,6 @@ public class LandingPage extends JPanel implements ActionListener {
                 }
             });
 
-            volumeBtn.addMouseListener(new MouseAdapter() {
-
-                public void mouseEntered(MouseEvent e) {
-
-                    volumeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                    volumeBtn.setIcon(new ImageIcon(volumeIcnHvr));
-                }
-
-                public void mouseExited(MouseEvent e) {
-
-                    volumeBtn.setIcon(new ImageIcon(volumeIcnNml));
-                }
-            });
-
             aboutBtn.addMouseListener(new MouseAdapter() {
 
                 public void mouseEntered(MouseEvent e) {
@@ -580,7 +541,6 @@ public class LandingPage extends JPanel implements ActionListener {
             add(usernameInput);
             add(leaderboardBtn);
             add(settingBtn);
-            add(volumeBtn);
             add(aboutBtn);
             add(creditsBtn);
             add(exitBtn1);
@@ -677,7 +637,6 @@ public class LandingPage extends JPanel implements ActionListener {
         usernameInput.setVisible(false);
         leaderboardBtn.setVisible(false);
         settingBtn.setVisible(false);
-        volumeBtn.setVisible(false);
         aboutBtn.setVisible(false);
         creditsBtn.setVisible(false);
         exitBtn1.setVisible(false);
