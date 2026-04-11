@@ -32,26 +32,28 @@ public class LandingPage extends JPanel implements ActionListener {
     public javax.swing.Timer fadeTimer;
     private Runnable onTransitionMid = null;
     private boolean isFirstLoad = true;
-    
+
     private int leaderboardScroll = 0;
-    
+
     private float fadeSpeed = 0.05f;
 
     private JButton startBtn, enterBtn, leaderboardBtn, aboutBtn, exitBtn1, exitBtn2, exitBtn3, exitBtn4, settingBtn, volumeBtn, creditsBtn, usernameBtn;
 
     public LandingPage(panel gp, LandingPageListener listener) {
-        
+
         this.listener = listener;
         this.gp = gp;
         setLayout(null);
-        
+
         addMouseWheelListener(e -> {
-            
+
             if (menuState.equals("LEADERBOARD")) {
-                
-                leaderboardScroll -= (int)(e.getWheelRotation() * 30);
-                
-                if (leaderboardScroll > 0) leaderboardScroll = 0;
+
+                leaderboardScroll -= (int) (e.getWheelRotation() * 30);
+
+                if (leaderboardScroll > 0) {
+                    leaderboardScroll = 0;
+                }
                 repaint();
             }
         });
@@ -61,29 +63,27 @@ public class LandingPage extends JPanel implements ActionListener {
         setupGame();
         setImages();
     }
-    
-   
 
     public void setImages() {
-        
+
         try {
-            
+
             backgroundImg = ImageIO.read(getClass().getResource("/assets/game_pages/Actual_BG.png"));
             leaderboardBGImg = ImageIO.read(getClass().getResource("/assets/game_pages/leaderboard.png"));
             settingBGImg = ImageIO.read(getClass().getResource("/assets/game_pages/settings_look.png"));
             aboutBGImg = ImageIO.read(getClass().getResource("/assets/game_pages/about_look.png"));
             creditsBGImg = ImageIO.read(getClass().getResource("/assets/game_pages/credits_look.png"));
             usernameInputBGImg = ImageIO.read(getClass().getResource("/assets/game_pages/Actual_BG_username.png"));
-        
+
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void setupGame() {
-        
+
         try {
-            
+
             BufferedImage Icn = ImageIO.read(getClass().getResource("/assets/game_pages/Buttons.png"));
 
             BufferedImage startIcnNml = Icn.getSubimage(55, 61, 126, 17);
@@ -212,51 +212,51 @@ public class LandingPage extends JPanel implements ActionListener {
             volumeSlider.setOpaque(false);
 
             fadeTimer = new javax.swing.Timer(16, e -> {
-                
+
                 if (fadingOut) {
-                    
+
                     alpha -= fadeSpeed;
-                    
+
                     if (alpha <= 0f) {
-                        
+
                         alpha = 0f;
                         fadingOut = false;
                         menuState = nextState;
-                        
+
                         if (onTransitionMid != null) {
-                            
+
                             onTransitionMid.run();
                             onTransitionMid = null;
                         }
-                        
+
                         fadingIn = true;
                     }
-                    
+
                 } else if (fadingIn) {
-                    
+
                     alpha += (isFirstLoad ? 0.004f : 0.05f);
-                    
+
                     if (alpha >= 1f) {
-                        
+
                         alpha = 1f;
                         fadingIn = false;
                         isFirstLoad = false;
-                        
+
                         if (menuState.equals("MAIN")) {
-                            
+
                             startBtn.setVisible(true);
                             leaderboardBtn.setVisible(true);
                             settingBtn.setVisible(true);
                             exitBtn1.setVisible(true);
                         }
-                        
+
                         fadeTimer.stop();
                     }
                 }
-                
+
                 repaint();
             });
-            
+
             alpha = 0f;
             fadingIn = true;
             fadeTimer.start();
@@ -264,7 +264,7 @@ public class LandingPage extends JPanel implements ActionListener {
             startBtn.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
                 transitionTo("USERNAME", () -> {
-                    
+
                     startBtn.setVisible(false);
                     leaderboardBtn.setVisible(false);
                     settingBtn.setVisible(false);
@@ -272,12 +272,12 @@ public class LandingPage extends JPanel implements ActionListener {
                     exitBtn4.setVisible(true);
                     enterBtn.setVisible(true);
                     usernameBtn.setVisible(true);
-                    
+
                 });
             });
 
             usernameBtn.addActionListener(e -> {
-                
+
                 usernameBtn.setVisible(false);
                 playSound("/assets/game_pages/mouseClick.wav");
                 usernameInput.setText("");
@@ -288,19 +288,16 @@ public class LandingPage extends JPanel implements ActionListener {
             enterBtn.addActionListener(e -> {
                 playSound("/assets/game_pages/mouseClick.wav");
                 String username = usernameInput.getText().trim();
-                
+
                 if (username.isEmpty()) {
-                    
                     JOptionPane.showMessageDialog(this, "Please enter a username!");
                     return;
                 }
-
                 gp.username = username;
                 gp.holder.setUsername(username);
-                gp.playerID = gp.dbConn.insert(username, 0);
-                gp.holder.setPlayerID(gp.playerID);
 
-                System.out.println("Inserting: " + gp.playerID + "\n" + "Current Completion time: " + gp.dC.completion_time + "\n");
+                 // debugging lang haha
+                System.out.println("Username stored in holder: " + gp.holder.getUsername());
 
                 fadeSpeed = 0.01f;
                 transitionTo("GAME", () -> {
@@ -312,11 +309,11 @@ public class LandingPage extends JPanel implements ActionListener {
             });
 
             leaderboardBtn.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
                 gp.dbConn.showLeaderboard();
                 transitionTo("LEADERBOARD", () -> {
-                    
+
                     startBtn.setVisible(false);
                     leaderboardBtn.setVisible(false);
                     settingBtn.setVisible(false);
@@ -326,10 +323,10 @@ public class LandingPage extends JPanel implements ActionListener {
             });
 
             settingBtn.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
                 transitionTo("SETTINGS", () -> {
-                    
+
                     startBtn.setVisible(false);
                     leaderboardBtn.setVisible(false);
                     settingBtn.setVisible(false);
@@ -342,24 +339,23 @@ public class LandingPage extends JPanel implements ActionListener {
             });
 
             exitBtn1.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
                 int choice = JOptionPane.showConfirmDialog(this, "Are you sure you want to exit?", "Exit Confirmation", JOptionPane.YES_NO_OPTION);
-                
-                
-                if(choice == JOptionPane.YES_OPTION){
+
+                if (choice == JOptionPane.YES_OPTION) {
                     System.exit(0);
                 }
-                
+
             });
 
             volumeBtn.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
             });
 
             aboutBtn.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
                 menuState = "ABOUT";
                 exitBtn2.setVisible(true);
@@ -367,7 +363,7 @@ public class LandingPage extends JPanel implements ActionListener {
             });
 
             creditsBtn.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
                 menuState = "CREDITS";
                 exitBtn2.setVisible(true);
@@ -375,7 +371,7 @@ public class LandingPage extends JPanel implements ActionListener {
             });
 
             exitBtn2.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
                 transitionTo("MAIN", () -> {
                     startBtn.setVisible(true);
@@ -390,10 +386,10 @@ public class LandingPage extends JPanel implements ActionListener {
             });
 
             exitBtn3.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
                 transitionTo("MAIN", () -> {
-                    
+
                     startBtn.setVisible(true);
                     leaderboardBtn.setVisible(true);
                     settingBtn.setVisible(true);
@@ -403,10 +399,10 @@ public class LandingPage extends JPanel implements ActionListener {
             });
 
             exitBtn4.addActionListener(e -> {
-                
+
                 playSound("/assets/game_pages/mouseClick.wav");
                 transitionTo("MAIN", () -> {
-                    
+
                     startBtn.setVisible(true);
                     leaderboardBtn.setVisible(true);
                     settingBtn.setVisible(true);
@@ -414,98 +410,98 @@ public class LandingPage extends JPanel implements ActionListener {
                     enterBtn.setVisible(false);
                     usernameBtn.setVisible(false);
                     exitBtn4.setVisible(false);
-                    
+
                     if (usernameInput != null) {
-                        
+
                         usernameInput.setVisible(false);
                     }
                 });
             });
 
             startBtn.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
-                    
+
                     startBtn.setIcon(new ImageIcon(startIcnHvr));
                     startBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    
+
                     startBtn.setIcon(new ImageIcon(startIcnNml));
                 }
             });
-            
+
             enterBtn.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
-                    
+
                     enterBtn.setIcon(new ImageIcon(enterIcnNml));
                     enterBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    
+
                     enterBtn.setIcon(new ImageIcon(enterIcnNml));
                 }
             });
             usernameBtn.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
-                    
+
                     usernameBtn.setIcon(new ImageIcon(usernamePlaceHolder));
                     usernameBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    
+
                     usernameBtn.setIcon(new ImageIcon(usernamePlaceHolder));
                 }
             });
             leaderboardBtn.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
-                    
+
                     leaderboardBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     leaderboardBtn.setIcon(new ImageIcon(leaderboardIcnHvr));
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    
+
                     leaderboardBtn.setIcon(new ImageIcon(leaderboardIcnNml));
                 }
             });
-            
+
             settingBtn.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
-                    
+
                     settingBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     settingBtn.setIcon(new ImageIcon(settingIcnHvr));
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    
+
                     settingBtn.setIcon(new ImageIcon(settingIcnNml));
                 }
             });
-            
+
             volumeBtn.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
-                    
+
                     volumeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     volumeBtn.setIcon(new ImageIcon(volumeIcnHvr));
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    
+
                     volumeBtn.setIcon(new ImageIcon(volumeIcnNml));
                 }
             });
-            
+
             aboutBtn.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
                     aboutBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     aboutBtn.setIcon(new ImageIcon(aboutIcnHvr));
@@ -515,9 +511,9 @@ public class LandingPage extends JPanel implements ActionListener {
                     aboutBtn.setIcon(new ImageIcon(aboutIcnNml));
                 }
             });
-            
+
             creditsBtn.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
                     creditsBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     creditsBtn.setIcon(new ImageIcon(credtsIcnHvr));
@@ -527,9 +523,9 @@ public class LandingPage extends JPanel implements ActionListener {
                     creditsBtn.setIcon(new ImageIcon(credtsIcnNml));
                 }
             });
-            
+
             exitBtn1.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
                     exitBtn1.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     exitBtn1.setIcon(new ImageIcon(exitIcnHvr));
@@ -539,9 +535,9 @@ public class LandingPage extends JPanel implements ActionListener {
                     exitBtn1.setIcon(new ImageIcon(exitIcnNml));
                 }
             });
-            
+
             exitBtn2.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
                     exitBtn2.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     exitBtn2.setIcon(new ImageIcon(exitIcnHvr));
@@ -551,9 +547,9 @@ public class LandingPage extends JPanel implements ActionListener {
                     exitBtn2.setIcon(new ImageIcon(exitIcnNml));
                 }
             });
-            
+
             exitBtn3.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
                     exitBtn3.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     exitBtn3.setIcon(new ImageIcon(exitIcnHvr));
@@ -563,18 +559,17 @@ public class LandingPage extends JPanel implements ActionListener {
                     exitBtn3.setIcon(new ImageIcon(exitIcnNml));
                 }
             });
-            
-            
+
             exitBtn4.addMouseListener(new MouseAdapter() {
-                
+
                 public void mouseEntered(MouseEvent e) {
-                    
+
                     exitBtn4.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
                     exitBtn4.setIcon(new ImageIcon(exitIcnHvr));
                 }
 
                 public void mouseExited(MouseEvent e) {
-                    
+
                     exitBtn4.setIcon(new ImageIcon(exitIcnNml));
                 }
             });
@@ -592,63 +587,62 @@ public class LandingPage extends JPanel implements ActionListener {
             add(exitBtn2);
             add(exitBtn3);
             add(exitBtn4);
-            
+
         } catch (IOException e) {
-            
+
             e.printStackTrace();
         }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        
+
         super.paintComponent(g);
         String output = gp.dbConn.showLeaderboard();
         int y = 190 + leaderboardScroll;
-        
+
         switch (menuState) {
-            
+
             case "LEADERBOARD":
                 g.drawImage(leaderboardBGImg, 0, 0, getWidth(), getHeight(), null);
-                
+
                 Shape oldClip = g.getClip();
-                
+
                 g.setClip(0, 170, getWidth(), 290);
                 g.setFont(new Font("Serif", Font.BOLD, 27));
                 g.setColor(new Color(210, 200, 180));
-                
+
                 for (String line : output.split("\n")) {
-                    
+
                     String[] parts = line.split("\\s{2,}");
                     g.drawString(parts[0], 150, y);
-                    
+
                     if (parts.length > 1) {
                         g.drawString(parts[1], 673, y);
                     }
                     y += 50;
                 }
-                
+
                 g.setClip(oldClip);
-                
-                
+
                 break;
-                
+
             case "SETTINGS":
                 g.drawImage(settingBGImg, 0, 0, getWidth(), getHeight(), null);
                 break;
-                
+
             case "ABOUT":
                 g.drawImage(aboutBGImg, 0, 0, getWidth(), getHeight(), null);
                 break;
-                
+
             case "CREDITS":
                 g.drawImage(creditsBGImg, 0, 0, getWidth(), getHeight(), null);
                 break;
-                
+
             case "USERNAME":
                 g.drawImage(usernameInputBGImg, 0, 0, getWidth(), getHeight(), null);
                 break;
-                
+
             default:
                 g.drawImage(backgroundImg, 0, 0, getWidth(), getHeight(), null);
                 break;
@@ -660,26 +654,23 @@ public class LandingPage extends JPanel implements ActionListener {
         g2.fillRect(0, 0, getWidth(), getHeight());
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
     }
-    
-   
 
     private void playSound(String path) {
-        
+
         try {
-            
+
             var audioIn = javax.sound.sampled.AudioSystem.getAudioInputStream(getClass().getResource(path));
             var clip = javax.sound.sampled.AudioSystem.getClip();
             clip.open(audioIn);
             clip.start();
-            
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-   
 
     private void hideAllButtons() {
-        
+
         startBtn.setVisible(false);
         enterBtn.setVisible(false);
         usernameBtn.setVisible(false);
@@ -696,7 +687,7 @@ public class LandingPage extends JPanel implements ActionListener {
     }
 
     private void transitionTo(String state, Runnable onMid) {
-        
+
         hideAllButtons();
         nextState = state;
         onTransitionMid = onMid;
