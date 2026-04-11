@@ -494,7 +494,7 @@ public class panel extends JPanel implements Runnable, LandingPage.LandingPageLi
             interiorGraceTimer--;
         }
         
-        player.update(); 
+        player.update();  
         npc.update(); 
         monster.update();
         monster2.update();
